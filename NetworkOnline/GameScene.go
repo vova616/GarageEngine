@@ -89,9 +89,9 @@ func (s *GameScene) Load() {
 	//clone2.Transform().SetParent(Texts.Transform())
 	//clone2.AddComponent(NewRotator(clone2))
 	
-	//GRAAVVIITTYYY
+	//SPACCCEEEEE
 	Space.Gravity.Y = -300
-	
+	Space.Iterations = 30
 	
 	//Space.Gravity.X = 0 
 
@@ -152,7 +152,7 @@ func (s *GameScene) Load() {
 	spritet.Transform().SetScale(NewVector2(40, 40))
 	//spritet.AddComponent(NewRotator())
 */
-	for i := 0; i < 0; i++ {
+	for i := 0; i < 5; i++ {
 		sprite3 := NewGameObject("Sprite" + fmt.Sprint(i))
 		sprite3.AddComponent(NewSprite(sp))
 		sprite3.Transform().SetParent2(Layer2)
@@ -165,7 +165,7 @@ func (s *GameScene) Load() {
 		phx.Shape.SetElasticity(0.5)
 	}
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 100; i++ {
 		sprite3 := NewGameObject("Sprite" + fmt.Sprint(i))
 		sprite3.AddComponent(NewSprite(cir))
 		sprite3.Transform().SetParent2(Layer2)
@@ -173,10 +173,10 @@ func (s *GameScene) Load() {
 		sprite3.Transform().SetScale(NewVector2(30, 30))
 		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0,0},Float(15)))).(*Physics)
 		phx.Body.SetMoment(Inf)
-		phx.Shape.SetFriction(1)
-		phx.Shape.SetElasticity(0)
+		phx.Shape.SetFriction(0.2)
+		phx.Shape.SetElasticity(0.5)
 	}
-
+ 
 	//Layer2.Transform().Position.Y += 200
 
 	atlas, e := AtlasLoadDirectory("./data/Charecter")

@@ -5,7 +5,7 @@ import (
 	"./NetworkOnline"
 	"flag"
 	"fmt"
-	"math"
+	//"math"
 	"os"
 	"runtime"
 	"runtime/pprof"
@@ -14,21 +14,6 @@ import (
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 func main() {
-	println("asd")
-	os.Chdir("./bin/windows_386/")
-	os.Chdir("./bin/windows_amd64/")
-
-	Radian := math.Pi / 180
-	Degree := 180 / math.Pi
-	_ = Degree
-	_ = Radian
-
-	fmt.Println(math.Pi)
-
-	fmt.Println(math.Cos(25))
-	fmt.Println(math.Sin(25))
-	fmt.Println(math.Atan(math.Sin(25*Radian)/math.Cos(25*Radian)) * Degree)
-
 	flag.Parse()
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)

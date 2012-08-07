@@ -47,7 +47,6 @@ var (
 )
 
 func init() {
-	Space.Iterations = 100
 	terminated = make(chan bool)
 }
 
