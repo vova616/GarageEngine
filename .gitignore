@@ -162,9 +162,9 @@ pip-log.txt
 # Mac crap
 .DS_Store
 
-*.exe
-*.dll
+#src.exe
+#*.dll
 log.txt
-
+*.prof
 
  

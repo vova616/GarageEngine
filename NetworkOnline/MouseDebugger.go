@@ -31,7 +31,6 @@ func (m *MouseDebugger) Update() {
 		
 		
 		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0,0},Float(15)))).(*Physics)
-		phx.Body.SetMoment(1125)
 		phx.Shape.SetFriction(0.5) 
 		phx.Shape.SetElasticity(0.5)
 	}
@@ -42,7 +41,7 @@ func (m *MouseDebugger) Update() {
 		sprite3.Transform().SetWorldPosition(m.GameObject().Transform().WorldPosition())
 		
 		sprite3.Transform().SetScale(NewVector2(30, 30))
-		phx := sprite3.AddComponent(NewPhysics(false,30,30)).(*Physics)
+		phx := sprite3.AddComponent(NewPhysics(false,50,50)).(*Physics)
 		phx.Shape.SetFriction(0.5) 
 		phx.Shape.SetElasticity(0.5)
 	}
