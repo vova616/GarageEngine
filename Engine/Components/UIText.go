@@ -47,7 +47,7 @@ func (ui *UIText) OnComponentBind(binded *GameObject) {
 	h := (ui.height) * (ui.GameObject().Transform().WorldScale().Y)
 	w := (ui.width) * (ui.GameObject().Transform().WorldScale().X)
 	ph := binded.AddComponent(NewPhysics(true,w,h)).(*Physics)
-	_ = ph
+	_ = ph 
 	ph.Body.IgnoreGravity = true
 	ph.Shape.IsSensor = true
 }

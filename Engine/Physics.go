@@ -40,12 +40,15 @@ var (
 
 func NewPhysics(static bool, w, h float32) *Physics {
 	var body *c.Body
+	
+	box := c.NewBox(Vect{0, 0}, Float(w), Float(h))
+	
 	if static {
 		body = c.NewBodyStatic()
 	} else {
-		body = c.NewBody(1,150)
+		body = c.NewBody(1,box.Moment(1))
 	}
-	box := c.NewBox(Vect{0, 0}, Float(w), Float(h))
+	
 	p := &Physics{NewComponent(), body, box.GetAsBox(), box, &c.Arbiter{}, &c.Arbiter{}}
 	body.UserData = p
 
@@ -58,7 +61,7 @@ func NewPhysics2(static bool, shape *c.Shape) *Physics {
 	if static {
 		body = c.NewBodyStatic()
 	} else {
-		body = c.NewBody(1,150)
+		body = c.NewBody(1,shape.ShapeClass.Moment(1))
 	}
 
 	p := &Physics{NewComponent(), body, shape.GetAsBox(), shape, &c.Arbiter{}, &c.Arbiter{}}
