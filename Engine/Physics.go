@@ -38,14 +38,14 @@ var (
 	x = float64(100)
 )
 
-func NewPhysics(static bool) *Physics {
+func NewPhysics(static bool, w, h float32) *Physics {
 	var body *c.Body
 	if static {
 		body = c.NewBodyStatic()
 	} else {
 		body = c.NewBody(1,150)
 	}
-	box := c.NewBox(Vect{0, 0}, 0, 0)
+	box := c.NewBox(Vect{0, 0}, Float(w), Float(h))
 	p := &Physics{NewComponent(), body, box.GetAsBox(), box, &c.Arbiter{}, &c.Arbiter{}}
 	body.UserData = p
 
@@ -73,6 +73,7 @@ func (p *Physics) Start() {
 	pos := p.GameObject().Transform().WorldPosition()
 	p.Body.SetAngle(Float(180-p.GameObject().Transform().WorldRotation().Z)*RadianConst)
 	p.Body.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
+	//p.Body.UpdateShapes()
 	Space.AddBody(p.Body)
 }
 

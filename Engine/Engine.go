@@ -21,7 +21,7 @@ func init() {
 const (
 	RadianConst = math.Pi / 180
 	DegreeConst = 180 / math.Pi
-	
+	Debug = false
 )
 
 
@@ -37,11 +37,11 @@ var (
 	Space        *c.Space = c.NewSpace()
 	deltaTime    float32
 	fixedTime    float32
-	stepTime     = float32(1) / float32(50)
+	stepTime     = float32(1) / float32(60) 
 
 	Title  = "Engine Test"
-	Width  = 640
-	Height = 480
+	Width  = 800
+	Height = 600
 
 	terminated chan bool
 )
@@ -90,13 +90,13 @@ func StartEngine() {
 	}
 
 	glfw.SetSwapInterval(1) //0 to make FPS Maximum
-	glfw.SetWindowTitle(Title)
+	glfw.SetWindowTitle(Title) 
 	glfw.SetWindowSizeCallback(onResize)
 	glfw.SetKeyCallback(OnKey)
 	glfw.SetMouseButtonCallback(ButtonPress)
 
 	if err = initGL(); err != nil {
-		panic(err)
+		panic(err) 
 	}
 }
 
@@ -123,7 +123,9 @@ func Run() {
 
 		Iter(arr, startGameObject)
 
-		for fixedTime > stepTime {
+		physicsStart := time.Now()
+		//for fixedTime > stepTime {
+			
 			Iter(arr, fixedUdpateGameObject)
 			for _, b := range Space.AllBodies {
 				g, ok := b.UserData.(*Physics)
@@ -137,10 +139,11 @@ func Run() {
 					g.currentCollision.ShapeB = nil
 				}
 			}
+			
 			Space.Step(Float(stepTime)) 
 			//Space.Step(Float(0.1)) 
-
-			fixedTime -= stepTime
+ 
+			fixedTime -= stepTime 
 
 			updatePosition := func(g *GameObject) {
 				if g.Physics != nil {
@@ -157,7 +160,7 @@ func Run() {
 			}
 
 			Iter(arr, updatePosition)
-
+			
 			for _,i := range Space.Arbiters {
 				if i.NumContacts == 0 {
 					continue
@@ -190,7 +193,7 @@ func Run() {
 
 				}
 			}
-
+		
 			for _, b := range Space.AllBodies {
 				g, ok := b.UserData.(*Physics)
 				if ok && g != nil {
@@ -200,7 +203,13 @@ func Run() {
 					}
 				}
 			}
+			
+		//}
+		physicsEnd := time.Now()
+		if Debug {
+			fmt.Println("Physics time", physicsEnd.Sub(physicsStart))
 		}
+		
 		Iter(arr, udpateGameObject)
 		Iter(arr, drawGameObject)
 

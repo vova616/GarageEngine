@@ -11,9 +11,9 @@ import (
 	"runtime/pprof"
 )
 
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+var cpuprofile = flag.String("p", "", "write cpu profile to file")
 
-func main() {
+func main() {  
 	flag.Parse()
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)

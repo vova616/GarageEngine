@@ -21,7 +21,7 @@ func (m *Mouse)OnComponentBind(binded *GameObject) {
 	p := NewPhysics2(false, c.NewCircle(Vect{0.5,0},Float(1)))
 	p.Body.SetMass(10)
 	p.Body.SetMoment(Inf)
-	p.Shape.IsSensor = false 
+	p.Shape.IsSensor = true 
 	p.Body.IgnoreGravity = true
 	binded.AddComponent(p)
 }  
@@ -32,7 +32,7 @@ func (m *Mouse)OnComponentBind(binded *GameObject) {
 
 func (m *Mouse) Update() {
 	x,y := MousePosition()
-	x,y = x,480-y
+	x,y = x,Height-y
 	m.Transform().SetPosition(NewVector2(float32(x),float32(y)))
 	//m.GameObject().Physics.Body.Velocity = Vect{}
 	//m.GameObject().Physics.Body.Force = Vect{}

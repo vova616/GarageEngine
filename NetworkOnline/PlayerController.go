@@ -73,7 +73,7 @@ func (sp *PlayerController) Update() {
 			nfire := sp.Fire.Clone()
 			nfire.Transform().SetParent2(GameSceneGeneral.Layer1)
 			nfire.Transform().SetWorldPosition(sp.Transform().WorldPosition())
-			nfire.AddComponent(NewPhysics(false))
+			nfire.AddComponent(NewPhysics(false,30,30))
 			nfire.Physics.Body.IgnoreGravity = true
 			nfire.Physics.Body.SetMass(20)
 			s := sp.Transform().Rotation()

@@ -19,10 +19,13 @@ type GameScene struct {
 	*SceneData
 	Camera *GameObject
 	Layer1 *GameObject
+	Layer2 *GameObject
 }
 
 var (
 	GameSceneGeneral *GameScene
+	cir *Texture
+	box *Texture
 )
 
 func (s *GameScene) Load() {
@@ -35,10 +38,11 @@ func (s *GameScene) Load() {
 	if err != nil {
 		panic(err)
 	}
+	_ = ArialFont2
 
 	GameSceneGeneral = s
 	s.Camera = NewGameObject("Camera")
-	//Camera.AddComponent(NewController()) 
+	s.Camera.AddComponent(NewCamera()) 
 	gui := NewGameObject("GUI")
 	gui.AddComponent(NewGUI())
 	gui.Transform().SetParent2(s.Camera)
@@ -48,15 +52,20 @@ func (s *GameScene) Load() {
 	Layer1.Transform().SetParent2(s.Camera)
 	Layer2.Transform().SetParent2(s.Camera)
 	Layer3.Transform().SetParent2(s.Camera)
+	 
 	
 	//Layer2.Transform().SetScale(NewVector3(0.5,0.5,0.5))
 	//s.Camera.Transform().Translate2(100,0,0)
 
 	s.Layer1 = Layer1
+	s.Layer2 = Layer2
  
 	mouse := NewGameObject("Mouse")
+	
 	mouse.AddComponent(NewMouse())
+	mouse.AddComponent(NewMouseDebugger())
 	mouse.Transform().SetParent2(gui)
+	
 
 	FPSDrawer := NewGameObject("FPS")
 	txt := FPSDrawer.AddComponent(NewUIText(ArialFont2, "")).(*UIText)
@@ -65,7 +74,7 @@ func (s *GameScene) Load() {
 		txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
 	})
 	FPSDrawer.Transform().SetParent2(gui)
-	FPSDrawer.Transform().SetPosition(NewVector2(60, 460))
+	FPSDrawer.Transform().SetPosition(NewVector2(60, float32(Height)-20))
 	FPSDrawer.Transform().SetScale(NewVector2(20, 20))
 	
 	Texts := NewGameObject("Fuck")
@@ -97,17 +106,6 @@ func (s *GameScene) Load() {
 
 	atlas := NewManagedAtlas(1024, 512)
 
-	atlas.AddImage(LoadImageQuiet("./data/n0.png"), 0)
-	atlas.AddImage(LoadImageQuiet("./data/n1.png"), 1)
-	atlas.AddImage(LoadImageQuiet("./data/n2.png"), 2)
-	atlas.AddImage(LoadImageQuiet("./data/n3.png"), 3)
-	atlas.AddImage(LoadImageQuiet("./data/n4.png"), 4)
-	atlas.AddImage(LoadImageQuiet("./data/n5.png"), 5)
-	atlas.AddImage(LoadImageQuiet("./data/n6.png"), 6)
-	atlas.AddImage(LoadImageQuiet("./data/n7.png"), 7)
-	
-	
-
 	atlas.AddImage(LoadImageQuiet("./data/fire0.png"), 10)
 	atlas.AddImage(LoadImageQuiet("./data/fire1.png"), 11)
 	atlas.AddImage(LoadImageQuiet("./data/fire2.png"), 12)
@@ -131,10 +129,10 @@ func (s *GameScene) Load() {
 	clone2.Transform().SetScale(NewVector2(58, 58))
 	clone2.Transform().SetParent2(Layer1)
 
-	sp, _ := LoadTexture("./data/rect.png")
+	box, _ = LoadTexture("./data/rect.png")
 	//spc := NewSprite(sp)
 	
-	cir, _ := LoadTexture("./data/circle.png")
+	cir, _ = LoadTexture("./data/circle.png")
 	
 /*
 	sprite2 := NewGameObject("Sprite")
@@ -152,30 +150,70 @@ func (s *GameScene) Load() {
 	spritet.Transform().SetScale(NewVector2(40, 40))
 	//spritet.AddComponent(NewRotator())
 */
-	for i := 0; i < 5; i++ {
+
+
+	
+	for i := 0; i < 1000; i++ {
 		sprite3 := NewGameObject("Sprite" + fmt.Sprint(i))
-		sprite3.AddComponent(NewSprite(sp))
+		sprite3.AddComponent(NewSprite(box))
 		sprite3.Transform().SetParent2(Layer2)
 		sprite3.Transform().SetRotation(NewVector3(0, 0, 180))
-		sprite3.Transform().SetPosition(NewVector2(200+float32(i/4)*35, 45+float32(i%4)*30))
+		sprite3.Transform().SetPosition(NewVector2(200+(float32(i%4))*25, 120+float32(i*20)))
 		sprite3.Transform().SetScale(NewVector2(30, 30))
 		
-		phx := sprite3.AddComponent(NewPhysics(false)).(*Physics)
-		phx.Shape.SetFriction(1)
+		phx := sprite3.AddComponent(NewPhysics(false,30,30)).(*Physics)
+		phx.Shape.SetFriction(0.5)
 		phx.Shape.SetElasticity(0.5)
 	}
 
-	for i := 0; i < 100; i++ {
+	for i := 0000; i > 0; i-- {
 		sprite3 := NewGameObject("Sprite" + fmt.Sprint(i))
 		sprite3.AddComponent(NewSprite(cir))
 		sprite3.Transform().SetParent2(Layer2)
-		sprite3.Transform().SetPosition(NewVector2(200+float32(int(i/20))*35, 120+float32(i%20)*40))
+		sprite3.Transform().SetPosition(NewVector2(200+(float32(i%4))*25, 120+float32(i*20)))
 		sprite3.Transform().SetScale(NewVector2(30, 30))
 		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0,0},Float(15)))).(*Physics)
-		phx.Body.SetMoment(Inf)
+		phx.Body.SetMoment(1125)
 		phx.Shape.SetFriction(0.2)
-		phx.Shape.SetElasticity(0.5)
+		phx.Shape.SetElasticity(0.8)
 	}
+	
+	floor := NewGameObject("Floor")
+	floor.AddComponent(NewSprite(box))
+	phx := floor.AddComponent(NewPhysics(true, 1000000, 100)).(*Physics)
+	floor.Transform().SetParent2(Layer2)
+	floor.Transform().SetPosition(NewVector2(100, -20))
+	floor.Transform().SetRotation(NewVector3(0, 0, 180))
+	floor.Transform().SetScale(NewVector2(1000000, 100))
+	phx.Shape.SetFriction(0.5)
+	phx.Shape.SetElasticity(0.5)
+	phx.Shape.SetElasticity(0.5)
+	//phx.Shape.Friction = 1
+	_ = phx
+	
+
+	floor = NewGameObject("Floor2")
+	floor.AddComponent(NewSprite(box))
+	phx = floor.AddComponent(NewPhysics(true, 100, 10000)).(*Physics)
+	floor.Transform().SetParent2(Layer2)
+	floor.Transform().SetPosition(NewVector2(700, -20))
+	floor.Transform().SetScale(NewVector2(100, 10000))
+	phx.Shape.SetFriction(0.5)
+	phx.Shape.SetElasticity(0.5)
+	//phx.Shape.Friction = 1
+	_ = phx
+	
+	floor = NewGameObject("Floor2")
+	floor.AddComponent(NewSprite(box))
+	phx = floor.AddComponent(NewPhysics(true, 100, 10000)).(*Physics)
+	floor.Transform().SetParent2(Layer2)
+	floor.Transform().SetPosition(NewVector2(100, -20))
+	floor.Transform().SetScale(NewVector2(100, 10000))
+	phx.Shape.SetFriction(0.5)
+	phx.Shape.SetElasticity(0.5)
+	//phx.Shape.Friction = 1
+	_ = phx
+	
  
 	//Layer2.Transform().Position.Y += 200
 
@@ -210,36 +248,7 @@ func (s *GameScene) Load() {
 	//	ph.Body.SetInertia(0)
 	*/
 	
-	floor := NewGameObject("Floor")
-	floor.AddComponent(NewSprite(sp))
-	phx := floor.AddComponent(NewPhysics(true)).(*Physics)
-	floor.Transform().SetParent2(Layer2)
-	floor.Transform().SetPosition(NewVector2(100, -20))
-	floor.Transform().SetRotation(NewVector3(0, 0, 180))
-	floor.Transform().SetScale(NewVector2(1000000, 100))
-	phx.Shape.SetFriction(1)
-	//phx.Shape.Friction = 1
-	_ = phx
-	
-	floor = NewGameObject("Floor2")
-	floor.AddComponent(NewSprite(sp))
-	phx = floor.AddComponent(NewPhysics(true)).(*Physics)
-	floor.Transform().SetParent2(Layer2)
-	floor.Transform().SetPosition(NewVector2(100, -20))
-	floor.Transform().SetScale(NewVector2(100, 10000))
-	phx.Shape.SetFriction(1)
-	//phx.Shape.Friction = 1
-	_ = phx
-	
-	floor = NewGameObject("Floor2")
-	floor.AddComponent(NewSprite(sp))
-	phx = floor.AddComponent(NewPhysics(true)).(*Physics)
-	floor.Transform().SetParent2(Layer2)
-	floor.Transform().SetPosition(NewVector2(500, -20))
-	floor.Transform().SetScale(NewVector2(100, 10000))
-	phx.Shape.SetFriction(1)
-	//phx.Shape.Friction = 1
-	_ = phx
+
 	
 	s.AddGameObject(s.Camera)
 	fmt.Println("Scene loaded")

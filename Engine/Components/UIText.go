@@ -44,10 +44,12 @@ func NewUIText(font *Font, text string) *UIText {
 }
 
 func (ui *UIText) OnComponentBind(binded *GameObject) {
-	ph := binded.AddComponent(NewPhysics(true)).(*Physics)
+	h := (ui.height) * (ui.GameObject().Transform().WorldScale().Y)
+	w := (ui.width) * (ui.GameObject().Transform().WorldScale().X)
+	ph := binded.AddComponent(NewPhysics(true,w,h)).(*Physics)
 	_ = ph
 	ph.Body.IgnoreGravity = true
-	ph.Shape.IsSensor = false
+	ph.Shape.IsSensor = true
 }
 
 func (ui *UIText) SetString(text string) {
