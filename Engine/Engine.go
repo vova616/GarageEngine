@@ -3,7 +3,7 @@ package Engine
 import (
 	"github.com/banthar/gl"
 	//"log"
-	. "GarageEngine/Engine/Input"
+	. "github.com/vova616/GarageEngine/Engine/Input"
 	//"os"
 	"fmt"
 	"github.com/jteeuwen/glfw"

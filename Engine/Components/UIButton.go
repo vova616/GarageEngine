@@ -2,7 +2,7 @@ package Components
 
 import (
 	//"gl"
-	//. "GarageEngine/Engine"
+	//. "github.com/vova616/GarageEngine/Engine"
 )
 /*
 type UIText struct {

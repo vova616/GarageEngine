@@ -11,8 +11,8 @@ import (
 	//"image/png"
 	//"os" 
 	//"strconv"
-	. "GarageEngine/Engine"
-	. "GarageEngine/Engine/Input"
+	. "github.com/vova616/GarageEngine/Engine"
+	. "github.com/vova616/GarageEngine/Engine/Input"
 	"github.com/jteeuwen/glfw"
 	. "github.com/vova616/chipmunk/vect"
 )

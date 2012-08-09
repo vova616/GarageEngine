@@ -1,9 +1,9 @@
 package NetworkOnline
 
 import (
-	. "GarageEngine/Engine"
+	. "github.com/vova616/GarageEngine/Engine"
 	//"log"
-	"GarageEngine/Engine/Input"
+	"github.com/vova616/GarageEngine/Engine/Input"
 )
 
 type Camera struct {
