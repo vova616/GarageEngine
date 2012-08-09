@@ -1,11 +1,11 @@
 package Components
 
 import (
-	. "../../Engine"
-	. "../../Engine/Input"
+	. "GarageEngine/Engine"
+	. "GarageEngine/Engine/Input"
 	//"fmt"
-	c "chipmunk"
-	. "chipmunk/vect"
+	c "github.com/vova616/chipmunk"
+	. "github.com/vova616/chipmunk/vect"
 	//"glfw"
 	)
 

@@ -11,10 +11,10 @@ import (
 	//"image/png"
 	//"os" 
 	//"strconv"
-	. "../../Engine"
-	. "../../Engine/Input"
+	. "GarageEngine/Engine"
+	. "GarageEngine/Engine/Input"
 	"github.com/jteeuwen/glfw"
-	. "chipmunk/vect"
+	. "github.com/vova616/chipmunk/vect"
 )
 
 type UIText struct {

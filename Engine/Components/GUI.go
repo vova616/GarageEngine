@@ -1,7 +1,7 @@
 package Components
 
 import (
-	. "../../Engine"
+	. "GarageEngine/Engine"
 	//"fmt"
 	)
 
@@ -17,6 +17,7 @@ func (m *GUI) Update() {
 	parent := m.Transform().Parent()
 	if parent != nil {
 		m.Transform().SetPosition(parent.Position().Mul(MinusOne))
+		//m.Transform().SetScale(NewVector3(1,1,1))
 		//fmt.Println(m.Transform().Position())
 	}
 }

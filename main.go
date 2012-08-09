@@ -1,8 +1,8 @@
 package main
 
 import (
-	. "./Engine"
-	"./NetworkOnline"
+	. "GarageEngine/Engine"
+	"GarageEngine/NetworkOnline"
 	"flag"
 	"fmt"
 	//"math"

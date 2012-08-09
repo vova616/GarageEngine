@@ -7,7 +7,7 @@ import (
 	//"image/png"
 	//"image"
 	//"os"
-	. "chipmunk/vect"
+	. "github.com/vova616/chipmunk/vect"
 	//"fmt"
 	//"glfw"
 )
@@ -138,15 +138,23 @@ func (sp *Sprite) Update() {
 
 	if sp.GameObject().Physics != nil {
 		box := sp.GameObject().Physics.Box
+		cir := sp.GameObject().Physics.Shape.GetAsCircle()
+		
+		scale := sp.Transform().WorldScale()
+		ratio := sp.UVs[int(sp.animation)].Ratio
+		scale.X *= ratio
+		
 		if box != nil {
-			scale := sp.Transform().WorldScale()
-			ratio := sp.UVs[int(sp.animation)].Ratio
-			scale.X *= ratio
 			if Float(scale.Y) != box.Height || Float(scale.X) != box.Width {
 				box.Height = Float(scale.Y)
 				box.Width = Float(scale.X)
 				//box.Position = Vect{box.Width/2, box.Height/2}
 				box.UpdatePoly()
+			}
+		} else if cir != nil {
+			if float32(cir.Radius) != scale.X/2 {
+				cir.Radius = Float(scale.X/2)
+				sp.GameObject().Physics.Body.UpdateShapes()
 			}
 		}
 	}

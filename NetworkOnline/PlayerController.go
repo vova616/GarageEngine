@@ -1,9 +1,9 @@
 package NetworkOnline
 
 import (
-	. "../Engine"
+	. "GarageEngine/Engine"
     //"Engine/Components"
-	"../Engine/Input"
+	"GarageEngine/Engine/Input"
 	//"log"
 )
 

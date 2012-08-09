@@ -1,12 +1,12 @@
 package NetworkOnline
 
 import (
-	. "../Engine"
-	in "../Engine/Input"
+	. "GarageEngine/Engine"
+	in "GarageEngine/Engine/Input"
 	//"log"
 	"github.com/jteeuwen/glfw"
-	c "chipmunk"
-	. "chipmunk/vect"
+	c "github.com/vova616/chipmunk"
+	. "github.com/vova616/chipmunk/vect"
 )
 
 type MouseDebugger struct {
