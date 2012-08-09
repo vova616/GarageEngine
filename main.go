@@ -1,8 +1,8 @@
 package main
 
 import (
-	. "GarageEngine/Engine"
-	"GarageEngine/NetworkOnline"
+	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/NetworkOnline"
 	"flag"
 	"fmt"
 	//"math"

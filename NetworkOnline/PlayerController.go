@@ -1,9 +1,9 @@
 package NetworkOnline
 
 import (
-	. "GarageEngine/Engine"
+	. "github.com/vova616/GarageEngine/Engine"
     //"Engine/Components"
-	"GarageEngine/Engine/Input"
+	"github.com/vova616/GarageEngine/Engine/Input"
 	//"log"
 )
 

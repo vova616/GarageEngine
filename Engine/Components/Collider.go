@@ -2,7 +2,7 @@ package Components
 
 import (
 	"image"
-	. "GarageEngine/Engine"
+	. "github.com/vova616/GarageEngine/Engine"
 	)
 
 type Collider struct {

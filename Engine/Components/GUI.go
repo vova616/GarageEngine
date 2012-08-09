@@ -1,7 +1,7 @@
 package Components
 
 import (
-	. "GarageEngine/Engine"
+	. "github.com/vova616/GarageEngine/Engine"
 	//"fmt"
 	)
 

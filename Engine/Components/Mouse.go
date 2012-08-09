@@ -1,8 +1,8 @@
 package Components
 
 import (
-	. "GarageEngine/Engine"
-	. "GarageEngine/Engine/Input"
+	. "github.com/vova616/GarageEngine/Engine"
+	. "github.com/vova616/GarageEngine/Engine/Input"
 	//"fmt"
 	c "github.com/vova616/chipmunk"
 	. "github.com/vova616/chipmunk/vect"
