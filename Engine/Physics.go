@@ -1,10 +1,10 @@
 package Engine
 
 import (
-	c "chipmunk"
-	. "chipmunk/vect"
+	c "github.com/vova616/chipmunk"
+	. "github.com/vova616/chipmunk/vect"
 )
-
+ 
 type Collision struct {
 	Data      *c.Arbiter
 	ColliderA *GameObject

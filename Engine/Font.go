@@ -1,7 +1,7 @@
 package Engine
 
 import (
-	"../freetype"
+	"GarageEngine/freetype"
 	"github.com/banthar/gl"
 	"image"
 	"image/draw"

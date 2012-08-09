@@ -1,7 +1,7 @@
 package Components
 
 import (
-	. "../../Engine"
+	. "GarageEngine/Engine"
 	//. "Engine/Components"
 	//"fmt"
 	

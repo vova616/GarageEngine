@@ -3,12 +3,12 @@ package Engine
 import (
 	"github.com/banthar/gl"
 	//"log"
-	. "../Engine/Input"
+	. "GarageEngine/Engine/Input"
 	//"os"
 	"fmt"
 	"github.com/jteeuwen/glfw"
-	c "chipmunk"
-	. "chipmunk/vect"
+	c "github.com/vova616/chipmunk"
+	. "github.com/vova616/chipmunk/vect"
 	"math"
 	"runtime"
 	"time"
@@ -352,6 +352,7 @@ func onResize(w, h int) {
 	gl.Viewport(0, 0, w, h)
 	gl.MatrixMode(gl.PROJECTION)
 	gl.LoadIdentity()
+	
 	//glu.Perspective(45.0, float64(w)/float64(h), 0.1, 100.0)
 	//glu.Ortho2D(0,float64(w),0,float64(h))
 	gl.Ortho(0, float64(w), 0, float64(h), -1000000, 1000000)

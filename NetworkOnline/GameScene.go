@@ -1,8 +1,8 @@
 package NetworkOnline
 
 import (
-	. "../Engine"
-	. "../Engine/Components"
+	. "GarageEngine/Engine"
+	. "GarageEngine/Engine/Components"
 	"fmt"
 	_ "image/jpeg"
 	_ "image/png"
@@ -11,8 +11,8 @@ import (
 	//"time" 
 	//"strings"
 	//"math"
-	c "chipmunk"
-	. "chipmunk/vect"
+	c "github.com/vova616/chipmunk"
+	. "github.com/vova616/chipmunk/vect"
 )
 
 type GameScene struct {
@@ -45,7 +45,7 @@ func (s *GameScene) Load() {
 	s.Camera.AddComponent(NewCamera()) 
 	gui := NewGameObject("GUI")
 	gui.AddComponent(NewGUI())
-	gui.Transform().SetParent2(s.Camera)
+	//gui.Transform().SetParent2(s.Camera)
 	Layer1 := NewGameObject("Layer1")
 	Layer2 := NewGameObject("Layer2")
 	Layer3 := NewGameObject("Layer3")
@@ -100,7 +100,7 @@ func (s *GameScene) Load() {
 	
 	//SPACCCEEEEE
 	Space.Gravity.Y = -300
-	Space.Iterations = 30
+	Space.Iterations = 10
 	
 	//Space.Gravity.X = 0 
 
@@ -170,8 +170,8 @@ func (s *GameScene) Load() {
 		phx.Shape.SetFriction(1)
 		phx.Shape.SetElasticity(0.0)
 		phx.Body.SetMass(1)
-	}
-
+	} 
+  
 	for i := 0; i > 0; i-- {
 		sprite3 := NewGameObject("Sprite" + fmt.Sprint(i))
 		sprite3.AddComponent(NewSprite(cir))
@@ -179,7 +179,6 @@ func (s *GameScene) Load() {
 		sprite3.Transform().SetPosition(NewVector2(200+(float32(i%4))*25, 120+float32(i*20)))
 		sprite3.Transform().SetScale(NewVector2(30, 30))
 		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0,0},Float(15)))).(*Physics)
-		phx.Body.SetMoment(1125)
 		phx.Shape.SetFriction(0.2)
 		phx.Shape.SetElasticity(0.8)
 	}
@@ -256,6 +255,7 @@ func (s *GameScene) Load() {
 
 	
 	s.AddGameObject(s.Camera)
+	s.AddGameObject(gui)
 	fmt.Println("Scene loaded")
 }
 
