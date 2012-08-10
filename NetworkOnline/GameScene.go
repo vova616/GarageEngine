@@ -253,9 +253,9 @@ func (s *GameScene) Load() {
 	*/
 	
 
-	
-	s.AddGameObject(s.Camera)
 	s.AddGameObject(gui)
+	s.AddGameObject(s.Camera)
+	//
 	fmt.Println("Scene loaded")
 }
 
