@@ -11,10 +11,11 @@ package freetype
 import (
 	"errors"
 	"image"
-	"image/draw"
+	"image/draw" 
 
-	"code.google.com/p/freetype-go/freetype/raster"
-	"code.google.com/p/freetype-go/freetype/truetype"
+	
+	"github.com/vova616/GarageEngine/freetype/raster"
+	"github.com/vova616/GarageEngine/freetype/truetype"
 )
 
 // These constants determine the size of the glyph cache. The cache is keyed
