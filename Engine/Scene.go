@@ -5,6 +5,7 @@ package Engine
 type SceneData struct {
 	name	string
 	gameObjects []*GameObject
+	Camera *Camera
 }
 
 type Scene interface {
@@ -14,7 +15,11 @@ type Scene interface {
 } 
 
 func NewScene(name string) *SceneData{
-	return &SceneData{name, make([]*GameObject, 0)}
+	return &SceneData{name: name, gameObjects: make([]*GameObject, 0)}
+}
+
+func (s *SceneData) SetCamera(Camera *Camera) {
+	s.Camera = Camera
 }
 
 func (s *SceneData) Name() string {

@@ -115,17 +115,25 @@ func (mA *Matrix) Translate(x,y,z float32) {
 
 func (mA *Matrix) Ortho( left,  right,  bottom,  top,  Znear,  Zfar float32) {
 	m2 := Identity()
-	
+	/*
 	m2[0] = 2/(right-left);
-	m2[3] = -((right+left)/(right-left));
-	
 	m2[5] = 2/(top-bottom);
-	m2[7] = -((top+bottom)/(top-bottom));
+	m2[10] = -2/(Zfar-Znear);
 	
-	m2[10] = 2/(Zfar-Znear);
-	m2[11] = -((Zfar+Znear)/(Zfar-Znear));
+	m2[3] = -((right+left)/(right-left));
+	m2[7] = -((top+bottom)/(top-bottom));
+	m2[14] = -((Zfar+Znear)/(Zfar-Znear));
+*/
 
-	mA.Mul(m2)
+	m2[0] = 2/(right-left);
+	m2[5] = 2/(top-bottom);
+	m2[10] = -2/(Zfar-Znear);
+	
+	m2[12] = -((right+left)/(right-left));
+	m2[13] = -((top+bottom)/(top-bottom));
+	m2[14] = -((Zfar+Znear)/(Zfar-Znear));
+	
+	*mA = m2
 }
 
 

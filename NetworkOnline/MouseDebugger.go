@@ -7,6 +7,7 @@ import (
 	"github.com/jteeuwen/glfw"
 	c "github.com/vova616/chipmunk"
 	. "github.com/vova616/chipmunk/vect"
+	. "github.com/vova616/GarageEngine/Engine/Input"
 )
 
 type MouseDebugger struct {
@@ -19,10 +20,18 @@ func NewMouseDebugger() *MouseDebugger {
 
 func (m *MouseDebugger) Update() {
 	if in.MouseDown(glfw.MouseLeft) {
+		
+		x,y := MousePosition()
+		x,y = x,Height-y
+		
+		cam := GetScene().SceneBase().Camera
+	
+		mousePosition := cam.MouseRealPosition(x,y)
+		
 		sprite3 := NewGameObject("Sprite")
 		sprite3.AddComponent(NewSprite(cir))
 		sprite3.Transform().SetParent2(GameSceneGeneral.Layer2)
-		sprite3.Transform().SetWorldPosition(m.GameObject().Transform().WorldPosition())
+		sprite3.Transform().SetWorldPosition(mousePosition)
 		
 		
 		
@@ -35,10 +44,17 @@ func (m *MouseDebugger) Update() {
 		phx.Shape.SetElasticity(0.5)
 	}
 	if in.MouseDown(glfw.MouseRight) {
+		x,y := MousePosition()
+		x,y = x,Height-y
+		
+		cam := GetScene().SceneBase().Camera
+	
+		mousePosition := cam.MouseRealPosition(x,y)
+		
 		sprite3 := NewGameObject("Sprite")
 		sprite3.AddComponent(NewSprite(box))
 		sprite3.Transform().SetParent2(GameSceneGeneral.Layer2)
-		sprite3.Transform().SetWorldPosition(m.GameObject().Transform().WorldPosition())
+		sprite3.Transform().SetWorldPosition(mousePosition)
 		
 		sprite3.Transform().SetScale(NewVector2(30, 30))
 		phx := sprite3.AddComponent(NewPhysics(false,50,50)).(*Physics)

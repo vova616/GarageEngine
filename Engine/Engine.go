@@ -25,7 +25,7 @@ const (
 )
 
 
-
+ 
 var (
 	
 	Inf = Float(math.Inf(1))
@@ -40,14 +40,16 @@ var (
 	stepTime     = float32(1) / float32(60) 
 
 	Title  = "Engine Test"
-	Width  = 800
-	Height = 600
+	Width  = 1024
+	Height = 768
+	
 
 	terminated chan bool
 )
 
 func init() {
 	terminated = make(chan bool)
+	
 }
 
 func LoadScene(scene Scene) {
@@ -55,6 +57,12 @@ func LoadScene(scene Scene) {
 	sn.Load()
 	mainScene = sn
 }
+
+func GetScene() Scene {
+	return mainScene
+}
+
+
 
 func AddScene(scene Scene) {
 	scenes = append(scenes, scene)
@@ -96,9 +104,11 @@ func StartEngine() {
 	glfw.SetMouseButtonCallback(ButtonPress)
 
 	if err = initGL(); err != nil {
-		panic(err) 
+		panic(err)  
 	}
 }
+
+
 
 func MainLoop() bool {
 	running = true
@@ -114,6 +124,8 @@ func Run() {
 	before := time.Now()
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.LoadIdentity()
+	
+	
 
 	if mainScene != nil {
 		fixedTime += deltaTime
@@ -121,6 +133,7 @@ func Run() {
 
 		arr := sd.gameObjects
 
+		Iter(arr, destoyGameObject)
 		Iter(arr, startGameObject)
 
 		physicsStart := time.Now()
@@ -240,9 +253,9 @@ func Iter2(objs []*Transform, f func(*GameObject)) {
 
 func drawGameObject(gameObject *GameObject) {
 
-	mat := gameObject.Transform().Matrix()
+	//mat := gameObject.Transform().Matrix()
 
-	gl.LoadMatrixf(mat.Ptr())
+	//gl.LoadMatrixf(mat.Ptr())
 
 	l := len(gameObject.components)
 	comps := gameObject.components
@@ -265,6 +278,15 @@ func startGameObject(gameObject *GameObject) {
 		}
 	}
 }
+
+func destoyGameObject(gameObject *GameObject) {
+	if gameObject.destoryMark {
+		gameObject.destroy()	
+		
+	}
+}
+
+
 
 func onCollisionGameObject(gameObject *GameObject, arb *c.Arbiter) {
 	l := len(gameObject.components)
@@ -326,23 +348,22 @@ func initGL() (err error) {
 	gl.ShadeModel(gl.SMOOTH)
 	gl.ClearColor(0, 0, 0, 0)
 	gl.ClearDepth(1)
-	gl.DepthFunc(gl.LEQUAL)
-	//gl.BlendFunc(gl.DST_ALPHA, gl.ZERO);
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.Hint(gl.PERSPECTIVE_CORRECTION_HINT, gl.NICEST)
-	//gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.NEVER)
-	gl.Enable(gl.TEXTURE_2D)
 	gl.Enable(gl.BLEND)
 	gl.DepthMask(true)
+	
+	loadShader()
+	
 	return
 }
 
 func onResize(w, h int) {
-	if h == 0 {
+	if h <= 0 {
 		h = 1
 	}
-	if w == 0 {
+	if w <= 0 {
 		w = 1
 	}
 
@@ -350,12 +371,8 @@ func onResize(w, h int) {
 	Width = w
 
 	gl.Viewport(0, 0, w, h)
-	gl.MatrixMode(gl.PROJECTION)
-	gl.LoadIdentity()
-	
-	//glu.Perspective(45.0, float64(w)/float64(h), 0.1, 100.0)
-	//glu.Ortho2D(0,float64(w),0,float64(h))
-	gl.Ortho(0, float64(w), 0, float64(h), -1000000, 1000000)
-	gl.MatrixMode(gl.MODELVIEW)
-	gl.LoadIdentity()
+
+	if (GetScene() != nil && GetScene().SceneBase().Camera != nil) {
+		GetScene().SceneBase().Camera.UpdateResolution()
+	}
 }

@@ -230,7 +230,9 @@ func (t *Transform) SetParent(parent *Transform) {
 	}
 	t.parent = parent
 	t.updatedMatrix = false
-	parent.children = append(parent.children, t) 
+	if parent != nil {
+		parent.children = append(parent.children, t) 
+	}
 }
 
 
