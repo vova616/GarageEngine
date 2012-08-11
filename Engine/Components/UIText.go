@@ -186,34 +186,54 @@ func (ui *UIText) Draw() {
 	if ui.text == "" {
 		return
 	}
-	ui.Font.Bind()
-	gl.PushMatrix()
-
+	
 	v := Align(ui.align)
 	v.X *= ui.width
 	v.Y *= ui.height
-	gl.Translatef(v.X, v.Y, v.Z)
 
-	if ui.red {
-		gl.Color3ub(255, 0, 0)
-	} else {
-		gl.Color3ub(255, 255, 255)
-	}
-
-	gl.EnableClientState(gl.VERTEX_ARRAY)
-	gl.EnableClientState(gl.TEXTURE_COORD_ARRAY)
-
+	program := TextureShader
+	program.Use()
+	
+	vert := program.GetAttribLocation("vectexPos")
+	uv := program.GetAttribLocation("vertexUV")
+	
+	vert.EnableArray()
+	uv.EnableArray() 
+	
 	ui.buffer.Bind(gl.ARRAY_BUFFER)
-	gl.VertexPointerVBO(3, gl.FLOAT, 0, 0)
-	gl.TexCoordPointerVBO(2, gl.FLOAT, 0, (ui.texcoordsIndex))
-
+	
+	vert.AttribPointerPtr(3, gl.FLOAT, false, 0, 0)
+	uv.AttribPointerPtr(2, gl.FLOAT, false, 0, ui.texcoordsIndex)
+	
+	camera := GetScene().SceneBase().Camera
+	
+	 
+	view := NewIdentity()
+	model := NewIdentity()
+	model.Translate(v.X,v.Y,0)
+	model.Mul(ui.GameObject().Transform().Matrix())
+	
+	
+	
+	
+	mv := program.GetUniformLocation("MView")
+	mv.Uniform4fv([]float32(view[:]))
+	mp := program.GetUniformLocation("MProj")
+	mp.Uniform4fv([]float32(camera.Projection[:]))
+	mm := program.GetUniformLocation("MModel")
+	mm.Uniform4fv([]float32(model[:]))
+	
+	ui.Font.Bind()
+	gl.ActiveTexture(gl.TEXTURE0)
+	tx := program.GetUniformLocation("mytexture")
+	tx.Uniform1i(0)
+	
+	
+	
 	gl.DrawArrays(gl.QUADS, 0, ui.vertexCount)
-
-	gl.DisableClientState(gl.TEXTURE_COORD_ARRAY)
-	gl.DisableClientState(gl.VERTEX_ARRAY)
-
-	gl.Color3ub(255, 255, 255)
-
-	gl.PopMatrix()
+	
 	ui.Font.Unbind()
+	vert.DisableArray()
+	uv.DisableArray()
+		
 }

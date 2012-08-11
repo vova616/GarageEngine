@@ -6,15 +6,15 @@ import (
 	"github.com/vova616/GarageEngine/Engine/Input"
 )
 
-type Camera struct {
+type CameraController struct {
 	BaseComponent
 }
 
-func NewCamera() *Camera {
-	return &Camera{NewComponent()}
+func NewCameraCtl() *CameraController {
+	return &CameraController{NewComponent()}
 }
 
-func (sp *Camera) Update() {
+func (sp *CameraController) Update() {
 	t := sp.GameObject().Transform()
 	
 	if Input.KeyDown('A') {	

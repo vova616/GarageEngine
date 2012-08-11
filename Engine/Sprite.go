@@ -12,6 +12,8 @@ import (
 	//"glfw"
 )
 
+
+
 type Sprite struct {
 	BaseComponent
 	*Texture
@@ -25,6 +27,7 @@ type Sprite struct {
 	animMap 	   map[interface{}][2]int
 	currentAnim	   interface{}
 }
+
 
 func NewSprite(tex *Texture) *Sprite {
 	sp := &Sprite{NewComponent(), tex, gl.GenBuffer(), 1,0,1,0,0, AnimatedUV{NewUV(0, 0, 1, 1, float32(tex.Width())/float32(tex.Height()))}, nil,nil}
@@ -44,8 +47,10 @@ func NewSprite3(tex *Texture, uv AnimatedUV) *Sprite {
 	sp := &Sprite{NewComponent(), tex, gl.GenBuffer(), 1,0,len(uv),0,0, uv, nil,nil}
 	sp.CreateVBO(uv...)
 
+
 	return sp
 }
+
 
 func (p *Sprite)BindAnimations(animMap map[interface{}][2]int) {
 	p.animMap = animMap
@@ -163,23 +168,47 @@ func (sp *Sprite) Update() {
 func (sp *Sprite) Draw() {
 	if sp.Texture != nil {
 
-		sp.Bind()
-
-		gl.EnableClientState(gl.VERTEX_ARRAY)
-		gl.EnableClientState(gl.TEXTURE_COORD_ARRAY)
+		
+		
+		program := TextureShader
+		program.Use()
+		
+		vert := program.GetAttribLocation("vectexPos")
+		uv := program.GetAttribLocation("vertexUV")
+		
+		vert.EnableArray()
+		uv.EnableArray()
 		
 		sp.buffer.Bind(gl.ARRAY_BUFFER)
-		//gl.VertexPointer
-		gl.VertexPointerVBO(3, gl.FLOAT, 0,  (int(sp.animation)*12*4))
-		gl.TexCoordPointerVBO(2, gl.FLOAT, 0, (sp.texcoordsIndex+(int(sp.animation)*8*4)))
+		
+		vert.AttribPointerPtr(3, gl.FLOAT, false, 0, int(sp.animation)*12*4)
+		uv.AttribPointerPtr(2, gl.FLOAT, false, 0, sp.texcoordsIndex+(int(sp.animation)*8*4))
+		
+		camera := GetScene().SceneBase().Camera
+		
+		
+		view := camera.Transform().Matrix()
+		model := sp.GameObject().Transform().Matrix()
+		
+		mv := program.GetUniformLocation("MView")
+		mv.Uniform4fv([]float32(view[:]))
+		mp := program.GetUniformLocation("MProj")
+		mp.Uniform4fv([]float32(camera.Projection[:]))
+		mm := program.GetUniformLocation("MModel")
+		mm.Uniform4fv([]float32(model[:]))
+		
+		sp.Bind()
+		gl.ActiveTexture(gl.TEXTURE0)
+		tx := program.GetUniformLocation("mytexture")
+		tx.Uniform1i(0)
+		
+		
 		
 		gl.DrawArrays(gl.QUADS, 0, 4)
 		
-		gl.DisableClientState(gl.TEXTURE_COORD_ARRAY)
-		gl.DisableClientState(gl.VERTEX_ARRAY)
-		
 		sp.Unbind()
-		//gl.PopMatrix()
+		vert.DisableArray()
+		uv.DisableArray()
 	}
 }
 

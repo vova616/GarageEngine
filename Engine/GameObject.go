@@ -11,8 +11,9 @@ type GameObject struct {
 	name       string
 	transform  *Transform
 	components []Component
-	valid      bool
-	active     bool
+	valid      		bool
+	active     		bool
+	destoryMark    bool
 
 	Physics *Physics
 	Sprite  *Sprite
@@ -63,8 +64,23 @@ func (g *GameObject) IsValid() bool {
 	return g.valid
 }
 
+
+func (g *GameObject) SetActive(a bool) {
+	g.active = a
+}
+
+func (g *GameObject) IsActive() bool {
+	return g.active
+}
+
+func (g *GameObject) Destroy() {
+	g.destoryMark = false
+	g.active = false
+}
+
 func (g *GameObject) destroy() {
 	g.name = ""
+	
 	for _, c := range g.transform.children {
 		c.GameObject().destroy()
 	}
@@ -74,8 +90,10 @@ func (g *GameObject) destroy() {
 			c.Component().destroyableComponent.Destroy()
 		}
 	}
+	g.Transform().SetParent(nil) 
 	g.components = nil
 	g.valid = false
+	g.active = false
 }
 
 func (g *GameObject) Clone() *GameObject {

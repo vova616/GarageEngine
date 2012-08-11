@@ -1,10 +1,10 @@
 package main
 
 import (
-	. "github.com/vova616/GarageEngine/Engine"
-	"github.com/vova616/GarageEngine/NetworkOnline"
 	"flag"
 	"fmt"
+	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/NetworkOnline"
 	//"math"
 	"os"
 	"runtime"
@@ -13,7 +13,7 @@ import (
 
 var cpuprofile = flag.String("p", "", "write cpu profile to file")
 
-func main() {  
+func main() {
 	flag.Parse()
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
