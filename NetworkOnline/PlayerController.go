@@ -8,6 +8,7 @@ import (
 	//"log"
 	. "github.com/vova616/chipmunk/vect"
 	c "github.com/vova616/chipmunk"
+	//"fmt"
 )
 
 type PlayerController struct {
@@ -88,6 +89,7 @@ func (sp *PlayerController) Update() {
 				nfire.Transform().Translate2(60,0,0)
 				nfire.Physics.Body.SetVelocity(550,0)
 			}
+			nfire.Physics.Shape.Group = 1
 			nfire.Physics.Body.SetMoment(Inf)
 			nfire.Transform().SetRotation(s2) 
 		}
@@ -109,15 +111,18 @@ func (sp *PlayerController) Update() {
 		sp.Physics.Body.SetVelocity(-200,float32(v.Y))
 	}
 	
-	for i,fire := range sp.Fires { 
+	for i:=0;i<len(sp.Fires);i++ { 
+		fire := sp.Fires[i]
 		if fire.Transform().Rotation().Z <= -80 && fire.Physics.Body.Velocity().X <= 1{
 			//fire.Destory()
 			//HACK
 			fire.Transform().SetWorldPosition(NewVector3(-10000,-1000,-1000))
 			sp.Fires = append(sp.Fires[:i], sp.Fires[i+1:]...)
+			i--
 		} else if fire.Transform().Rotation().Z >= 80 && fire.Physics.Body.Velocity().X >= -1 {
 			fire.Transform().SetWorldPosition(NewVector3(-10000,-1000,-1000))
-			sp.Fires = append(sp.Fires[:i], sp.Fires[i+1:]...)
+			sp.Fires = append(sp.Fires[:i], sp.Fires[i+1:]...)  
+			i--  
 		}
 	}
 	

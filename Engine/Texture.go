@@ -264,6 +264,26 @@ func NewTexture2(data interface{}, width int, height int, target gl.GLenum, inte
 	return &Texture{a,false, data, format, internalFormat, target,width,height}
 }
 
+func NewTextureEmpty(width int, height int, model color.Model) *Texture {
+	internalFormat, typ, format, target, e := ColorModelToGLTypes(model)
+	if e != nil {
+		return nil
+	}
+	a := gl.GenTexture()
+	a.Bind(target)
+	gl.TexImage2D(target, 0, internalFormat, width, height, 0, typ, format, nil)
+	gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.TexParameteri(target, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.TexParameteri(target, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    //gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+	//gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+
+	a.Unbind(target)
+	
+	return &Texture{a,false, nil, format, internalFormat, target,width,height}
+}
+
 func (t *Texture) Options(filter, clamp int) {
 	t.Bind()
 	gl.TexParameteri(t.target, gl.TEXTURE_MIN_FILTER, filter)
@@ -307,6 +327,19 @@ func (t *Texture) Bind() {
 
 func (t *Texture) Unbind() {
 	t.handle.Unbind(t.target)
+}
+
+func (t *Texture) Render()	{
+	t.Bind()
+	
+	xratio := float32(t.width) / float32(t.height)
+	gl.Begin(gl.QUADS) 
+	gl.TexCoord2f(0, 1); gl.Vertex3f(-0.5, -0.5, 1) 
+	gl.TexCoord2f(1, 1); gl.Vertex3f((xratio)-0.5, -0.5, 1) 
+	gl.TexCoord2f(1, 0); gl.Vertex3f((xratio)-0.5, 0.5, 1) 
+	gl.TexCoord2f(0, 0); gl.Vertex3f(-0.5, 0.5, 1) 
+	gl.End()
+	t.Unbind()
 }
 
 func (t *Texture) Release() {

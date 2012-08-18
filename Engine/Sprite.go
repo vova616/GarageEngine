@@ -26,25 +26,49 @@ type Sprite struct {
 	UVs		 	   AnimatedUV
 	animMap 	   map[interface{}][2]int
 	currentAnim	   interface{}
+	
+	Border		   bool
+	BorderSize	   float32
 }
 
 
 func NewSprite(tex *Texture) *Sprite {
-	sp := &Sprite{NewComponent(), tex, gl.GenBuffer(), 1,0,1,0,0, AnimatedUV{NewUV(0, 0, 1, 1, float32(tex.Width())/float32(tex.Height()))}, nil,nil}
+	sp := &Sprite{
+	BaseComponent: NewComponent(),
+	Texture: tex, 
+	buffer: gl.GenBuffer(), 
+	AnimationSpeed: 1,
+	endAnimation :  1,
+	UVs: 			AnimatedUV{NewUV(0, 0, 1, 1, float32(tex.Width())/float32(tex.Height()))}}
+	
 	sp.CreateVBO(sp.UVs...)
 
 	return sp
 }
 
 func NewSprite2(tex *Texture, uv UV) *Sprite {
-	sp := &Sprite{NewComponent(), tex, gl.GenBuffer(), 1,0,1,0,0, AnimatedUV{uv}, nil,nil}
+	sp := &Sprite{
+	BaseComponent: NewComponent(),
+	Texture: tex, 
+	buffer: gl.GenBuffer(), 
+	AnimationSpeed: 1,
+	endAnimation :  1,
+	UVs: 			AnimatedUV{uv}}
+	
 	sp.CreateVBO(uv)
 
 	return sp
 }
 
 func NewSprite3(tex *Texture, uv AnimatedUV) *Sprite {
-	sp := &Sprite{NewComponent(), tex, gl.GenBuffer(), 1,0,len(uv),0,0, uv, nil,nil}
+	
+	sp := &Sprite{
+	BaseComponent: NewComponent(),
+	Texture: tex, 
+	buffer: gl.GenBuffer(), 
+	AnimationSpeed: 1,
+	endAnimation :  len(uv),
+	UVs: 			uv}
 	sp.CreateVBO(uv...)
 
 
@@ -186,7 +210,6 @@ func (sp *Sprite) Draw() {
 		
 		camera := GetScene().SceneBase().Camera
 		
-		
 		view := camera.Transform().Matrix()
 		model := sp.GameObject().Transform().Matrix()
 		
@@ -194,6 +217,72 @@ func (sp *Sprite) Draw() {
 		mv.Uniform4fv([]float32(view[:]))
 		mp := program.GetUniformLocation("MProj")
 		mp.Uniform4fv([]float32(camera.Projection[:]))
+		mm := program.GetUniformLocation("MModel")
+		mm.Uniform4fv([]float32(model[:]))
+		
+		sp.Bind()
+		gl.ActiveTexture(gl.TEXTURE0)
+		mc := program.GetUniformLocation("bcolor")
+		tx := program.GetUniformLocation("mytexture")
+		tx.Uniform1i(0)
+		
+		if sp.Border {
+			mc.Uniform4f(1,1,1,0)
+			
+			gl.DrawArrays(gl.QUADS, 0, 4)
+			
+			scale := sp.Transform().Scale()
+			scalex := scale.Mul2(1-(sp.BorderSize/100))
+			sp.Transform().SetScale(scalex) 
+			model = sp.GameObject().Transform().Matrix()
+	
+			mm.Uniform4fv([]float32(model[:]))
+			sp.Transform().SetScale(scale)
+		}
+		
+		mc.Uniform4f(0,0,0,0)
+		
+		gl.DrawArrays(gl.QUADS, 0, 4)
+		
+		 
+		
+		sp.Unbind()
+		vert.DisableArray()
+		uv.DisableArray()
+	}
+}
+
+func (sp *Sprite) DrawScreen() {
+		if sp.Texture != nil {
+
+		
+		
+		program := TextureShader
+		program.Use()
+		
+		vert := program.GetAttribLocation("vectexPos")
+		uv := program.GetAttribLocation("vertexUV")
+		
+		vert.EnableArray()
+		uv.EnableArray()
+		
+		sp.buffer.Bind(gl.ARRAY_BUFFER)
+		
+		vert.AttribPointerPtr(3, gl.FLOAT, false, 0, int(sp.animation)*12*4)
+		uv.AttribPointerPtr(2, gl.FLOAT, false, 0, sp.texcoordsIndex+(int(sp.animation)*8*4))
+		
+		camera := GetScene().SceneBase().Camera
+		proj := NewIdentity()
+		proj = camera.Projection
+		view := NewIdentity()
+		model := NewIdentity()
+		model.Scale(float32(Height),float32(Height),1)
+		model.Translate(float32(Width)/2,float32(Height)/2,1)
+		
+		mv := program.GetUniformLocation("MView")
+		mv.Uniform4fv([]float32(view[:]))
+		mp := program.GetUniformLocation("MProj")
+		mp.Uniform4fv([]float32(proj[:]))
 		mm := program.GetUniformLocation("MModel")
 		mm.Uniform4fv([]float32(model[:]))
 		
@@ -210,6 +299,7 @@ func (sp *Sprite) Draw() {
 		vert.DisableArray()
 		uv.DisableArray()
 	}
+	
+	
 }
-
 
