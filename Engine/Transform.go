@@ -44,6 +44,10 @@ func (v Vector) Mul(v2 Vector) Vector {
 	return Vector{v.X * v2.X, v.Y * v2.Y, v.Z * v2.Z}
 }
 
+func (v Vector) Mul2(v2 float32) Vector {
+	return Vector{v.X * v2, v.Y * v2, v.Z * v2}
+}
+
 func (v Vector) Div(v2 Vector) Vector {
 	return Vector{v.X / v2.X, v.Y / v2.Y, v.Z / v2.Z}
 }

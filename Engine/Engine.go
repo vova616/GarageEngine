@@ -122,6 +122,7 @@ func MainLoop() bool {
 
 func Run() {
 	before := time.Now()
+	gl.ClearColor(0, 0, 0, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.LoadIdentity()
 	
@@ -267,6 +268,28 @@ func drawGameObject(gameObject *GameObject) {
 	}
 }
 
+func IterExcept(objs []*GameObject, f func(*GameObject), except *GameObject) {
+	l := len(objs)
+	for i := l - 1; i >= 0; i-- {
+		if objs[i] != except {
+			f(objs[i])
+		}
+		arr2 := objs[i].Transform().Children()
+		Iter2Except(arr2, f, except)
+	}
+}
+
+func Iter2Except(objs []*Transform, f func(*GameObject), except *GameObject) {
+	l := len(objs)
+	for i := l - 1; i >= 0; i-- {
+		if objs[i].GameObject() != except {
+			f(objs[i].GameObject())
+		}
+		arr2 := objs[i].Children()
+		Iter2Except(arr2, f, except)
+	}
+}
+
 func startGameObject(gameObject *GameObject) {
 	l := len(gameObject.components)
 	comps := gameObject.components
@@ -357,6 +380,19 @@ func initGL() (err error) {
 	loadShader()
 	
 	return
+}
+
+func drawQuad(srcwidth, destwidth, srcheight, destheight float32) {
+	gl.Begin(gl.QUADS);
+		gl.TexCoord2i(0, 0);
+		gl.Vertex2f(-1, -1);
+		gl.TexCoord2i(int(srcwidth), 0);
+		gl.Vertex2f(-1 + destwidth, -1);
+		gl.TexCoord2i(int(srcwidth), int(srcheight));
+		gl.Vertex2f(-1 + destwidth, -1 + destheight);
+		gl.TexCoord2i(0, int(srcheight));
+		gl.Vertex2f(-1, -1 + destheight);
+	gl.End();
 }
 
 func onResize(w, h int) {

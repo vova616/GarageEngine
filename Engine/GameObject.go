@@ -170,6 +170,7 @@ type BaseComponent struct {
 	onCollisionComponent      onCollisionComponent
 	onCollisionEnterComponent onCollisionEnterComponent
 	onCollisionExitComponent  onCollisionExitComponent
+	drawablePostComponent	  drawablePostComponent
 	started                   bool
 	gameObject                *GameObject
 	component                 interface{}
@@ -181,6 +182,7 @@ func NewComponent() BaseComponent {
 
 func (c *BaseComponent) onAdd(component interface{}, gameObject *GameObject) {
 	c.drawableComponent, _ = component.(drawableComponent)
+	c.drawablePostComponent, _ = component.(drawablePostComponent)
 	c.updateableComponent, _ = component.(updateableComponent)
 	c.fUpdateableComponent, _ = component.(fUpdateableComponent)
 	c.startableComponent, _ = component.(startableComponent)
@@ -190,6 +192,9 @@ func (c *BaseComponent) onAdd(component interface{}, gameObject *GameObject) {
 	c.onCollisionComponent, _ = component.(onCollisionComponent)
 	c.onCollisionExitComponent, _ = component.(onCollisionExitComponent)
 	c.onCollisionEnterComponent, _ = component.(onCollisionEnterComponent)
+	
+	
+	
 	c.gameObject = gameObject
 	c.component = component
 	ob, ok := component.(onAddComponent)
@@ -212,6 +217,10 @@ func (c *BaseComponent) Transform() *Transform {
 
 type drawableComponent interface {
 	Draw()
+}
+
+type drawablePostComponent interface {
+	PostDraw()
 }
 
 type updateableComponent interface {

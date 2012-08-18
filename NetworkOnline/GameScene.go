@@ -79,9 +79,9 @@ func (s *GameScene) Load() {
 
 	//SPACCCEEEEE
 	Space.Gravity.Y = -700
-	Space.Iterations = 10
+	Space.Iterations = 30
+	//Space.AddBody
 	
-
 	atlas, e := AtlasLoadDirectory("./data/fire")
 	if atlas == nil {
 		panic(e)
@@ -110,7 +110,7 @@ func (s *GameScene) Load() {
 	clone2.Transform().SetScale(NewVector2(58, 58))
 	clone2.Transform().SetParent2(Layer1)
 
-	 
+	  
 	f := clone2.Clone()
 	f.Transform().SetPosition(NewVector2(25, 300))
 	f.Transform().SetParent2(Layer1)
@@ -137,9 +137,10 @@ func (s *GameScene) Load() {
 		sprite3.Transform().SetPosition(NewVector2(200+(float32(i%4))*25, 120+float32(i*20)))
 		sprite3.Transform().SetScale(NewVector2(30, 30))
 		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0,0},Float(15)))).(*Physics)
+		
 		phx.Shape.SetFriction(0.2)
 		phx.Shape.SetElasticity(0.8)
-	}
+	} 
 	 
 	floor := NewGameObject("Floor")
 	floor.AddComponent(NewSprite(box))
@@ -210,7 +211,31 @@ func (s *GameScene) Load() {
 	ph.Body.SetMoment(Inf)
 	ph.Shape.SetFriction(0.5)
 	ph.Shape.SetElasticity(0)
+	sprite.Border = true
+	sprite.BorderSize = 5;
 	
+	
+	/*
+	floor = NewGameObject("Box")
+	bbBox := NewSprite(box)
+	floor.AddComponent(bbBox)
+	phx = floor.AddComponent(NewPhysics(true, 500, 500)).(*Physics)
+	floor.Transform().SetParent2(Layer2)
+	floor.Transform().SetPosition(NewVector2(900, 200))
+	floor.Transform().SetScale(NewVector2(500, 500))
+	phx.Shape.SetFriction(1)
+	phx.Shape.SetElasticity(1)
+	phx.Shape.IsSensor = true
+	//phx.Shape.Friction = 1
+	_ = phx
+	*/
+	shadowShader := NewGameObject("Shadow")
+	sCam := NewCamera()
+	shadowShader.AddComponent(sCam)
+	sShadow := NewShadowShader(s.Camera)
+	cam.AddComponent(sShadow)
+	
+	//sShadow.Sprite = bbBox
 	
 
 	s.AddGameObject(cam)
@@ -219,6 +244,7 @@ func (s *GameScene) Load() {
 	s.AddGameObject(Layer1)
 	s.AddGameObject(Layer2)
 	s.AddGameObject(Layer3)
+	//s.AddGameObject(shadowShader)
 	
 	
 	fmt.Println("Scene loaded")
