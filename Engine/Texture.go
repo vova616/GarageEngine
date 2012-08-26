@@ -2,7 +2,7 @@ package Engine
 
 import (
 	"errors"
-	"github.com/banthar/gl"
+	"github.com/vova616/gl"
 	"image"
 	"image/color"
 	_ "image/png"

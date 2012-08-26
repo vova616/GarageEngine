@@ -19,12 +19,12 @@ type PlayerController struct {
 	state	int
 	Fire *GameObject
 	
-	
+	Floor *GameObject
 	Fires []*GameObject
 }
 
 func NewPlayerController() *PlayerController {
-	return &PlayerController{NewComponent(),10,20000,nil, -1,nil,make([]*GameObject, 0)}
+	return &PlayerController{NewComponent(),10,20000,nil, -1,nil,nil,make([]*GameObject, 0)}
 }
 
 func (sp *PlayerController) Start() {
@@ -33,12 +33,15 @@ func (sp *PlayerController) Start() {
 	}
 	sp.Physics = sp.GameObject().Physics
 	sp.Physics.Body.SetMass(1)
+	sp.Physics.Shape.Group = 1
 	//sp.Physics.Shape.Friction = 0.5
 }
 
 func (sp *PlayerController) Update() {
 	if Input.KeyPress(glfw.KeyUp) {
-		sp.Physics.Body.AddForce(0,sp.JumpSpeed)
+		if sp.Floor != nil {
+			sp.Physics.Body.AddForce(0,sp.JumpSpeed)
+		}
 	}
 	
 	tState := 0
@@ -82,11 +85,11 @@ func (sp *PlayerController) Update() {
 			s2.Y = s.Y
 			if s2.Y == 180 {
 				s2.Z = 90
-				nfire.Transform().Translate2(-60,0,0)
+				nfire.Transform().Translate2(-20,0,0)
 				nfire.Physics.Body.SetVelocity(-550,0)
 			} else {
 				s2.Z = -90
-				nfire.Transform().Translate2(60,0,0)
+				nfire.Transform().Translate2(20,0,0)
 				nfire.Physics.Body.SetVelocity(550,0)
 			}
 			nfire.Physics.Shape.Group = 1
@@ -127,4 +130,24 @@ func (sp *PlayerController) Update() {
 	}
 	
 	//GameSceneGeneral.Camera.Transform().SetPosition(NewVector3(200-sp.Transform().Position().X,0,0))
+}
+
+func (sp *PlayerController) OnCollisionEnter(collision Collision) {
+	//sp.IsOnFloor = true
+	cons := collision.Data.Contacts
+	for i,con := range cons {
+		if i >= collision.Data.NumContacts {
+			break
+		}
+		if Dot(con.Normal(), Vect{0,1}) < 0 {
+			sp.Floor = collision.ColliderA
+			return
+		}
+	}
+}
+
+func (sp *PlayerController) OnCollisionExit(collision Collision) {
+	if collision.ColliderA == sp.Floor {
+		sp.Floor = nil
+	}
 }
