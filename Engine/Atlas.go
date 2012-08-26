@@ -2,7 +2,7 @@ package Engine
 
 import (
 	"image"
-	"github.com/banthar/gl"
+	"github.com/vova616/gl"
 	"image/draw"
 	"log"
 	"os"
@@ -65,7 +65,7 @@ func AtlasLoadDirectory(path string) (*ManagedAtlas, error) {
 		return nil,errors.New("The path is not a directory. " + path)
 	}
 	
-	atlas := NewManagedAtlas(2048,512)
+	atlas := NewManagedAtlas(1024,512)
 	 
 	files, er := d.Readdir(0) 
 	for _,file := range files {
@@ -178,18 +178,17 @@ func (ma *ManagedAtlas) AddImage(img image.Image, id interface{} ) {
 	if bd.Max.X + 1 <= ma.image.Bounds().Max.X && bd.Max.Y + 1 <= ma.image.Bounds().Max.Y{
 		draw.Draw(ma.image, bd, img, image.Pt(0,0), draw.Over)
 		ma.lastPoint.X = bd.Max.X + 1
-			
+		//log.Println(bd)
 		ma.images[id] = bd
 	} else {
-		for i:=0;i<len(ma.images);i++ {
-			rect := ma.images[i]
-			log.Println(ma.image.Bounds().Max.Y - (rect.Max.Y + 1), ma.image.Bounds().Max.X - (rect.Min.X + 1), img.Bounds().Max.Y, img.Bounds().Max.X)
+		for _,rect := range ma.images {
+			//log.Println(rect, img.Bounds().Max.Y, img.Bounds().Max.X)
 			if ma.image.Bounds().Max.Y - (rect.Max.Y + 1) >= img.Bounds().Max.Y + 1 && ma.image.Bounds().Max.X - (rect.Min.X + 1) >= img.Bounds().Max.X + 1 {
 				ma.lastPoint.Y = rect.Max.Y + 1
 				ma.lastPoint.X = rect.Min.X 
 				
 				ma.AddImage(img, id)
-				break
+				return
 			} 
 		}
 		panic("Not enough room in atlas")
@@ -233,5 +232,7 @@ func (ma *ManagedAtlas) BuildAtlas() {
 	//ma.Texture = t
 	ma.Texture = NewRGBATexture(ma.image.Pix, ma.image.Bounds().Dx(), ma.image.Bounds().Dy())
 	ma.image.Pix = nil
+	ma.Bind()
+	gl.TexParameterf(gl.TEXTURE_2D, 0x84FE, 16);
 }
 

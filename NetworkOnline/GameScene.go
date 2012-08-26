@@ -79,7 +79,7 @@ func (s *GameScene) Load() {
 
 	//SPACCCEEEEE
 	Space.Gravity.Y = -700
-	Space.Iterations = 30
+	Space.Iterations = 10
 	//Space.AddBody
 	
 	atlas, e := AtlasLoadDirectory("./data/fire")
@@ -95,10 +95,8 @@ func (s *GameScene) Load() {
 	_ = uvsFire 
 	_ = indFire
 
- 	box, _ = LoadTexture("./data/rect.png")
-	//spc := NewSprite(sp)
-	
-	cir, _ = LoadTexture("./data/circle.png")
+
+
 	
 	
 	
@@ -114,11 +112,30 @@ func (s *GameScene) Load() {
 	f := clone2.Clone()
 	f.Transform().SetPosition(NewVector2(25, 300))
 	f.Transform().SetParent2(Layer1)
+	
+	
+	atlas, e = AtlasLoadDirectory("./data/Charecter")
+	//println("dafuq:")
+	atlas.AddImage(LoadImageQuiet("./data/rect.png"), 333)
+	atlas.AddImage(LoadImageQuiet("./data/circle.png"), 222)
+	if atlas == nil {
+		panic(e)
+	}
+	if e != nil {
+		fmt.Println(e)
+	}
+	atlas.BuildAtlas()
+	
+
+ 	box, _ = LoadTexture("./data/rect.png")
+	//spc := NewSprite(sp)
+	
+	cir, _ = LoadTexture("./data/circle.png")
 
 	
 	for i := 0; i < 0; i++ {
 		sprite3 := NewGameObject("Sprite" + fmt.Sprint(i))
-		sprite3.AddComponent(NewSprite(box))
+		sprite3.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, 333)))
 		sprite3.Transform().SetParent2(Layer2)
 		sprite3.Transform().SetRotation(NewVector3(0, 0, 180))
 		sprite3.Transform().SetPosition(NewVector2(160, 120+float32(i*31)))
@@ -130,16 +147,16 @@ func (s *GameScene) Load() {
 		phx.Body.SetMass(1)
 	} 
   
-	for i := 0; i < 0; i++ {
+	for i := 0; i < 100; i++ {
 		sprite3 := NewGameObject("Sprite" + fmt.Sprint(i))
-		sprite3.AddComponent(NewSprite(cir))
+		sprite3.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, 222)))
 		sprite3.Transform().SetParent2(Layer2)
-		sprite3.Transform().SetPosition(NewVector2(200+(float32(i%4))*25, 120+float32(i*20)))
+		sprite3.Transform().SetPosition(NewVector2(200+(float32(i%4))*25, 120+float32(i*30)))
 		sprite3.Transform().SetScale(NewVector2(30, 30))
 		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0,0},Float(15)))).(*Physics)
 		
-		phx.Shape.SetFriction(0.2)
-		phx.Shape.SetElasticity(0.8)
+		phx.Shape.SetFriction(0)
+		phx.Shape.SetElasticity(0.1)
 	} 
 	 
 	floor := NewGameObject("Floor")
@@ -179,20 +196,17 @@ func (s *GameScene) Load() {
 	
  
 	//Layer2.Transform().Position.Y += 200
+	//println("c")
 
-	atlas, e = AtlasLoadDirectory("./data/Charecter")
-	if atlas == nil {
-		panic(e)
-	}
-	if e != nil {
-		fmt.Println(e)
-	}
-	atlas.BuildAtlas()
+	
+	
  
 	uvs2, ind := AnimatedGroupUVs(atlas, "stand", "walk")
 	_ = uvs2 
 	_ = ind 
 	//	/fmt.Println(ind)
+	
+	
 	
 	sprite4 := NewGameObject("Sprite")
 	sprite := sprite4.AddComponent(NewSprite3(atlas.Texture, uvs2)).(*Sprite)

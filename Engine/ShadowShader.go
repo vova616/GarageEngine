@@ -1,7 +1,7 @@
 package Engine
 
 import (
-	"github.com/banthar/gl"
+	"github.com/vova616/gl"
 	//"gl/glu"
 	//"log"
 	//"image/png"

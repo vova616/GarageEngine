@@ -1,24 +1,27 @@
 package Engine
 
 import (
-	"github.com/banthar/gl"
+	"github.com/vova616/gl"
 )
 
 
 type Material interface{
 	Load()
-	Begin()
-	End()
+	Begin(gobj *GameObject)
+	End(gobj *GameObject)
 }
 
 type BasicMaterial struct{
 	Program 		gl.Program
 	vertexShader 	string
 	fragmentShader 	string
+	
+	ViewMatrix,ProjMatrix,ModelMatrix,BorderColor,Texture gl.UniformLocation
+	
 }
 
 func NewBasicMaterial(vertexShader, fragmentShader string) *BasicMaterial {
- 	return &BasicMaterial{gl.CreateProgram(), vertexShader, fragmentShader}
+ 	return &BasicMaterial{Program: gl.CreateProgram(), vertexShader:vertexShader, fragmentShader:fragmentShader}
 }
 
 func (b *BasicMaterial) Load() {
@@ -45,16 +48,22 @@ func (b *BasicMaterial) Load() {
 	program.BindAttribLocation(0, "vertexPos")
 	program.BindAttribLocation(1, "vertexUV")
 	
+	b.ViewMatrix = program.GetUniformLocation("MView")
+	b.ProjMatrix = program.GetUniformLocation("MProj")
+	b.ModelMatrix = program.GetUniformLocation("MModel")
+	b.BorderColor = program.GetUniformLocation("bcolor")
+	b.Texture = program.GetUniformLocation("mytexture") 
+	
 	
 	program.Link()
 }
 
 
-func (b *BasicMaterial) Begin() {
+func (b *BasicMaterial) Begin(gobj *GameObject) {
 	b.Program.Use()
 }
 
-func (b *BasicMaterial) End() {
+func (b *BasicMaterial) End(gobj *GameObject) {
 	
 }
 

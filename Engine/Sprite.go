@@ -1,7 +1,7 @@
 package Engine
 
 import (
-	"github.com/banthar/gl"
+	"github.com/vova616/gl"
 	//"gl/glu"
 	//"log"
 	//"image/png"
@@ -33,31 +33,11 @@ type Sprite struct {
 
 
 func NewSprite(tex *Texture) *Sprite {
-	sp := &Sprite{
-	BaseComponent: NewComponent(),
-	Texture: tex, 
-	buffer: gl.GenBuffer(), 
-	AnimationSpeed: 1,
-	endAnimation :  1,
-	UVs: 			AnimatedUV{NewUV(0, 0, 1, 1, float32(tex.Width())/float32(tex.Height()))}}
-	
-	sp.CreateVBO(sp.UVs...)
-
-	return sp
+	return NewSprite3(tex, AnimatedUV{NewUV(0, 0, 1, 1, float32(tex.Width())/float32(tex.Height()))})
 }
 
 func NewSprite2(tex *Texture, uv UV) *Sprite {
-	sp := &Sprite{
-	BaseComponent: NewComponent(),
-	Texture: tex, 
-	buffer: gl.GenBuffer(), 
-	AnimationSpeed: 1,
-	endAnimation :  1,
-	UVs: 			AnimatedUV{uv}}
-	
-	sp.CreateVBO(uv)
-
-	return sp
+	return NewSprite3(tex, AnimatedUV{uv})
 }
 
 func NewSprite3(tex *Texture, uv AnimatedUV) *Sprite {

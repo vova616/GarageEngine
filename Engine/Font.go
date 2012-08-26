@@ -2,7 +2,7 @@ package Engine
 
 import (
 	"github.com/vova616/GarageEngine/freetype"
-	"github.com/banthar/gl"
+	"github.com/vova616/gl"
 	"image"
 	"image/draw"
 	"io/ioutil"

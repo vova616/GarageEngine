@@ -1,7 +1,7 @@
 package Components
 
 import (
-	"github.com/banthar/gl"
+	"github.com/vova616/gl"
 	//"image"
 	//"github.com/jteeuwen/glfw"
 	//"gl/glu"

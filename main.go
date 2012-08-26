@@ -22,15 +22,13 @@ func main() {
 		}
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
-	} 
+	}
 
 	file, _ := os.Create("./log.txt")
 	os.Stdout = file
 	os.Stderr = file
 	os.Stdin = file
 	defer file.Close()
-
-	
 
 	go Start()
 	Terminated()
