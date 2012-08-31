@@ -13,6 +13,7 @@ import (
 	//"math"
 	c "github.com/vova616/chipmunk"
 	. "github.com/vova616/chipmunk/vect"
+	"image"
 )
 
 type GameScene struct {
@@ -82,15 +83,34 @@ func (s *GameScene) Load() {
 	Space.Iterations = 10
 	//Space.AddBody
 	
-	atlas, e := AtlasLoadDirectory("./data/fire")
-	if atlas == nil {
-		panic(e)
-	}
+	
+	natlas := NewAtlasNode(1000,1000)
+	natlas.Insert(image.NewGray(image.Rect(0,0,100,100)), 1)
+	natlas.Insert(image.NewGray(image.Rect(0,0,100,100)), 1)
+	natlas.Insert(image.NewGray(image.Rect(0,0,100,100)), 1)
+	natlas.Insert(image.NewGray(image.Rect(0,0,100,100)), 1)
+	natlas.Insert(image.NewGray(image.Rect(0,0,100,100)), 1)
+	natlas.Insert(image.NewGray(image.Rect(0,0,100,100)), 1)
+	natlas.Insert(image.NewGray(image.Rect(0,0,100,100)), 1)
+	natlas.Insert(image.NewGray(image.Rect(0,0,100,100)), 1)
+	natlas.Insert(image.NewGray(image.Rect(0,0,100,100)), 1)
+	natlas.Insert(image.NewGray(image.Rect(0,0,100,100)), 1)
+
+	
+	atlas := NewManagedAtlas(512,512)
+	e := atlas.AddGroup("./data/fire")
 	if e != nil {
 		fmt.Println(e)
 	}
+	e = atlas.AddGroup("./data/Charecter")
+	if e != nil {
+		fmt.Println(e)
+	}
+	atlas.AddImage(LoadImageQuiet("./data/rect.png"), 333)
+	atlas.AddImage(LoadImageQuiet("./data/circle.png"), 222)
+
 	atlas.BuildAtlas()
- 
+
 	uvsFire, indFire := AnimatedGroupUVs(atlas, "fire")
 	_ = uvsFire 
 	_ = indFire
@@ -114,23 +134,9 @@ func (s *GameScene) Load() {
 	f.Transform().SetParent2(Layer1)
 	
 	
-	atlas, e = AtlasLoadDirectory("./data/Charecter")
-	//println("dafuq:")
-	atlas.AddImage(LoadImageQuiet("./data/rect.png"), 333)
-	atlas.AddImage(LoadImageQuiet("./data/circle.png"), 222)
-	if atlas == nil {
-		panic(e)
-	}
-	if e != nil {
-		fmt.Println(e)
-	}
-	atlas.BuildAtlas()
-	
 
- 	box, _ = LoadTexture("./data/rect.png")
-	//spc := NewSprite(sp)
-	
-	cir, _ = LoadTexture("./data/circle.png")
+ 	box,_ = LoadTexture("./data/rect.png")
+	cir,_ = LoadTexture("./data/circle.png")
 
 	
 	for i := 0; i < 0; i++ {
@@ -155,9 +161,9 @@ func (s *GameScene) Load() {
 		sprite3.Transform().SetScale(NewVector2(30, 30))
 		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0,0},Float(15)))).(*Physics)
 		
-		phx.Shape.SetFriction(0)
-		phx.Shape.SetElasticity(0.1)
-	} 
+		phx.Shape.SetFriction(0.5)
+		phx.Shape.SetElasticity(0.6)
+	}  
 	 
 	floor := NewGameObject("Floor")
 	floor.AddComponent(NewSprite(box))

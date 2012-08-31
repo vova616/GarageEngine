@@ -11,6 +11,8 @@ import (
 	"strconv"
 )	
 
+const BorderSize  = 1
+
 type Atlas interface {
 	GLTexture
 	Index(id interface{}) image.Rectangle
@@ -66,7 +68,136 @@ func AtlasLoadDirectory(path string) (*ManagedAtlas, error) {
 	}
 	
 	atlas := NewManagedAtlas(1024,512)
-	 
+	
+	return atlas, atlas.AddGroup(path)
+}
+
+func IndexUV(a Atlas, id interface{}) UV {
+	rect := a.Index(id)
+	h := float32(a.Height())
+	w := float32(a.Width())
+	return NewUV(float32(rect.Min.X) / w, float32(rect.Min.Y) / h, float32(rect.Max.X) / w, float32(rect.Max.Y) / h, float32(rect.Dx())/float32(rect.Dy())) 
+}
+
+func IndexGroupUV(a Atlas, group interface{}) AnimatedUV {
+	rects := a.Group(group)
+	uvs := make([]UV, len(rects))
+	for i,r := range rects {
+		h := float32(a.Height())
+		w := float32(a.Width())
+		uvs[i] = NewUV(float32(r.Min.X) / w, float32(r.Min.Y) / h, float32(r.Max.X) / w, float32(r.Max.Y) / h, float32(r.Dx())/float32(r.Dy()))
+	}
+	return uvs
+}
+
+
+func RenderAtlas(a Atlas) {
+	a.Bind()
+	xratio := float32(a.Width()) / float32(a.Height())
+	gl.Begin(gl.QUADS)
+	gl.TexCoord2f(0, 1); gl.Vertex3f(-0.5, -0.5, 1) 
+	gl.TexCoord2f(1, 1); gl.Vertex3f((xratio)-0.5, -0.5, 1) 
+	gl.TexCoord2f(1, 0); gl.Vertex3f((xratio)-0.5, 0.5, 1) 
+	gl.TexCoord2f(0, 0); gl.Vertex3f(-0.5, 0.5, 1) 
+	gl.End()
+}
+
+type ManagedAtlas struct {
+	 *Texture
+	 image  				 *image.RGBA
+	 uvs map[interface{}] 	 image.Rectangle
+	 groups map[interface{}] []interface{}
+	 images map[interface{}] image.Image
+	 Tree					 *AtlasNode
+}
+
+type AtlasNode struct {
+	 Child 	 [2]*AtlasNode
+	 Rect  	 image.Rectangle
+	 ImageID interface{}
+}
+
+func NewAtlasNode(width, height int) *AtlasNode {
+	return &AtlasNode{Rect: image.Rect(0,0,width,height)}
+}
+
+func (node *AtlasNode) Insert(img image.Image, id interface{}) *AtlasNode {
+	if node.Child[0] != nil {
+		newNode := node.Child[1].Insert(img, id)
+		if newNode != nil {
+			return newNode
+		}
+		newNode = node.Child[0].Insert(img, id)
+		if newNode != nil {
+			return newNode
+		}
+	} else {
+		if node.ImageID != nil {
+			return nil
+		}
+		
+		if node.Rect.Dx() - (img.Bounds().Dx()+BorderSize) < 0 ||
+			node.Rect.Dy() - (img.Bounds().Dy()+BorderSize) < 0 {
+			return nil
+		}
+		
+		if node.Rect.Dx() == img.Bounds().Dx()+BorderSize   &&
+			node.Rect.Dy() == img.Bounds().Dy()+BorderSize   {
+			return node
+		}
+		
+		node.Child[0] = &AtlasNode{}
+		node.Child[1] = &AtlasNode{}
+		
+		dw := node.Rect.Dx() - (img.Bounds().Dx()+BorderSize)
+		dh := node.Rect.Dy() - (img.Bounds().Dy()+BorderSize)
+		if dw > dh {
+			node.Child[0].Rect = image.Rect(
+			node.Rect.Min.X,node.Rect.Min.Y,
+			node.Rect.Min.X+dw,node.Rect.Max.Y)
+
+			node.Child[1].Rect = image.Rect(
+			node.Rect.Min.X+dw,node.Rect.Min.Y,
+			node.Rect.Max.X,node.Rect.Max.Y)
+		} else {
+			node.Child[0].Rect = image.Rect( 
+			node.Rect.Min.X,node.Rect.Min.Y,
+			node.Rect.Max.X,node.Rect.Min.Y+dh)
+			
+			node.Child[1].Rect = image.Rect(
+			node.Rect.Min.X,node.Rect.Min.Y+dh,
+			node.Rect.Max.X,node.Rect.Max.Y)
+		}
+		//log.Println(node.Child[0].Rect, node.Child[1].Rect, id)
+		return node.Child[1].Insert(img, id)
+	}
+	return nil 
+}
+
+func NewManagedAtlas(width, height int) *ManagedAtlas {
+	return &ManagedAtlas{
+	image: image.NewRGBA(image.Rect(0,0,width,height)), 
+	uvs: make(map[interface{}] image.Rectangle),
+	groups:make(map[interface{}] []interface{}) , 
+	images: make(map[interface{}] image.Image),
+	Tree: NewAtlasNode(width,height)}
+}
+
+func (atlas *ManagedAtlas) AddGroup(path string) error {
+	d,e := os.Open(path)
+	if e != nil {
+		return e
+	}
+	defer d.Close()
+	ds, e := d.Stat()
+	if e != nil {
+		return e
+	}
+	if !ds.IsDir() {
+		
+		return errors.New("The path is not a directory. " + path)
+	}
+	
 	files, er := d.Readdir(0) 
 	for _,file := range files {
 		fullName := file.Name()
@@ -115,84 +246,19 @@ func AtlasLoadDirectory(path string) (*ManagedAtlas, error) {
 			atlas.groups[fName] = group
 		}
 	}
-	//if e != nil {
-	//	println(e)
-	//}
-	
-	return atlas,er
-}
-
-func IndexUV(a Atlas, id interface{}) UV {
-	rect := a.Index(id)
-	h := float32(a.Height())
-	w := float32(a.Width())
-	return NewUV(float32(rect.Min.X) / w, float32(rect.Min.Y) / h, float32(rect.Max.X) / w, float32(rect.Max.Y) / h, float32(rect.Dx())/float32(rect.Dy())) 
-}
-
-func IndexGroupUV(a Atlas, group interface{}) AnimatedUV {
-	rects := a.Group(group)
-	uvs := make([]UV, len(rects))
-	for i,r := range rects {
-		h := float32(a.Height())
-		w := float32(a.Width())
-		uvs[i] = NewUV(float32(r.Min.X) / w, float32(r.Min.Y) / h, float32(r.Max.X) / w, float32(r.Max.Y) / h, float32(r.Dx())/float32(r.Dy()))
-	}
-	return uvs
-}
-
-
-func RenderAtlas(a Atlas) {
-	a.Bind()
-	xratio := float32(a.Width()) / float32(a.Height())
-	gl.Begin(gl.QUADS)
-	gl.TexCoord2f(0, 1); gl.Vertex3f(-0.5, -0.5, 1) 
-	gl.TexCoord2f(1, 1); gl.Vertex3f((xratio)-0.5, -0.5, 1) 
-	gl.TexCoord2f(1, 0); gl.Vertex3f((xratio)-0.5, 0.5, 1) 
-	gl.TexCoord2f(0, 0); gl.Vertex3f(-0.5, 0.5, 1) 
-	gl.End()
-}
-
-type ManagedAtlas struct {
-	 *Texture
-	 image  *image.RGBA
-	 lastPoint image.Point
-	 images map[interface{}] image.Rectangle
-	 groups map[interface{}] []interface{}
-}
-
-func NewManagedAtlas(width, height int) *ManagedAtlas {
-	return &ManagedAtlas{image: image.NewRGBA(image.Rect(0,0,width,height)), images: make(map[interface{}] image.Rectangle),groups:make(map[interface{}] []interface{}) , lastPoint: image.Pt(1,1)}
+	return er
 }
 
 func (ma *ManagedAtlas) AddImage(img image.Image, id interface{} ) {
 	if img == nil {
 		panic("img is null")
 	}
-	_, exist := ma.images[id] 
+	_, exist := ma.uvs[id] 
 	if exist {
 		panic("id already exists")
 	}
 	
-	bd := img.Bounds().Add(ma.lastPoint)
-	
-	if bd.Max.X + 1 <= ma.image.Bounds().Max.X && bd.Max.Y + 1 <= ma.image.Bounds().Max.Y{
-		draw.Draw(ma.image, bd, img, image.Pt(0,0), draw.Over)
-		ma.lastPoint.X = bd.Max.X + 1
-		//log.Println(bd)
-		ma.images[id] = bd
-	} else {
-		for _,rect := range ma.images {
-			//log.Println(rect, img.Bounds().Max.Y, img.Bounds().Max.X)
-			if ma.image.Bounds().Max.Y - (rect.Max.Y + 1) >= img.Bounds().Max.Y + 1 && ma.image.Bounds().Max.X - (rect.Min.X + 1) >= img.Bounds().Max.X + 1 {
-				ma.lastPoint.Y = rect.Max.Y + 1
-				ma.lastPoint.X = rect.Min.X 
-				
-				ma.AddImage(img, id)
-				return
-			} 
-		}
-		panic("Not enough room in atlas")
-	}
+	ma.images[id] = img
 }
 
 func (ma *ManagedAtlas) Group(id interface{}) []image.Rectangle {
@@ -208,7 +274,7 @@ func (ma *ManagedAtlas) Group(id interface{}) []image.Rectangle {
 }
 
 func (ma *ManagedAtlas) Index(id interface{}) image.Rectangle {
-	rect, exist := ma.images[id] 
+	rect, exist := ma.uvs[id] 
 	if exist {
 		return rect
 	}
@@ -216,8 +282,8 @@ func (ma *ManagedAtlas) Index(id interface{}) image.Rectangle {
 }
 
 func (ma *ManagedAtlas) Indexs() []interface{} {
-	images := make([]interface{}, 0, len(ma.images))
-	for key,_ := range ma.images {
+	images := make([]interface{}, 0, len(ma.uvs))
+	for key,_ := range ma.uvs {
 		images = append(images, key)
 	}
 	return images
@@ -230,6 +296,43 @@ func (ma *ManagedAtlas) BuildAtlas() {
 	//	panic(err)
 	//}
 	//ma.Texture = t
+	
+	for {
+		maxArea := 0
+		var bigImage image.Image
+		var bigID 	interface{}
+		
+		for id,img := range ma.images {
+			if img != nil {
+				area := img.Bounds().Dx() * img.Bounds().Dy()
+				if area > maxArea {
+					maxArea = area
+					bigImage = img
+					bigID = id
+				}
+			}
+		}
+		
+		if bigImage == nil {
+			break
+		}
+		
+		node := ma.Tree.Insert(bigImage, bigID)
+		rect := node.Rect
+		rect.Max.X -= BorderSize
+		rect.Max.Y -= BorderSize
+		if node != nil {
+			node.ImageID = bigID
+			draw.Draw(ma.image, rect, bigImage, image.ZP, draw.Src)
+		} else {
+			panic("not enough space in atlas")
+		}
+		//log.Println(node.Rect, bigID)
+
+		ma.uvs[bigID] = rect
+		ma.images[bigID] = nil
+	}
+	
 	ma.Texture = NewRGBATexture(ma.image.Pix, ma.image.Bounds().Dx(), ma.image.Bounds().Dy())
 	ma.image.Pix = nil
 	ma.Bind()
