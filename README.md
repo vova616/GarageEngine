@@ -1,2 +1,19 @@
 Install:
-To avoid installing mingw and downloading libraries in windows I have added the .a files, you can find them in pkg folder and copy them to your pkg folder and it should work.
+Windows:
+To avoid installing mingw and downloading libraries in windows I have added the .a files.
+
+go get github.com/vova616/GarageEngine
+go get github.com/vova616/chipmunk
+go get github.com/vova616/gl 
+go get github.com/jteeuwen/glfw
+(just to make sure you got all the sources, ignore all the erroes)
+
+go to GarageEngine source folder and copy the pkg folder to your golang folder. (override)
+now you can try to compile GarageEngine.
+
+Other:
+go get github.com/vova616/GarageEngine
+
+you need to download glew and glfw libs.
+for glfw look here github.com/jteeuwen/glfw.
+for gl just google glew and download them.
