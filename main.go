@@ -21,6 +21,9 @@ func main() {
 			fmt.Errorf("%s\n", err)
 		}
 		pprof.StartCPUProfile(f)
+
+
+
 		defer pprof.StopCPUProfile()
 	}
 

@@ -50,10 +50,11 @@ func NewSprite3(tex *Texture, uv AnimatedUV) *Sprite {
 	endAnimation :  len(uv),
 	UVs: 			uv}
 	sp.CreateVBO(uv...)
-
+	
 
 	return sp
 }
+
 
 
 func (p *Sprite)BindAnimations(animMap map[interface{}][2]int) {
@@ -76,7 +77,7 @@ func (p *Sprite)CurrentAnimation() interface{} {
 }
 
 func (p *Sprite)OnComponentBind(binded *GameObject) {
-	binded.Sprite = p	
+	binded.Sprite = p
 } 
 
 func (sp *Sprite) CreateVBO(uvs ...UV) {

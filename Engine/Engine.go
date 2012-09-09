@@ -262,9 +262,7 @@ func drawGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		if comps[i].Component().drawableComponent != nil {
-			comps[i].Component().drawableComponent.Draw()
-		}
+		comps[i].Component().Draw()
 	}
 }
 
@@ -295,9 +293,9 @@ func startGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		if comps[i].Component().startableComponent != nil && !comps[i].Component().started {
-			comps[i].Component().started = true
-			comps[i].Component().startableComponent.Start()
+		if !comps[i].Component().Started() {
+			comps[i].Component().setStarted(true)
+			comps[i].Component().Start()
 		}
 	}
 }
@@ -316,9 +314,7 @@ func onCollisionGameObject(gameObject *GameObject, arb *c.Arbiter) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		if comps[i].Component().onCollisionComponent != nil {
-			comps[i].Component().onCollisionComponent.OnCollision(NewCollision(arb))
-		}
+		comps[i].Component().OnCollision(NewCollision(arb))
 	}
 }
 
@@ -327,9 +323,7 @@ func onCollisionEnterGameObject(gameObject *GameObject, arb *c.Arbiter) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		if comps[i].Component().onCollisionEnterComponent != nil {
-			comps[i].Component().onCollisionEnterComponent.OnCollisionEnter(NewCollision(arb))
-		}
+		comps[i].Component().OnCollisionEnter(NewCollision(arb))
 	}
 }
 
@@ -338,9 +332,7 @@ func onCollisionExitGameObject(gameObject *GameObject, arb *c.Arbiter) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		if comps[i].Component().onCollisionExitComponent != nil {
-			comps[i].Component().onCollisionExitComponent.OnCollisionExit(NewCollision(arb))
-		}
+		comps[i].Component().OnCollisionExit(NewCollision(arb))
 	}
 }
 
@@ -349,9 +341,7 @@ func udpateGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		if comps[i].Component().updateableComponent != nil {
-			comps[i].Component().updateableComponent.Update()
-		}
+		comps[i].Component().Update()
 	}
 }
 
@@ -360,9 +350,7 @@ func fixedUdpateGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		if comps[i].Component().fUpdateableComponent != nil {
-			comps[i].Component().fUpdateableComponent.FixedUpdate()
-		}
+		comps[i].Component().FixedUpdate()
 	}
 }
 
