@@ -81,6 +81,7 @@ func (s *GameScene) Load() {
 	//SPACCCEEEEE
 	Space.Gravity.Y = -700
 	Space.Iterations = 10
+	
 	//Space.AddBody
 	
 	
@@ -128,7 +129,7 @@ func (s *GameScene) Load() {
 	clone2.Transform().SetScale(NewVector2(58, 58))
 	clone2.Transform().SetParent2(Layer1)
 
-	  
+	 
 	f := clone2.Clone()
 	f.Transform().SetPosition(NewVector2(25, 300))
 	f.Transform().SetParent2(Layer1)

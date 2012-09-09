@@ -86,9 +86,7 @@ func (g *GameObject) destroy() {
 	}
 	g.transform = nil
 	for _, c := range g.components {
-		if c.Component().destroyableComponent != nil {
-			c.Component().destroyableComponent.Destroy()
-		}
+			c.Component().Destroy()
 	}
 	g.Transform().SetParent(nil) 
 	g.components = nil
@@ -108,19 +106,16 @@ func (g *GameObject) Clone() *GameObject {
 		n := reflect.New(v.Type())
 		n.Elem().Set(v)
 		nc := n.Interface().(Component)
-		nc.Component().gameObject = ng
-		ng.AddComponent(nc)
+		nc.setSelf(nc)
+		nc.Component().setGameObject(ng)
+		ng.AddComponent(nc) 
 	}
 	return ng
 }
 
 func (g *GameObject) AddComponent(com Component) Component {
-	c := com.Component()
-	if c == nil {
-		panic("BaseComponent is nil")
-	}
-	c.started = false
-	c.onAdd(com, g)
+	com.onAdd(com, g)
+	com.setStarted(false)
 	g.components = append(g.components, com)
 	return com
 }
@@ -152,113 +147,4 @@ func (g *GameObject) RemoveComponentsOfType(typ reflect.Type) {
 			g.components = append(g.components[:i], g.components[i+1:]...)
 		}
 	}
-}
-
-type Component interface {
-	Component() *BaseComponent
-	//setComponent(b *BaseComponent) 
-}
-
-type BaseComponent struct {
-	drawableComponent         drawableComponent
-	updateableComponent       updateableComponent
-	fUpdateableComponent      fUpdateableComponent
-	startableComponent        startableComponent
-	cloneableComponent        cloneableComponent
-	destroyableComponent      destroyableComponent
-	lUpdateComponent          lUpdateComponent
-	onCollisionComponent      onCollisionComponent
-	onCollisionEnterComponent onCollisionEnterComponent
-	onCollisionExitComponent  onCollisionExitComponent
-	drawablePostComponent	  drawablePostComponent
-	started                   bool
-	gameObject                *GameObject
-	component                 interface{}
-}
-
-func NewComponent() BaseComponent {
-	return BaseComponent{}
-}
-
-func (c *BaseComponent) onAdd(component interface{}, gameObject *GameObject) {
-	c.drawableComponent, _ = component.(drawableComponent)
-	c.drawablePostComponent, _ = component.(drawablePostComponent)
-	c.updateableComponent, _ = component.(updateableComponent)
-	c.fUpdateableComponent, _ = component.(fUpdateableComponent)
-	c.startableComponent, _ = component.(startableComponent)
-	c.cloneableComponent, _ = component.(cloneableComponent)
-	c.destroyableComponent, _ = component.(destroyableComponent)
-	c.lUpdateComponent, _ = component.(lUpdateComponent)
-	c.onCollisionComponent, _ = component.(onCollisionComponent)
-	c.onCollisionExitComponent, _ = component.(onCollisionExitComponent)
-	c.onCollisionEnterComponent, _ = component.(onCollisionEnterComponent)
-	
-	
-	
-	c.gameObject = gameObject
-	c.component = component
-	ob, ok := component.(onAddComponent)
-	if ok {
-		ob.OnComponentBind(gameObject)
-	}
-}
-
-func (c *BaseComponent) Component() *BaseComponent {
-	return c
-}
-
-func (c *BaseComponent) GameObject() *GameObject {
-	return c.gameObject
-}
-
-func (c *BaseComponent) Transform() *Transform {
-	return c.gameObject.Transform()
-}
-
-type drawableComponent interface {
-	Draw()
-}
-
-type drawablePostComponent interface {
-	PostDraw()
-}
-
-type updateableComponent interface {
-	Update()
-}
-
-type fUpdateableComponent interface {
-	FixedUpdate()
-}
-
-type startableComponent interface {
-	Start()
-}
-
-type cloneableComponent interface {
-	Clone()
-}
-
-type lUpdateComponent interface {
-	LateUpdate()
-}
-
-type onCollisionComponent interface {
-	OnCollision(collision Collision)
-}
-
-type onCollisionEnterComponent interface {
-	OnCollisionEnter(collision Collision)
-}
-
-type onCollisionExitComponent interface {
-	OnCollisionExit(collision Collision)
-}
-
-type onAddComponent interface {
-	OnComponentBind(binded *GameObject)
-}
-
-type destroyableComponent interface {
-	Destroy()
 }
