@@ -17,7 +17,7 @@ func NewCamera() *Camera {
 }
 
 func (c *Camera) Update() {
-	//c.BaseComponent2.
+	
 	/*
 		w := float32(Width)/2
 		h := float32(Height)/2

@@ -15,5 +15,6 @@ func NewRotator() *Rotator {
 
 func (sp *Rotator) Update() {
 	//log.Panicln("Rotate")
-	sp.Transform().SetRotation(sp.Transform().Rotation().Add(NewVector3(0,1,0)))
+	rot := sp.Transform().Rotation()
+	sp.Transform().SetRotation(rot.Add(NewVector3(0, 1, 0)))
 }

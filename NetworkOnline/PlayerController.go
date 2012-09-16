@@ -2,29 +2,30 @@ package NetworkOnline
 
 import (
 	. "github.com/vova616/GarageEngine/Engine"
-    //"Engine/Components"
-	"github.com/vova616/GarageEngine/Engine/Input"
+	//"Engine/Components"
 	"github.com/jteeuwen/glfw"
+	"github.com/vova616/GarageEngine/Engine/Input"
 	//"log"
-	. "github.com/vova616/chipmunk/vect"
 	c "github.com/vova616/chipmunk"
+	. "github.com/vova616/chipmunk/vect"
 	//"fmt"
+	//"time"
 )
 
 type PlayerController struct {
 	BaseComponent
-	Speed float32
+	Speed     float32
 	JumpSpeed float32
-	Physics *Physics
-	state	int
-	Fire *GameObject
-	
+	Physics   *Physics
+	state     int
+	Fire      *GameObject
+
 	Floor *GameObject
 	Fires []*GameObject
 }
 
 func NewPlayerController() *PlayerController {
-	return &PlayerController{NewComponent(),10,20000,nil, -1,nil,nil,make([]*GameObject, 0)}
+	return &PlayerController{NewComponent(), 10, 20000, nil, -1, nil, nil, make([]*GameObject, 0)}
 }
 
 func (sp *PlayerController) Start() {
@@ -35,19 +36,54 @@ func (sp *PlayerController) Start() {
 	sp.Physics.Body.SetMass(1)
 	sp.Physics.Shape.Group = 1
 	//sp.Physics.Shape.Friction = 0.5
+	StartGoroutine(func() { sp.AutoShoot() })
+}
+
+func (sp *PlayerController) AutoShoot() {
+	for {
+		Wait(3)
+		sp.Shoot()
+	}
+}
+
+func (sp *PlayerController) Shoot() {
+	if sp.Fire != nil {
+		nfire := sp.Fire.Clone()
+		sp.Fires = append(sp.Fires, nfire)
+		nfire.Transform().SetParent2(GameSceneGeneral.Layer1)
+		nfire.Transform().SetWorldPosition(sp.Transform().WorldPosition())
+		nfire.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, Float(20))))
+		nfire.Physics.Body.IgnoreGravity = true
+		nfire.Physics.Body.SetMass(20)
+		s := sp.Transform().Rotation()
+		s2 := nfire.Transform().Rotation()
+		s2.Y = s.Y
+		if s2.Y == 180 {
+			s2.Z = 90
+			nfire.Transform().Translatef(-20, 0, 0)
+			nfire.Physics.Body.SetVelocity(-550, 0)
+		} else {
+			s2.Z = -90
+			nfire.Transform().Translatef(20, 0, 0)
+			nfire.Physics.Body.SetVelocity(550, 0)
+		}
+		nfire.Physics.Shape.Group = 1
+		nfire.Physics.Body.SetMoment(Inf)
+		nfire.Transform().SetRotation(s2)
+	}
 }
 
 func (sp *PlayerController) Update() {
 	if Input.KeyPress(glfw.KeyUp) {
 		if sp.Floor != nil {
-			sp.Physics.Body.AddForce(0,sp.JumpSpeed)
+			sp.Physics.Body.AddForce(0, sp.JumpSpeed)
 		}
 	}
-	
+
 	tState := 0
-	
-	if Input.KeyDown(glfw.KeyLeft) {		 
-		sp.Physics.Body.AddVelocity(-sp.Speed,0)
+
+	if Input.KeyDown(glfw.KeyLeft) {
+		sp.Physics.Body.AddVelocity(-sp.Speed, 0)
 		if sp.state != 1 {
 			sp.GameObject().Sprite.SetAnimation("walk")
 		}
@@ -59,7 +95,7 @@ func (sp *PlayerController) Update() {
 		//sp.Physics.Shape.Friction = 0
 	}
 	if Input.KeyDown(glfw.KeyRight) {
-		sp.Physics.Body.AddVelocity(sp.Speed,0)
+		sp.Physics.Body.AddVelocity(sp.Speed, 0)
 		if sp.state != 1 {
 			sp.GameObject().Sprite.SetAnimation("walk")
 		}
@@ -69,35 +105,12 @@ func (sp *PlayerController) Update() {
 		sp.state = 1
 		tState = 1
 		//sp.Physics.Shape.Friction = 0
-	} 
-	
+	}
+
 	if Input.KeyPress(glfw.KeySpace) {
-		if sp.Fire != nil {
-			nfire := sp.Fire.Clone()
-			sp.Fires = append(sp.Fires,nfire)
-			nfire.Transform().SetParent2(GameSceneGeneral.Layer1)
-			nfire.Transform().SetWorldPosition(sp.Transform().WorldPosition())
-			nfire.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0,0},Float(20))))
-			nfire.Physics.Body.IgnoreGravity = true
-			nfire.Physics.Body.SetMass(20)
-			s := sp.Transform().Rotation()
-			s2 := nfire.Transform().Rotation()
-			s2.Y = s.Y
-			if s2.Y == 180 {
-				s2.Z = 90
-				nfire.Transform().Translate2(-20,0,0)
-				nfire.Physics.Body.SetVelocity(-550,0)
-			} else {
-				s2.Z = -90
-				nfire.Transform().Translate2(20,0,0)
-				nfire.Physics.Body.SetVelocity(550,0)
-			}
-			nfire.Physics.Shape.Group = 1
-			nfire.Physics.Body.SetMoment(Inf)
-			nfire.Transform().SetRotation(s2) 
-		}
-	} 
-	
+		sp.Shoot()
+	}
+
 	if tState != 1 {
 		if sp.state != 0 {
 			sp.GameObject().Sprite.SetAnimation("stand")
@@ -105,41 +118,41 @@ func (sp *PlayerController) Update() {
 		//sp.Physics.Shape.Friction = 0.5
 		sp.state = 0
 	}
-	
+
 	v := sp.Physics.Body.Velocity()
-	
+
 	if v.X > 200 {
-		sp.Physics.Body.SetVelocity(200,float32(v.Y))
+		sp.Physics.Body.SetVelocity(200, float32(v.Y))
 	} else if v.X < -200 {
-		sp.Physics.Body.SetVelocity(-200,float32(v.Y))
+		sp.Physics.Body.SetVelocity(-200, float32(v.Y))
 	}
-	
-	for i:=0;i<len(sp.Fires);i++ { 
+
+	for i := 0; i < len(sp.Fires); i++ {
 		fire := sp.Fires[i]
-		if fire.Transform().Rotation().Z <= -80 && fire.Physics.Body.Velocity().X <= 1{
+		if fire.Transform().Rotation().Z <= -80 && fire.Physics.Body.Velocity().X <= 1 {
 			//fire.Destory()
 			//HACK
-			fire.Transform().SetWorldPosition(NewVector3(-10000,-1000,-1000))
+			fire.Transform().SetWorldPosition(NewVector3(-10000, -1000, -1000))
 			sp.Fires = append(sp.Fires[:i], sp.Fires[i+1:]...)
 			i--
 		} else if fire.Transform().Rotation().Z >= 80 && fire.Physics.Body.Velocity().X >= -1 {
-			fire.Transform().SetWorldPosition(NewVector3(-10000,-1000,-1000))
-			sp.Fires = append(sp.Fires[:i], sp.Fires[i+1:]...)  
-			i--  
+			fire.Transform().SetWorldPosition(NewVector3(-10000, -1000, -1000))
+			sp.Fires = append(sp.Fires[:i], sp.Fires[i+1:]...)
+			i--
 		}
 	}
-	
+
 	//GameSceneGeneral.Camera.Transform().SetPosition(NewVector3(200-sp.Transform().Position().X,0,0))
 }
 
 func (sp *PlayerController) OnCollisionEnter(collision Collision) {
 	//sp.IsOnFloor = true
 	cons := collision.Data.Contacts
-	for i,con := range cons {
+	for i, con := range cons {
 		if i >= collision.Data.NumContacts {
 			break
 		}
-		if Dot(con.Normal(), Vect{0,1}) < 0 {
+		if Dot(con.Normal(), Vect{0, 1}) < 0 {
 			sp.Floor = collision.ColliderA
 			return
 		}

@@ -11,9 +11,9 @@ import (
 	//"image/png"
 	//"os" 
 	//"strconv"
+	"github.com/jteeuwen/glfw"
 	. "github.com/vova616/GarageEngine/Engine"
 	. "github.com/vova616/GarageEngine/Engine/Input"
-	"github.com/jteeuwen/glfw"
 	. "github.com/vova616/chipmunk/vect"
 )
 
@@ -46,8 +46,8 @@ func NewUIText(font *Font, text string) *UIText {
 func (ui *UIText) OnComponentBind(binded *GameObject) {
 	h := (ui.height) * (ui.GameObject().Transform().WorldScale().Y)
 	w := (ui.width) * (ui.GameObject().Transform().WorldScale().X)
-	ph := binded.AddComponent(NewPhysics(true,w,h)).(*Physics)
-	_ = ph 
+	ph := binded.AddComponent(NewPhysics(true, w, h)).(*Physics)
+	_ = ph
 	ph.Body.IgnoreGravity = true
 	ph.Shape.IsSensor = true
 }
@@ -162,15 +162,15 @@ func (ui *UIText) OnMouseExit() {
 
 func (ui *UIText) UpdateCollider() {
 	//if ui.GameObject().Physics.Body.Enabled {
-		b := ui.GameObject().Physics.Box
-		h := float64(ui.height) * float64(ui.GameObject().Transform().WorldScale().Y)
-		w := float64(ui.width) * float64(ui.GameObject().Transform().WorldScale().X)
-		if Float(h) != b.Height || Float(w) != b.Width {
-			b.Width = Float(w)
-			b.Height = Float(h)
-			b.UpdatePoly()
-		}
-		//log.Println(b.Height, b.Width, ui.GameObject().Transform().Scale().X, ui.GameObject().Name())
+	b := ui.GameObject().Physics.Box
+	h := float64(ui.height) * float64(ui.GameObject().Transform().WorldScale().Y)
+	w := float64(ui.width) * float64(ui.GameObject().Transform().WorldScale().X)
+	if Float(h) != b.Height || Float(w) != b.Width {
+		b.Width = Float(w)
+		b.Height = Float(h)
+		b.UpdatePoly()
+	}
+	//log.Println(b.Height, b.Width, ui.GameObject().Transform().Scale().X, ui.GameObject().Name())
 	//}
 }
 
@@ -186,54 +186,47 @@ func (ui *UIText) Draw() {
 	if ui.text == "" {
 		return
 	}
-	
+
 	v := Align(ui.align)
 	v.X *= ui.width
 	v.Y *= ui.height
 
-	program := TextureShader
-	program.Use()
-	
-	vert := program.GetAttribLocation("vectexPos")
-	uv := program.GetAttribLocation("vertexUV")
-	
+	TextureMaterial.Begin(ui.GameObject())
+
+	vert := TextureMaterial.Verts
+	uv := TextureMaterial.UV
+	mp := TextureMaterial.ProjMatrix
+	mv := TextureMaterial.ViewMatrix
+	mm := TextureMaterial.ModelMatrix
+	tx := TextureMaterial.Texture
+
 	vert.EnableArray()
-	uv.EnableArray() 
-	
+	uv.EnableArray()
+
 	ui.buffer.Bind(gl.ARRAY_BUFFER)
-	
+
 	vert.AttribPointerPtr(3, gl.FLOAT, false, 0, 0)
 	uv.AttribPointerPtr(2, gl.FLOAT, false, 0, ui.texcoordsIndex)
-	
+
 	camera := GetScene().SceneBase().Camera
-	
-	 
+
 	view := NewIdentity()
 	model := NewIdentity()
-	model.Translate(v.X,v.Y,0)
+	model.Translate(v.X, v.Y, 0)
 	model.Mul(ui.GameObject().Transform().Matrix())
-	
-	
-	
-	
-	mv := program.GetUniformLocation("MView")
+
 	mv.Uniform4fv([]float32(view[:]))
-	mp := program.GetUniformLocation("MProj")
 	mp.Uniform4fv([]float32(camera.Projection[:]))
-	mm := program.GetUniformLocation("MModel")
 	mm.Uniform4fv([]float32(model[:]))
-	
+
 	ui.Font.Bind()
 	gl.ActiveTexture(gl.TEXTURE0)
-	tx := program.GetUniformLocation("mytexture")
 	tx.Uniform1i(0)
-	
-	
-	
+
 	gl.DrawArrays(gl.QUADS, 0, ui.vertexCount)
-	
+
 	ui.Font.Unbind()
 	vert.DisableArray()
 	uv.DisableArray()
-		
+
 }

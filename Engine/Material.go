@@ -4,34 +4,33 @@ import (
 	"github.com/vova616/gl"
 )
 
-
-type Material interface{
+type Material interface {
 	Load()
 	Begin(gobj *GameObject)
 	End(gobj *GameObject)
 }
 
-type BasicMaterial struct{
-	Program 		gl.Program
-	vertexShader 	string
-	fragmentShader 	string
-	
-	ViewMatrix,ProjMatrix,ModelMatrix,BorderColor,Texture gl.UniformLocation
-	
+type BasicMaterial struct {
+	Program        gl.Program
+	vertexShader   string
+	fragmentShader string
+
+	ViewMatrix, ProjMatrix, ModelMatrix, BorderColor, Texture gl.UniformLocation
+	Verts, UV                                                 gl.AttribLocation
 }
 
 func NewBasicMaterial(vertexShader, fragmentShader string) *BasicMaterial {
- 	return &BasicMaterial{Program: gl.CreateProgram(), vertexShader:vertexShader, fragmentShader:fragmentShader}
+	return &BasicMaterial{Program: gl.CreateProgram(), vertexShader: vertexShader, fragmentShader: fragmentShader}
 }
 
 func (b *BasicMaterial) Load() {
 	program := b.Program
 	vrt := gl.CreateShader(gl.VERTEX_SHADER)
 	frg := gl.CreateShader(gl.FRAGMENT_SHADER)
-	
+
 	vrt.Source(vertexShader)
 	frg.Source(fragmentShader)
-	
+
 	vrt.Compile()
 	if vrt.Get(gl.COMPILE_STATUS) != 1 {
 		println(vrt.GetInfoLog())
@@ -40,35 +39,35 @@ func (b *BasicMaterial) Load() {
 	if frg.Get(gl.COMPILE_STATUS) != 1 {
 		println(frg.GetInfoLog())
 	}
-	
+
 	program.AttachShader(vrt)
 	program.AttachShader(frg)
-	
 
 	program.BindAttribLocation(0, "vertexPos")
 	program.BindAttribLocation(1, "vertexUV")
-	
+
+	program.Link()
+
+	b.Verts = program.GetAttribLocation("vertexPos")
+	b.UV = program.GetAttribLocation("vertexUV")
 	b.ViewMatrix = program.GetUniformLocation("MView")
 	b.ProjMatrix = program.GetUniformLocation("MProj")
 	b.ModelMatrix = program.GetUniformLocation("MModel")
 	b.BorderColor = program.GetUniformLocation("bcolor")
-	b.Texture = program.GetUniformLocation("mytexture") 
-	
-	
-	program.Link()
-}
+	b.Texture = program.GetUniformLocation("mytexture")
 
+}
 
 func (b *BasicMaterial) Begin(gobj *GameObject) {
 	b.Program.Use()
 }
 
 func (b *BasicMaterial) End(gobj *GameObject) {
-	
+
 }
 
 var TextureShader gl.Program
-
+var TextureMaterial *BasicMaterial
 
 const vertexShader = `
 #version 130
@@ -77,7 +76,7 @@ uniform mat4 MProj;
 uniform mat4 MView;
 uniform mat4 MModel;
 
-in  vec3 vectexPos;
+in  vec3 vertexPos;
 in  vec2 vertexUV;
 out vec2 UV;
 
@@ -85,11 +84,10 @@ out vec2 UV;
  
 void main(void)
 {
-	gl_Position = MProj * MView * MModel * vec4(vectexPos, 1.0);
+	gl_Position = MProj * MView * MModel * vec4(vertexPos, 1.0);
 	UV = vertexUV;
 }
 `
-
 
 const fragmentShader = `
 #version 130
@@ -116,10 +114,10 @@ func loadShader() {
 	program := gl.CreateProgram()
 	vrt := gl.CreateShader(gl.VERTEX_SHADER)
 	frg := gl.CreateShader(gl.FRAGMENT_SHADER)
-	
+
 	vrt.Source(vertexShader)
 	frg.Source(fragmentShader)
-	
+
 	vrt.Compile()
 	if vrt.Get(gl.COMPILE_STATUS) != 1 {
 		println(vrt.GetInfoLog())
@@ -128,17 +126,15 @@ func loadShader() {
 	if frg.Get(gl.COMPILE_STATUS) != 1 {
 		println(frg.GetInfoLog())
 	}
-	
+
 	program.AttachShader(vrt)
 	program.AttachShader(frg)
-	
 
 	program.BindAttribLocation(0, "vertexPos")
 	program.BindAttribLocation(1, "vertexUV")
-	
-	
+
 	program.Link()
 	program.Use()
-	
-	TextureShader = program 
+
+	TextureShader = program
 }
