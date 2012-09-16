@@ -17,21 +17,21 @@ const (
 	Ended   = Command(3)
 )
 
-type Goroutine struct {
+type Coroutine struct {
 	in    chan Command
 	out   chan Command
 	State Command
 }
 
-func (gr *Goroutine) WaitForCommand() {
+func (gr *Coroutine) WaitForCommand() {
 	act := <-gr.in
 	switch act {
 	case Continue:
 		break
 	case Close:
-		for i, ch := range goroutines {
+		for i, ch := range coroutines {
 			if ch == gr {
-				goroutines[i] = nil
+				coroutines[i] = nil
 				break
 			}
 		}
@@ -40,29 +40,29 @@ func (gr *Goroutine) WaitForCommand() {
 }
 
 var (
-	goroutines        []*Goroutine = make([]*Goroutine, 0, 100)
-	current           *Goroutine
-	runningGoroutines bool = false
+	coroutines        []*Coroutine = make([]*Coroutine, 0, 100)
+	current           *Coroutine
+	runningCoroutines bool = false
 )
 
-func StartGoroutine(fnc func()) *Goroutine {
-	gr := &Goroutine{make(chan Command), make(chan Command), Running}
+func StartCoroutine(fnc func()) *Coroutine {
+	gr := &Coroutine{make(chan Command), make(chan Command), Running}
 	found := false
-	for i, ch := range goroutines {
+	for i, ch := range coroutines {
 		if ch == nil {
-			goroutines[i] = gr
+			coroutines[i] = gr
 			found = true
 			break
 		}
 	}
 	if !found {
-		goroutines = append(goroutines, gr)
+		coroutines = append(coroutines, gr)
 	}
-	go startGoroutine(fnc, gr)
+	go startCoroutine(fnc, gr)
 	return gr
 }
 
-func startGoroutine(fnc func(), gr *Goroutine) {
+func startCoroutine(fnc func(), gr *Coroutine) {
 	defer errorFunc()
 	gr.WaitForCommand()
 	fnc()
@@ -76,7 +76,7 @@ func errorFunc() {
 }
 
 func YieldSkip() {
-	if !runningGoroutines {
+	if !runningCoroutines {
 		return
 	}
 	c := current
@@ -84,8 +84,8 @@ func YieldSkip() {
 	c.WaitForCommand()
 }
 
-func YieldGoroutine(gr *Goroutine) {
-	if !runningGoroutines {
+func YieldCoroutine(gr *Coroutine) {
+	if !runningCoroutines {
 		return
 	}
 	for gr.State != Ended {
@@ -94,7 +94,7 @@ func YieldGoroutine(gr *Goroutine) {
 }
 
 func Yield(Out <-chan Command) {
-	if !runningGoroutines {
+	if !runningCoroutines {
 		return
 	}
 	c := current
@@ -128,7 +128,7 @@ func (signal Signal) SendEnd() {
 }
 
 func Wait(seconds float32) {
-	if !runningGoroutines {
+	if !runningCoroutines {
 		return
 	}
 	start := time.Now()
@@ -149,20 +149,20 @@ func Wait(seconds float32) {
 	*/
 }
 
-func RunGoroutines() {
-	runningGoroutines = true
-	for i, ch := range goroutines {
+func RunCoroutines() {
+	runningCoroutines = true
+	for i, ch := range coroutines {
 		if ch != nil {
 			current = ch
 			ch.in <- Continue
 			state := <-ch.out
 			if state == Ended {
-				goroutines[i] = nil
+				coroutines[i] = nil
 				ch.State = Ended
 			}
 		}
 	}
-	runningGoroutines = false
+	runningCoroutines = false
 	current = nil
 }
 

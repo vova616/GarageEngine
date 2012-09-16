@@ -100,7 +100,7 @@ func StartEngine() {
 	if err = initGL(); err != nil {
 		panic(err)
 	}
-	
+
 	TextureMaterial = NewBasicMaterial(vertexShader, fragmentShader)
 	TextureMaterial.Load()
 }
@@ -221,7 +221,7 @@ func Run() {
 		physicsEnd := time.Now()
 
 		Iter(arr, udpateGameObject)
-		RunGoroutines()
+		RunCoroutines()
 		Iter(arr, drawGameObject)
 
 		stepEnd := time.Now()
