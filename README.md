@@ -24,18 +24,29 @@ The useage is same as unity coroutines.
 
 ## Example:
 	func (sp *PlayerController) Start() {
-		StartCoroutine(func() { sp.AutoShoot() })
+		as := StartCoroutine(func() { sp.AutoShoot() })
+		
+		StartCoroutine(func() {
+			Wait(3)
+			YieldCoroutine(as) //wait for as to finish
+			for i := 0; i < 10; i++ {
+				YieldSkip()
+				YieldSkip()
+				YieldSkip()
+				sp.Shoot()
+			}
+		})
 	}
 
 	func (sp *PlayerController) AutoShoot() {
-		for {
+		for i := 0; i < 3; i++ {
 			Wait(3)
 			sp.Shoot()
 		}
 	}
 
 	func (sp *PlayerController) AutoShoot2() {
-		for {
+		for i := 0; i < 3; i++ {
 			for i:=0;i<3*60;i++ {
 				YieldSkip() //Frame skip
 			}
@@ -44,7 +55,7 @@ The useage is same as unity coroutines.
 	}
 
 	func (sp *PlayerController) AutoShoot3() {
-		for {
+		for i := 0; i < 3; i++ {
 			Signal := NewSignal()
 			go func() {
 				<-time.After(time.Second * 3)
