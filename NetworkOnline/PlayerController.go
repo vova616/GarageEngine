@@ -36,7 +36,7 @@ func (sp *PlayerController) Start() {
 	sp.Physics.Body.SetMass(1)
 	sp.Physics.Shape.Group = 1
 	//sp.Physics.Shape.Friction = 0.5
-	StartGoroutine(func() { sp.AutoShoot() })
+	StartCoroutine(func() { sp.AutoShoot() })
 }
 
 func (sp *PlayerController) AutoShoot() {
