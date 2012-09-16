@@ -13,6 +13,7 @@ func NewComponent() BaseComponent {
 	return BaseComponent{}
 }
 
+
 func (c *BaseComponent) onAdd(component Component, gameObject *GameObject) {	
 	c.gameObject = gameObject
 	c.self = component

@@ -21,7 +21,7 @@ type Vector struct {
 	X, Y, Z float32
 }
 
-func (v Vector) String() string {
+func (v *Vector) String() string {
 	return fmt.Sprintf("(%f,%f,%f)", v.X, v.Y, v.Z)
 }
 
@@ -33,45 +33,68 @@ func NewVector3(x, y, z float32) Vector {
 	return Vector{x, y, z}
 }
 
-func (v Vector) Add(vect Vector) Vector {
+func (v *Vector) Add(vect Vector) Vector {
 	return Vector{v.X + vect.X, v.Y + vect.Y, v.Z + vect.Z}
 }
 
-func (v Vector) Sub(vect Vector) Vector {
+func (v *Vector) Sub(vect Vector) Vector {
 	return Vector{v.X - vect.X, v.Y - vect.Y, v.Z - vect.Z}
 }
 
-func (v Vector) Mul(vect Vector) Vector {
+func (v *Vector) Mul(vect Vector) Vector {
 	return Vector{v.X * vect.X, v.Y * vect.Y, v.Z * vect.Z}
 }
 
-func (v Vector) Mul2(vect float32) Vector {
+func (v *Vector) Mul2(vect float32) Vector {
 	return Vector{v.X * vect, v.Y * vect, v.Z * vect}
 }
 
-func (v Vector) Div(vect Vector) Vector {
+func (v *Vector) Div(vect Vector) Vector {
 	return Vector{v.X / vect.X, v.Y / vect.Y, v.Z / vect.Z}
 }
 
-func (v Vector) Transform(transform Matrix) Vector {
+func (v *Vector) Transform(transform Matrix) Vector {
 	return NewVector3(
 		(v.X*transform[0])+(v.Y*transform[4])+(v.Z*transform[8])+transform[12],
 		(v.X*transform[1])+(v.Y*transform[5])+(v.Z*transform[9])+transform[13],
 		(v.X*transform[2])+(v.Y*transform[6])+(v.Z*transform[10])+transform[14])
 }
 
-func (v Vector) Length() float32 {
+func (v *Vector) fixAngle() {
+	for v.X >= 360 {
+		v.X -= 360
+	}
+	for v.X <= -360 {
+		v.X += 360
+	}
+
+	for v.Y >= 360 {
+		v.Y -= 360
+	}
+	for v.Y <= -360 {
+		v.Y += 360
+	}
+
+	for v.Z >= 360 {
+		v.Z -= 360
+	}
+	for v.Z <= -360 {
+		v.Z += 360
+	}
+}
+
+func (v *Vector) Length() float32 {
 	return float32(math.Sqrt(float64(v.X*v.X + v.Y*v.Y)))
 }
 
-func (v Vector) Normalize() {
+func (v *Vector) Normalize() {
 	l := v.Length()
 	v.X /= l
 	v.Y /= l
 	v.Z /= l
 }
 
-func (v Vector) Normalized() Vector {
+func (v *Vector) Normalized() Vector {
 	l := v.Length()
 	if l == 0 {
 		return NewVector3(0, 0, 0)
@@ -120,6 +143,10 @@ func (t *Transform) SetPosition(vect Vector) {
 	t.position = vect
 }
 
+func (t *Transform) SetPositionf(x, y, z float32) {
+	t.SetPosition(NewVector3(x, y, z))
+}
+
 func (t *Transform) SetRotation(vect Vector) {
 	if t.rotation == vect {
 		return
@@ -128,12 +155,20 @@ func (t *Transform) SetRotation(vect Vector) {
 	t.rotation = vect
 }
 
+func (t *Transform) SetRotationf(x, y, z float32) {
+	t.SetRotation(NewVector3(x, y, z))
+}
+
 func (t *Transform) SetScale(vect Vector) {
 	if t.scale == vect {
 		return
 	}
 	t.updatedMatrix = false
 	t.scale = vect
+}
+
+func (t *Transform) SetScalef(x, y, z float32) {
+	t.SetScale(NewVector3(x, y, z))
 }
 
 func (t *Transform) WorldPosition() Vector {
@@ -169,6 +204,10 @@ func (t *Transform) SetWorldPosition(vect Vector) {
 	}
 }
 
+func (t *Transform) SetWorldPositionf(x, y, z float32) {
+	t.SetWorldPosition(NewVector3(x, y, z))
+}
+
 func (t *Transform) SetWorldRotation(vect Vector) {
 	var p Vector
 	if t.parent == nil {
@@ -180,6 +219,10 @@ func (t *Transform) SetWorldRotation(vect Vector) {
 	t.SetRotation(vect.Sub(p))
 }
 
+func (t *Transform) SetWorldRotationf(x, y, z float32) {
+	t.SetWorldRotation(NewVector3(x, y, z))
+}
+
 func (t *Transform) SetWorldScale(vect Vector) {
 	var p Vector
 	if t.parent == nil {
@@ -189,6 +232,10 @@ func (t *Transform) SetWorldScale(vect Vector) {
 	}
 
 	t.SetScale(p.Div(t.scale))
+}
+
+func (t *Transform) SetWorldScalef(x, y, z float32) {
+	t.SetWorldScale(NewVector3(x, y, z))
 }
 
 func (t *Transform) Parent() *Transform {
@@ -213,11 +260,12 @@ func (t *Transform) Children() []*Transform {
 }
 
 func (t *Transform) Translate(v Vector) {
-	t.SetPosition(t.Position().Add(v))
+	a := t.Position()
+	t.SetPosition(a.Add(v))
 }
 
-func (t *Transform) Translate2(x, y, z float32) {
-	t.SetPosition(t.Position().Add(NewVector3(x, y, z)))
+func (t *Transform) Translatef(x, y, z float32) {
+	t.Translate(NewVector3(x, y, z))
 }
 
 func (t *Transform) SetParent(parent *Transform) {
@@ -274,24 +322,6 @@ func (t *Transform) updateMatrix() {
 	}
 
 	t.worldPosition = mat.Translation()
-
-	if t.rotation.X >= 360 {
-		t.rotation.X -= 360
-	} else if t.rotation.X <= -360 {
-		t.rotation.X += 360
-	}
-
-	if t.rotation.Y >= 360 {
-		t.rotation.Y -= 360
-	} else if t.rotation.Y <= -360 {
-		t.rotation.Y += 360
-	}
-
-	if t.rotation.Z >= 360 {
-		t.rotation.Z -= 360
-	} else if t.rotation.Z <= -360 {
-		t.rotation.Z += 360
-	}
 
 	//fmt.Println(t.GameObject().name)
 

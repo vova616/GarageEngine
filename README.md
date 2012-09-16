@@ -17,3 +17,41 @@ go get github.com/vova616/GarageEngine
 you need to download glew and glfw libs.
 for glfw look here github.com/jteeuwen/glfw.
 for gl just google glew and download them.
+
+
+Goroutines:
+Its a managed goroutines the useage is same as unity coroutines.
+
+Example:
+func (sp *PlayerController) Start() {
+	StartGoroutine(func() { sp.AutoShoot() })
+}
+
+func (sp *PlayerController) AutoShoot() {
+	for {
+		Wait(3)
+		sp.Shoot()
+	}
+}
+
+func (sp *PlayerController) AutoShoot2() {
+	for {
+		for i:=0;i<3*60;i++ {
+			YieldSkip() //Frame skip
+		}
+		sp.Shoot()
+	}
+}
+
+func (sp *PlayerController) AutoShoot3() {
+	for {
+		Signal := NewSignal()
+		go func() {
+			<-time.After(time.Second * 3)
+			Signal.SendEnd()
+		}() 
+		Yield(Signal)
+		sp.Shoot()
+	}
+} 
+
