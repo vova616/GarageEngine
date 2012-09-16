@@ -19,12 +19,12 @@ for glfw look here github.com/jteeuwen/glfw.
 for gl just google glew and download them.
 
 
-## Goroutines:
-Its a managed goroutines the useage is same as unity coroutines.
+## Coroutines:
+The useage is same as unity coroutines.
 
 ## Example:
 	func (sp *PlayerController) Start() {
-		StartGoroutine(func() { sp.AutoShoot() })
+		StartCoroutine(func() { sp.AutoShoot() })
 	}
 
 	func (sp *PlayerController) AutoShoot() {
