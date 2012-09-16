@@ -84,6 +84,15 @@ func YieldSkip() {
 	c.WaitForCommand()
 }
 
+func YieldGoroutine(gr *Goroutine) {
+	if !runningGoroutines {
+		return
+	}
+	for gr.State != Ended {
+		YieldSkip()
+	}
+}
+
 func Yield(Out <-chan Command) {
 	if !runningGoroutines {
 		return
