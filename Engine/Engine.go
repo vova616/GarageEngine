@@ -266,7 +266,7 @@ func drawGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].Component().Draw()
+		comps[i].Draw()
 	}
 }
 
@@ -297,9 +297,9 @@ func startGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		if !comps[i].Component().Started() {
-			comps[i].Component().setStarted(true)
-			comps[i].Component().Start()
+		if !comps[i].started() {
+			comps[i].setStarted(true)
+			comps[i].Start()
 		}
 	}
 }
@@ -316,7 +316,7 @@ func onCollisionGameObject(gameObject *GameObject, arb *c.Arbiter) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].Component().OnCollision(NewCollision(arb))
+		comps[i].OnCollision(NewCollision(arb))
 	}
 }
 
@@ -325,7 +325,7 @@ func onCollisionEnterGameObject(gameObject *GameObject, arb *c.Arbiter) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].Component().OnCollisionEnter(NewCollision(arb))
+		comps[i].OnCollisionEnter(NewCollision(arb))
 	}
 }
 
@@ -334,7 +334,7 @@ func onCollisionExitGameObject(gameObject *GameObject, arb *c.Arbiter) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].Component().OnCollisionExit(NewCollision(arb))
+		comps[i].OnCollisionExit(NewCollision(arb))
 	}
 }
 
@@ -343,7 +343,7 @@ func udpateGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].Component().Update()
+		comps[i].Update()
 	}
 }
 
@@ -352,7 +352,7 @@ func fixedUdpateGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].Component().FixedUpdate()
+		comps[i].FixedUpdate()
 	}
 }
 

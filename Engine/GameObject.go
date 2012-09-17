@@ -8,12 +8,12 @@ import (
 )
 
 type GameObject struct {
-	name       string
-	transform  *Transform
-	components []Component
-	valid      		bool
-	active     		bool
-	destoryMark    bool
+	name        string
+	transform   *Transform
+	components  []Component
+	valid       bool
+	active      bool
+	destoryMark bool
 
 	Physics *Physics
 	Sprite  *Sprite
@@ -64,7 +64,6 @@ func (g *GameObject) IsValid() bool {
 	return g.valid
 }
 
-
 func (g *GameObject) SetActive(a bool) {
 	g.active = a
 }
@@ -80,15 +79,15 @@ func (g *GameObject) Destroy() {
 
 func (g *GameObject) destroy() {
 	g.name = ""
-	
+
 	for _, c := range g.transform.children {
 		c.GameObject().destroy()
 	}
 	g.transform = nil
 	for _, c := range g.components {
-			c.Component().Destroy()
+		c.Destroy()
 	}
-	g.Transform().SetParent(nil) 
+	g.Transform().SetParent(nil)
 	g.components = nil
 	g.valid = false
 	g.active = false
@@ -106,9 +105,8 @@ func (g *GameObject) Clone() *GameObject {
 		n := reflect.New(v.Type())
 		n.Elem().Set(v)
 		nc := n.Interface().(Component)
-		nc.setSelf(nc)
-		nc.Component().setGameObject(ng)
-		ng.AddComponent(nc) 
+		nc.setGameObject(ng)
+		ng.AddComponent(nc)
 	}
 	return ng
 }
