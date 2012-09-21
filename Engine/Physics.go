@@ -83,3 +83,14 @@ func (p *Physics) Start() {
 func (p *Physics) OnComponentBind(binded *GameObject) {
 	binded.Physics = p
 }
+
+func (p *Physics) Clone() {
+	p.lastCollision = &c.Arbiter{}
+	p.currentCollision = &c.Arbiter{}
+	p.Body = p.Body.Clone()
+	p.Box = p.Body.Shapes[0].GetAsBox()
+	p.Shape = p.Body.Shapes[0]
+	p.Body.UserData = p
+	//p.Body.UpdateShapes()
+	//p.GameObject().Physics = nil
+}

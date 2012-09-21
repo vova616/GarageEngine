@@ -106,7 +106,9 @@ func (g *GameObject) Clone() *GameObject {
 		n.Elem().Set(v)
 		nc := n.Interface().(Component)
 		nc.setGameObject(ng)
+		nc.setStarted(false)
 		ng.AddComponent(nc)
+		nc.Clone()
 	}
 	return ng
 }
