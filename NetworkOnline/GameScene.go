@@ -50,7 +50,7 @@ func (s *GameScene) Load() {
 	cam.AddComponent(s.Camera)
 	cam.AddComponent(NewCameraCtl())
 
-	cam.Transform().SetScale(NewVector3(0.8, 0.8, 0.8))
+	cam.Transform().SetScale(NewVector3(1, 1, 1))
 
 	gui := NewGameObject("GUI")
 
@@ -197,13 +197,13 @@ func (s *GameScene) Load() {
 	sprite4.Transform().SetParent2(Layer1)
 	sprite4.Transform().SetPositionf(900, 100, 0)
 	sprite4.Transform().SetScalef(100, 100, 0)
-	ph.Body.SetMass(1)
+	ph.Body.SetMass(100)
 	ph.Body.IgnoreGravity = false
 	ph.Body.SetMoment(Inf)
 	ph.Shape.SetFriction(0.5)
 	ph.Shape.SetElasticity(0)
 	sprite.Border = true
-	sprite.BorderSize = 5
+	sprite.BorderSize = 0
 
 	/*
 		floor = NewGameObject("Box")

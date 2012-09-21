@@ -4,7 +4,7 @@ import (
 	c "github.com/vova616/chipmunk"
 	. "github.com/vova616/chipmunk/vect"
 )
- 
+
 type Collision struct {
 	Data      *c.Arbiter
 	ColliderA *GameObject
@@ -18,9 +18,9 @@ func NewCollision(arbiter *c.Arbiter) Collision {
 	if a == nil || b == nil {
 		panic("dafuq")
 	}
-	
+
 	arb := *arbiter
-	
+
 	return Collision{&arb, a.GameObject(), b.GameObject()}
 }
 
@@ -40,15 +40,15 @@ var (
 
 func NewPhysics(static bool, w, h float32) *Physics {
 	var body *c.Body
-	
+
 	box := c.NewBox(Vect{0, 0}, Float(w), Float(h))
-	
+
 	if static {
 		body = c.NewBodyStatic()
 	} else {
-		body = c.NewBody(1,box.Moment(1))
+		body = c.NewBody(1, box.Moment(1))
 	}
-	
+
 	p := &Physics{NewComponent(), body, box.GetAsBox(), box, &c.Arbiter{}, &c.Arbiter{}}
 	body.UserData = p
 
@@ -61,7 +61,7 @@ func NewPhysics2(static bool, shape *c.Shape) *Physics {
 	if static {
 		body = c.NewBodyStatic()
 	} else {
-		body = c.NewBody(1,shape.ShapeClass.Moment(1))
+		body = c.NewBody(1, shape.ShapeClass.Moment(1))
 	}
 
 	p := &Physics{NewComponent(), body, shape.GetAsBox(), shape, &c.Arbiter{}, &c.Arbiter{}}
@@ -69,12 +69,12 @@ func NewPhysics2(static bool, shape *c.Shape) *Physics {
 
 	body.AddShape(shape)
 	return p
-} 
+}
 
 func (p *Physics) Start() {
 	//p.FixedUpdate()
 	pos := p.GameObject().Transform().WorldPosition()
-	p.Body.SetAngle(Float(180-p.GameObject().Transform().WorldRotation().Z)*RadianConst)
+	p.Body.SetAngle(Float(180-p.GameObject().Transform().WorldRotation().Z) * RadianConst)
 	p.Body.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
 	//p.Body.UpdateShapes()
 	Space.AddBody(p.Body)

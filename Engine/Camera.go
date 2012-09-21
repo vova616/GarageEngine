@@ -17,7 +17,6 @@ func NewCamera() *Camera {
 }
 
 func (c *Camera) Update() {
-	
 	/*
 		w := float32(Width)/2
 		h := float32(Height)/2
