@@ -138,6 +138,7 @@ func Run() {
 		//for fixedTime > stepTime {
 
 		Iter(arr, fixedUdpateGameObject)
+
 		for _, b := range Space.AllBodies {
 			g, ok := b.UserData.(*Physics)
 			if ok && g != nil {
@@ -221,8 +222,10 @@ func Run() {
 		physicsEnd := time.Now()
 
 		Iter(arr, udpateGameObject)
-		RunCoroutines()
+		Iter(arr, lateudpateGameObject)
 		Iter(arr, drawGameObject)
+
+		RunCoroutines()
 
 		stepEnd := time.Now()
 
@@ -344,6 +347,15 @@ func udpateGameObject(gameObject *GameObject) {
 
 	for i := l - 1; i >= 0; i-- {
 		comps[i].Update()
+	}
+}
+
+func lateudpateGameObject(gameObject *GameObject) {
+	l := len(gameObject.components)
+	comps := gameObject.components
+
+	for i := l - 1; i >= 0; i-- {
+		comps[i].LateUpdate()
 	}
 }
 

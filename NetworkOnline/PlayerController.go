@@ -64,7 +64,7 @@ func (sp *PlayerController) Shoot() {
 		nfire.Transform().SetWorldPosition(sp.Transform().WorldPosition())
 		nfire.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, Float(20))))
 		nfire.Physics.Body.IgnoreGravity = true
-		nfire.Physics.Body.SetMass(20)
+		nfire.Physics.Body.SetMass(200)
 		s := sp.Transform().Rotation()
 		s2 := nfire.Transform().Rotation()
 		s2.Y = s.Y
@@ -151,17 +151,16 @@ func (sp *PlayerController) Update() {
 			i--
 		}
 	}
+}
 
-	//GameSceneGeneral.Camera.Transform().SetPosition(NewVector3(200-sp.Transform().Position().X,0,0))
+func (sp *PlayerController) LateUpdate() {
+	//GameSceneGeneral.SceneData.Camera.Transform().SetPosition(NewVector3(300-sp.Transform().Position().X, 0, 0))
 }
 
 func (sp *PlayerController) OnCollisionEnter(collision Collision) {
 	//sp.IsOnFloor = true
 	cons := collision.Data.Contacts
-	for i, con := range cons {
-		if i >= collision.Data.NumContacts {
-			break
-		}
+	for _, con := range cons {
 		if Dot(con.Normal(), Vect{0, 1}) < 0 {
 			sp.Floor = collision.ColliderA
 			return
