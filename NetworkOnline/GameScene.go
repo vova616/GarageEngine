@@ -148,42 +148,22 @@ func (s *GameScene) Load() {
 	phx := floor.AddComponent(NewPhysics(true, 1000000, 100)).(*Physics)
 	floor.Transform().SetParent2(Layer2)
 	floor.Transform().SetPosition(NewVector2(100, -20))
-	floor.Transform().SetRotation(NewVector3(0, 0, 180))
-	floor.Transform().SetScale(NewVector2(1000000, 100))
+	floor.Transform().SetScale(NewVector2(10000, 100))
 	phx.Shape.SetFriction(1)
 	phx.Shape.SetElasticity(1)
-	//phx.Shape.Friction = 1
-	_ = phx
 
-	floor = NewGameObject("Floor2")
-	floor.AddComponent(NewSprite(box))
-	phx = floor.AddComponent(NewPhysics(true, 100, 10000)).(*Physics)
-	floor.Transform().SetParent2(Layer2)
-	floor.Transform().SetPosition(NewVector2(800, -20))
-	floor.Transform().SetScale(NewVector2(100, 10000))
-	phx.Shape.SetFriction(1)
-	phx.Shape.SetElasticity(1)
-	//phx.Shape.Friction = 1
-	_ = phx
+	floor2 := floor.Clone()
+	floor2.Transform().SetParent2(Layer2)
+	floor2.Transform().SetPosition(NewVector2(800, -20))
+	floor2.Transform().SetRotationf(0, 0, 90)
 
-	floor = NewGameObject("Floor2")
-	floor.AddComponent(NewSprite(box))
-	phx = floor.AddComponent(NewPhysics(true, 100, 10000)).(*Physics)
-	floor.Transform().SetParent2(Layer2)
-	floor.Transform().SetPosition(NewVector2(0, -20))
-	floor.Transform().SetScale(NewVector2(100, 10000))
-	phx.Shape.SetFriction(1)
-	phx.Shape.SetElasticity(1)
-	//phx.Shape.Friction = 1
-	_ = phx
-
-	//Layer2.Transform().Position.Y += 200
-	//println("c")
+	floor3 := floor2.Clone()
+	floor3.Transform().SetParent2(Layer2)
+	floor3.Transform().SetPosition(NewVector2(0, -20))
 
 	uvs2, ind := AnimatedGroupUVs(atlas, "stand", "walk")
 	_ = uvs2
 	_ = ind
-	//	/fmt.Println(ind)
 
 	sprite4 := NewGameObject("Sprite")
 	sprite := sprite4.AddComponent(NewSprite3(atlas.Texture, uvs2)).(*Sprite)

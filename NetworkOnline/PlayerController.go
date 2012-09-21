@@ -36,8 +36,21 @@ func (sp *PlayerController) Start() {
 	sp.Physics.Body.SetMass(1)
 	sp.Physics.Shape.Group = 1
 	//sp.Physics.Shape.Friction = 0.5
-	as := StartCoroutine(func() { sp.AutoShoot() })
-	StartCoroutine(func() {
+
+	sp.TestCoroutines()
+}
+
+func (sp *PlayerController) TestCoroutines() {
+	autoShoot := func() {
+		for i := 0; i < 3; i++ {
+			Wait(3)
+			sp.Shoot()
+		}
+	}
+
+	as := StartCoroutine(autoShoot)
+
+	fastShoot := func() {
 		Wait(3)
 		YieldCoroutine(as)
 		for i := 0; i < 10; i++ {
@@ -46,14 +59,10 @@ func (sp *PlayerController) Start() {
 			YieldSkip()
 			sp.Shoot()
 		}
-	})
-}
-
-func (sp *PlayerController) AutoShoot() {
-	for i := 0; i < 3; i++ {
-		Wait(3)
-		sp.Shoot()
+		sp.TestCoroutines()
 	}
+
+	StartCoroutine(fastShoot)
 }
 
 func (sp *PlayerController) Shoot() {
