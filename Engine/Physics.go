@@ -50,6 +50,12 @@ func (p *Physics) Start() {
 	pos := p.GameObject().Transform().WorldPosition()
 	p.Body.SetAngle(Float(180-p.GameObject().Transform().WorldRotation().Z) * RadianConst)
 	p.Body.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
+
+	if p.GameObject().Sprite != nil {
+		p.GameObject().Sprite.UpdateShape()
+		p.Body.UpdateShapes()
+	}
+
 	//p.Body.UpdateShapes()
 	Space.AddBody(p.Body)
 }

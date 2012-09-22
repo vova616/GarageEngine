@@ -41,6 +41,7 @@ type Component interface {
 	Update()
 	FixedUpdate()
 	Start()
+	Awake()
 	Clone()
 	LateUpdate()
 
@@ -89,6 +90,10 @@ func (c *BaseComponent) FixedUpdate() {
 }
 
 func (c *BaseComponent) Start() {
+
+}
+
+func (c *BaseComponent) Awake() {
 
 }
 
