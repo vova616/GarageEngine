@@ -170,20 +170,3 @@ func (sp *PlayerController) Update() {
 func (sp *PlayerController) LateUpdate() {
 	//GameSceneGeneral.SceneData.Camera.Transform().SetPosition(NewVector3(300-sp.Transform().Position().X, 0, 0))
 }
-
-func (sp *PlayerController) OnCollisionEnter(collision Collision) {
-	//sp.IsOnFloor = true
-	cons := collision.Data.Contacts
-	for _, con := range cons {
-		if Dot(con.Normal(), Vect{0, 1}) < 0 {
-			sp.Floor = collision.ColliderA
-			return
-		}
-	}
-}
-
-func (sp *PlayerController) OnCollisionExit(collision Collision) {
-	if collision.ColliderA == sp.Floor {
-		sp.Floor = nil
-	}
-}

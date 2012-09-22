@@ -1,5 +1,9 @@
 package Engine
 
+import (
+//c "github.com/vova616/chipmunk"
+)
+
 type BaseComponent struct {
 	hasStarted bool
 	gameObject *GameObject
@@ -22,6 +26,15 @@ func (c *BaseComponent) Transform() *Transform {
 	return c.gameObject.Transform()
 }
 
+/*
+type CollisionCallback interface {
+	OnCollisionEnter(arbiter *Arbiter) bool
+	OnCollisionPreSolve(arbiter *Arbiter) bool
+	OnCollisionPostSolve(arbiter *Arbiter)
+	OnCollisionExit(arbiter *Arbiter)
+}
+*/
+
 type Component interface {
 	Draw()
 	PostDraw()
@@ -30,9 +43,15 @@ type Component interface {
 	Start()
 	Clone()
 	LateUpdate()
-	OnCollision(collision Collision)
-	OnCollisionEnter(collision Collision)
-	OnCollisionExit(collision Collision)
+
+	OnCollisionEnter(arbiter *Arbiter) bool
+	OnCollisionPreSolve(arbiter *Arbiter) bool
+	OnCollisionPostSolve(arbiter *Arbiter)
+	OnCollisionExit(arbiter *Arbiter)
+
+	OnMouseEnter(arbiter *Arbiter) bool
+	OnMouseExit(arbiter *Arbiter)
+
 	OnComponentBind(binded *GameObject)
 	Destroy()
 	started() bool
@@ -81,15 +100,27 @@ func (c *BaseComponent) LateUpdate() {
 
 }
 
-func (c *BaseComponent) OnCollision(collision Collision) {
+func (c *BaseComponent) OnCollisionPreSolve(arbiter *Arbiter) bool {
+	return true
+}
+
+func (c *BaseComponent) OnCollisionEnter(arbiter *Arbiter) bool {
+	return true
+}
+
+func (c *BaseComponent) OnCollisionExit(arbiter *Arbiter) {
 
 }
 
-func (c *BaseComponent) OnCollisionEnter(collision Collision) {
+func (c *BaseComponent) OnMouseEnter(arbiter *Arbiter) bool {
+	return true
+}
+
+func (c *BaseComponent) OnMouseExit(arbiter *Arbiter) {
 
 }
 
-func (c *BaseComponent) OnCollisionExit(collision Collision) {
+func (c *BaseComponent) OnCollisionPostSolve(arbiter *Arbiter) {
 
 }
 

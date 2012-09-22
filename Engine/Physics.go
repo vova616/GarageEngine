@@ -29,9 +29,6 @@ type Physics struct {
 	Body  *c.Body
 	Box   *c.BoxShape
 	Shape *c.Shape
-
-	lastCollision    *c.Arbiter
-	currentCollision *c.Arbiter
 }
 
 var (
@@ -49,7 +46,7 @@ func NewPhysics(static bool, w, h float32) *Physics {
 		body = c.NewBody(1, box.Moment(1))
 	}
 
-	p := &Physics{NewComponent(), body, box.GetAsBox(), box, &c.Arbiter{}, &c.Arbiter{}}
+	p := &Physics{NewComponent(), body, box.GetAsBox(), box}
 	body.UserData = p
 
 	body.AddShape(box)
@@ -64,7 +61,7 @@ func NewPhysics2(static bool, shape *c.Shape) *Physics {
 		body = c.NewBody(1, shape.ShapeClass.Moment(1))
 	}
 
-	p := &Physics{NewComponent(), body, shape.GetAsBox(), shape, &c.Arbiter{}, &c.Arbiter{}}
+	p := &Physics{NewComponent(), body, shape.GetAsBox(), shape}
 	body.UserData = p
 
 	body.AddShape(shape)
@@ -82,11 +79,28 @@ func (p *Physics) Start() {
 
 func (p *Physics) OnComponentBind(binded *GameObject) {
 	binded.Physics = p
+	p.Body.CallbackHandler = p
+}
+
+func (c *Physics) CollisionPreSolve(arbiter *c.Arbiter) bool {
+	onCollisionPreSolveGameObject(c.GameObject(), (*Arbiter)(arbiter))
+	return true
+}
+
+func (c *Physics) CollisionEnter(arbiter *c.Arbiter) bool {
+	onCollisionEnterGameObject(c.GameObject(), (*Arbiter)(arbiter))
+	return true
+}
+
+func (c *Physics) CollisionExit(arbiter *c.Arbiter) {
+	onCollisionExitGameObject(c.GameObject(), (*Arbiter)(arbiter))
+}
+
+func (c *Physics) CollisionPostSolve(arbiter *c.Arbiter) {
+	onCollisionPostSolveGameObject(c.GameObject(), (*Arbiter)(arbiter))
 }
 
 func (p *Physics) Clone() {
-	p.lastCollision = &c.Arbiter{}
-	p.currentCollision = &c.Arbiter{}
 	p.Body = p.Body.Clone()
 	p.Box = p.Body.Shapes[0].GetAsBox()
 	p.Shape = p.Body.Shapes[0]

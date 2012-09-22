@@ -14,6 +14,16 @@ import (
 	"time"
 )
 
+type Arbiter c.Arbiter
+
+func (arbiter *Arbiter) GameObjectA() *GameObject {
+	return arbiter.ShapeA.Body.UserData.(*Physics).GameObject()
+}
+
+func (arbiter *Arbiter) GameObjectB() *GameObject {
+	return arbiter.ShapeB.Body.UserData.(*Physics).GameObject()
+}
+
 func init() {
 	fmt.Print()
 }
@@ -162,9 +172,6 @@ func Run() {
 					b.SetAngle(Float(180-g.Transform().WorldRotation().Z) * RadianConst)
 					//fmt.Println(g.Transform().WorldRotation().Z, b.Transform.Angle())
 					b.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
-					*g.lastCollision = *g.currentCollision
-					g.currentCollision.ShapeA = nil
-					g.currentCollision.ShapeB = nil
 				}
 			}
 
@@ -188,49 +195,6 @@ func Run() {
 			}
 
 			Iter(arr, updatePosition)
-
-			for _, i := range Space.Arbiters {
-				if i.NumContacts == 0 {
-					continue
-				}
-				a, _ := i.ShapeA.Body.UserData.(*Physics)
-				b, _ := i.ShapeB.Body.UserData.(*Physics)
-				if a != nil && b != nil {
-					*a.currentCollision = *i
-					*b.currentCollision = *i
-					if (a.lastCollision.ShapeA == a.currentCollision.ShapeA && a.lastCollision.ShapeB == a.currentCollision.ShapeB) ||
-						(a.lastCollision.ShapeA == a.currentCollision.ShapeB && a.lastCollision.ShapeB == a.currentCollision.ShapeA) {
-						onCollisionGameObject(a.GameObject(), a.currentCollision)
-					} else {
-						if a.lastCollision.ShapeA != nil && a.lastCollision.ShapeB != nil {
-							onCollisionExitGameObject(a.GameObject(), a.lastCollision)
-						}
-						onCollisionEnterGameObject(a.GameObject(), a.currentCollision)
-						onCollisionGameObject(a.GameObject(), a.currentCollision)
-					}
-					if (b.lastCollision.ShapeA == b.currentCollision.ShapeA && b.lastCollision.ShapeB == b.currentCollision.ShapeB) ||
-						(b.lastCollision.ShapeA == b.currentCollision.ShapeB && b.lastCollision.ShapeB == b.currentCollision.ShapeA) {
-						onCollisionGameObject(b.GameObject(), b.currentCollision)
-					} else {
-						if b.lastCollision.ShapeA != nil && b.lastCollision.ShapeB != nil {
-							onCollisionExitGameObject(b.GameObject(), b.lastCollision)
-						}
-						onCollisionEnterGameObject(b.GameObject(), b.currentCollision)
-						onCollisionGameObject(b.GameObject(), b.currentCollision)
-					}
-
-				}
-			}
-
-			for _, b := range Space.AllBodies {
-				g, ok := b.UserData.(*Physics)
-				if ok && g != nil {
-					if g.lastCollision.ShapeA != nil && g.lastCollision.ShapeB != nil &&
-						g.currentCollision.ShapeA == nil && g.currentCollision.ShapeB == nil {
-						onCollisionExitGameObject(g.GameObject(), g.lastCollision)
-					}
-				}
-			}
 
 			//}
 
@@ -364,30 +328,57 @@ func destoyGameObject(gameObject *GameObject) {
 	}
 }
 
-func onCollisionGameObject(gameObject *GameObject, arb *c.Arbiter) {
+func onCollisionPreSolveGameObject(gameObject *GameObject, arb *Arbiter) {
 	l := len(gameObject.components)
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].OnCollision(NewCollision(arb))
+		comps[i].OnCollisionPreSolve(arb)
 	}
 }
 
-func onCollisionEnterGameObject(gameObject *GameObject, arb *c.Arbiter) {
+func onCollisionPostSolveGameObject(gameObject *GameObject, arb *Arbiter) {
 	l := len(gameObject.components)
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].OnCollisionEnter(NewCollision(arb))
+		comps[i].OnCollisionPostSolve(arb)
 	}
 }
 
-func onCollisionExitGameObject(gameObject *GameObject, arb *c.Arbiter) {
+func onCollisionEnterGameObject(gameObject *GameObject, arb *Arbiter) {
 	l := len(gameObject.components)
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].OnCollisionExit(NewCollision(arb))
+		comps[i].OnCollisionEnter(arb)
+	}
+}
+
+func onCollisionExitGameObject(gameObject *GameObject, arb *Arbiter) {
+	l := len(gameObject.components)
+	comps := gameObject.components
+
+	for i := l - 1; i >= 0; i-- {
+		comps[i].OnCollisionExit(arb)
+	}
+}
+
+func onMouseEnterGameObject(gameObject *GameObject, arb *Arbiter) {
+	l := len(gameObject.components)
+	comps := gameObject.components
+
+	for i := l - 1; i >= 0; i-- {
+		comps[i].OnMouseEnter(arb)
+	}
+}
+
+func onMouseExitGameObject(gameObject *GameObject, arb *Arbiter) {
+	l := len(gameObject.components)
+	comps := gameObject.components
+
+	for i := l - 1; i >= 0; i-- {
+		comps[i].OnMouseExit(arb)
 	}
 }
 

@@ -10,17 +10,18 @@ type Command byte
 type Signal chan Command
 
 const (
-	Continue = Command(0)
-	Close    = Command(1)
+	Continue = Command(1)
+	Close    = Command(2)
 
-	Running = Command(2)
-	Ended   = Command(3)
+	Running = Command(4)
+	Ended   = Command(8)
 )
 
 type Coroutine struct {
-	in    chan Command
-	out   chan Command
-	State Command
+	in       chan Command
+	out      chan Command
+	State    Command
+	UserData interface{}
 }
 
 func (gr *Coroutine) WaitForCommand() {
@@ -46,7 +47,7 @@ var (
 )
 
 func StartCoroutine(fnc func()) *Coroutine {
-	gr := &Coroutine{make(chan Command), make(chan Command), Running}
+	gr := &Coroutine{make(chan Command), make(chan Command), Running, nil}
 	found := false
 	for i, ch := range coroutines {
 		if ch == nil {
