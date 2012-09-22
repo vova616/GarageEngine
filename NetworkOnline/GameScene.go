@@ -64,6 +64,8 @@ func (s *GameScene) Load() {
 
 	mouse := NewGameObject("Mouse")
 	mouse.AddComponent(NewMouseDebugger())
+	mouse.AddComponent(NewMouse())
+	mouse.Transform().SetParent2(cam)
 
 	FPSDrawer := NewGameObject("FPS")
 	txt := FPSDrawer.AddComponent(NewUIText(ArialFont2, "")).(*UIText)
@@ -71,7 +73,7 @@ func (s *GameScene) Load() {
 	fps.SetAction(func(fps float32) {
 		txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
 	})
-	FPSDrawer.Transform().SetParent2(gui)
+	FPSDrawer.Transform().SetParent2(cam)
 	FPSDrawer.Transform().SetPosition(NewVector2(60, float32(Height)-20))
 	FPSDrawer.Transform().SetScale(NewVector2(20, 20))
 
@@ -208,7 +210,6 @@ func (s *GameScene) Load() {
 	//sShadow.Sprite = bbBox
 
 	s.AddGameObject(cam)
-	s.AddGameObject(mouse)
 	s.AddGameObject(gui)
 	s.AddGameObject(Layer1)
 	s.AddGameObject(Layer2)

@@ -11,9 +11,9 @@ import (
 	//"image/png"
 	//"os" 
 	//"strconv"
-	"github.com/jteeuwen/glfw"
+	//"github.com/jteeuwen/glfw"
 	. "github.com/vova616/GarageEngine/Engine"
-	. "github.com/vova616/GarageEngine/Engine/Input"
+	//. "github.com/vova616/GarageEngine/Engine/Input"
 	. "github.com/vova616/chipmunk/vect"
 )
 
@@ -44,9 +44,7 @@ func NewUIText(font *Font, text string) *UIText {
 }
 
 func (ui *UIText) OnComponentBind(binded *GameObject) {
-	h := (ui.height) * (ui.GameObject().Transform().WorldScale().Y)
-	w := (ui.width) * (ui.GameObject().Transform().WorldScale().X)
-	ph := binded.AddComponent(NewPhysics(true, w, h)).(*Physics)
+	ph := ui.GameObject().AddComponent(NewPhysics(false, 1, 1)).(*Physics)
 	_ = ph
 	ph.Body.IgnoreGravity = true
 	ph.Shape.IsSensor = true
@@ -137,38 +135,40 @@ func (ui *UIText) Start() {
 
 func (ui *UIText) Update() {
 	ui.UpdateCollider()
-	if MousePress(glfw.MouseLeft) {
-		if ui.hover {
-			ui.red = !ui.red
-		}
-	}
+	//if MousePress(glfw.MouseLeft) {
+	ui.red = ui.hover
+	//}
 }
 
-func (ui *UIText) OnCollisionEnter(collision Collision) {
-	ui.red = !ui.red
+func (ui *UIText) OnCollisionEnter(arbiter *Arbiter) bool {
+
+	return true
 }
 
-func (ui *UIText) OnCollisionExit(collision Collision) {
-	ui.red = !ui.red
+func (ui *UIText) OnCollisionExit(arbiter *Arbiter) {
+
 }
 
-func (ui *UIText) OnMouseHover() {
+func (ui *UIText) OnMouseEnter(arbiter *Arbiter) bool {
 	ui.hover = true
+	return true
 }
 
-func (ui *UIText) OnMouseExit() {
+func (ui *UIText) OnMouseExit(arbiter *Arbiter) {
 	ui.hover = false
 }
 
 func (ui *UIText) UpdateCollider() {
 	//if ui.GameObject().Physics.Body.Enabled {
 	b := ui.GameObject().Physics.Box
-	h := float64(ui.height) * float64(ui.GameObject().Transform().WorldScale().Y)
-	w := float64(ui.width) * float64(ui.GameObject().Transform().WorldScale().X)
-	if Float(h) != b.Height || Float(w) != b.Width {
-		b.Width = Float(w)
-		b.Height = Float(h)
-		b.UpdatePoly()
+	if b != nil {
+		h := float64(ui.height) * float64(ui.GameObject().Transform().WorldScale().Y)
+		w := float64(ui.width) * float64(ui.GameObject().Transform().WorldScale().X)
+		if Float(h) != b.Height || Float(w) != b.Width {
+			b.Width = Float(w)
+			b.Height = Float(h)
+			b.UpdatePoly()
+		}
 	}
 	//log.Println(b.Height, b.Width, ui.GameObject().Transform().Scale().X, ui.GameObject().Name())
 	//}
@@ -199,6 +199,7 @@ func (ui *UIText) Draw() {
 	mv := TextureMaterial.ViewMatrix
 	mm := TextureMaterial.ModelMatrix
 	tx := TextureMaterial.Texture
+	color := TextureMaterial.AddColor
 
 	vert.EnableArray()
 	uv.EnableArray()
@@ -210,10 +211,17 @@ func (ui *UIText) Draw() {
 
 	camera := GetScene().SceneBase().Camera
 
-	view := NewIdentity()
+	view := camera.Transform().Matrix()
+	view = view.Invert()
 	model := NewIdentity()
 	model.Translate(v.X, v.Y, 0)
 	model.Mul(ui.GameObject().Transform().Matrix())
+
+	/*
+		view := camera.Transform().Matrix()
+		view = view.Invert()
+		model := ui.GameObject().Transform().Matrix()
+	*/
 
 	mv.Uniform4fv([]float32(view[:]))
 	mp.Uniform4fv([]float32(camera.Projection[:]))
@@ -222,6 +230,12 @@ func (ui *UIText) Draw() {
 	ui.Font.Bind()
 	gl.ActiveTexture(gl.TEXTURE0)
 	tx.Uniform1i(0)
+
+	if ui.red {
+		color.Uniform4f(1, 0, 0, 1)
+	} else {
+		color.Uniform4f(1, 1, 1, 1)
+	}
 
 	gl.DrawArrays(gl.QUADS, 0, ui.vertexCount)
 

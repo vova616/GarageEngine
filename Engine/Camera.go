@@ -1,5 +1,9 @@
 package Engine
 
+import (
+	. "github.com/vova616/GarageEngine/Engine/Input"
+)
+
 type Camera struct {
 	BaseComponent
 	Projection *Matrix
@@ -30,16 +34,27 @@ func (c *Camera) UpdateResolution() {
 	c.Projection.Ortho(0, float32(Width), 0, float32(Height), -1000, 1000)
 }
 
-func (c *Camera) MouseRealPosition(x, y int) Vector {
-	d := NewIdentity()
-	s := c.Transform().WorldScale()
+func (c *Camera) MouseWorldPosition() Vector {
+	x, y := MousePosition()
+	x, y = x, Height-y
 
-	d.Mul(c.Transform().Matrix())
-	d.Scale(-1, -1, 0)
-	d.Translate(float32(x), float32(y), 0)
-	d.Scale(1/s.X, 1/s.Y, 0)
+	return c.ScreenToWorld(x, y)
+}
 
-	return d.Translation()
+func (c *Camera) MouseLocalPosition() Vector {
+	x, y := MousePosition()
+	x, y = x, Height-y
+
+	return NewVector2(float32(x), float32(y))
+}
+
+func (c *Camera) ScreenToWorld(x, y int) Vector {
+
+	m := NewIdentity()
+	m.Translate(float32(x), float32(y), 0)
+	m.Mul(c.Transform().Matrix())
+
+	return m.Translation()
 }
 
 func (c *Camera) Render() {

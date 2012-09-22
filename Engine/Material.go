@@ -15,8 +15,8 @@ type BasicMaterial struct {
 	vertexShader   string
 	fragmentShader string
 
-	ViewMatrix, ProjMatrix, ModelMatrix, BorderColor, Texture gl.UniformLocation
-	Verts, UV                                                 gl.AttribLocation
+	ViewMatrix, ProjMatrix, ModelMatrix, BorderColor, AddColor, Texture gl.UniformLocation
+	Verts, UV                                                           gl.AttribLocation
 }
 
 func NewBasicMaterial(vertexShader, fragmentShader string) *BasicMaterial {
@@ -55,6 +55,7 @@ func (b *BasicMaterial) Load() {
 	b.ModelMatrix = program.GetUniformLocation("MModel")
 	b.BorderColor = program.GetUniformLocation("bcolor")
 	b.Texture = program.GetUniformLocation("mytexture")
+	b.AddColor = program.GetUniformLocation("addcolor")
 
 }
 
@@ -98,6 +99,7 @@ out vec4 color;
 in vec2 UV; 
 uniform sampler2D mytexture;
 uniform vec4 bcolor;
+uniform vec4 addcolor;
  
 void main(void)
 { 
@@ -105,6 +107,9 @@ void main(void)
 	if (tcolor.a > 0) {
 		tcolor += bcolor;
 	}
+	float a = tcolor.a;
+	tcolor = mix(addcolor, tcolor*addcolor, 1); 
+	
 	color = tcolor;
 }
 `

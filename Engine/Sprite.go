@@ -176,6 +176,7 @@ func (sp *Sprite) Draw() {
 		mm := TextureMaterial.ModelMatrix
 		mc := TextureMaterial.BorderColor
 		tx := TextureMaterial.Texture
+		ac := TextureMaterial.AddColor
 
 		vert.EnableArray()
 		uv.EnableArray()
@@ -188,6 +189,7 @@ func (sp *Sprite) Draw() {
 		camera := GetScene().SceneBase().Camera
 
 		view := camera.Transform().Matrix()
+		view = view.Invert()
 		model := sp.GameObject().Transform().Matrix()
 
 		mv.Uniform4fv([]float32(view[:]))
@@ -197,6 +199,8 @@ func (sp *Sprite) Draw() {
 		sp.Bind()
 		gl.ActiveTexture(gl.TEXTURE0)
 		tx.Uniform1i(0)
+
+		ac.Uniform4f(1, 1, 1, 1)
 
 		if sp.Border {
 			mc.Uniform4f(1, 1, 1, 0)
