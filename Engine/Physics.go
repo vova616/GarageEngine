@@ -5,35 +5,12 @@ import (
 	. "github.com/vova616/chipmunk/vect"
 )
 
-type Collision struct {
-	Data      *c.Arbiter
-	ColliderA *GameObject
-	ColliderB *GameObject
-}
-
-func NewCollision(arbiter *c.Arbiter) Collision {
-	a, _ := arbiter.ShapeA.Body.UserData.(*Physics)
-	b, _ := arbiter.ShapeB.Body.UserData.(*Physics)
-
-	if a == nil || b == nil {
-		panic("dafuq")
-	}
-
-	arb := *arbiter
-
-	return Collision{&arb, a.GameObject(), b.GameObject()}
-}
-
 type Physics struct {
 	BaseComponent
 	Body  *c.Body
 	Box   *c.BoxShape
 	Shape *c.Shape
 }
-
-var (
-	x = float64(100)
-)
 
 func NewPhysics(static bool, w, h float32) *Physics {
 	var body *c.Body
@@ -83,13 +60,11 @@ func (p *Physics) OnComponentBind(binded *GameObject) {
 }
 
 func (c *Physics) CollisionPreSolve(arbiter *c.Arbiter) bool {
-	onCollisionPreSolveGameObject(c.GameObject(), (*Arbiter)(arbiter))
-	return true
+	return onCollisionPreSolveGameObject(c.GameObject(), (*Arbiter)(arbiter))
 }
 
 func (c *Physics) CollisionEnter(arbiter *c.Arbiter) bool {
-	onCollisionEnterGameObject(c.GameObject(), (*Arbiter)(arbiter))
-	return true
+	return onCollisionEnterGameObject(c.GameObject(), (*Arbiter)(arbiter))
 }
 
 func (c *Physics) CollisionExit(arbiter *c.Arbiter) {

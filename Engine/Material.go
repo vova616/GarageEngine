@@ -107,9 +107,13 @@ void main(void)
 	if (tcolor.a > 0) {
 		tcolor += bcolor;
 	}
-	float a = tcolor.a;
 	tcolor = mix(addcolor, tcolor*addcolor, 1); 
-	
+
+	//nice alpha detection
+	//vec4 t = addcolor;
+	//t.a = 0;
+	//tcolor = mix(tcolor, t, tcolor.a); 
+
 	color = tcolor;
 }
 `

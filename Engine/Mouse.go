@@ -26,9 +26,9 @@ func (m *Mouse) Start() {
 
 func (m *Mouse) OnCollisionEnter(arbiter *Arbiter) bool {
 	if m.GameObject().Physics.Body == arbiter.ShapeA.Body {
-		onMouseEnterGameObject(arbiter.GameObjectB(), arbiter)
+		return onMouseEnterGameObject(arbiter.GameObjectB(), arbiter)
 	} else {
-		onMouseEnterGameObject(arbiter.GameObjectA(), arbiter)
+		return onMouseEnterGameObject(arbiter.GameObjectA(), arbiter)
 	}
 
 	return true

@@ -200,6 +200,7 @@ func (sp *Sprite) Draw() {
 		gl.ActiveTexture(gl.TEXTURE0)
 		tx.Uniform1i(0)
 
+		//ac.Uniform4f(1, 1, 1, 0) 
 		ac.Uniform4f(1, 1, 1, 1)
 
 		if sp.Border {
