@@ -17,11 +17,11 @@ import (
 type Arbiter c.Arbiter
 
 func (arbiter *Arbiter) GameObjectA() *GameObject {
-	return arbiter.ShapeA.Body.UserData.(*Physics).GameObject()
+	return arbiter.BodyA.UserData.(*Physics).GameObject()
 }
 
 func (arbiter *Arbiter) GameObjectB() *GameObject {
-	return arbiter.ShapeB.Body.UserData.(*Physics).GameObject()
+	return arbiter.BodyB.UserData.(*Physics).GameObject()
 }
 
 func init() {
@@ -165,7 +165,7 @@ func Run() {
 
 		timer.StartCustom("Physics time")
 		if EnablePhysics {
-			for _, b := range Space.AllBodies {
+			for _, b := range Space.Bodies {
 				g, ok := b.UserData.(*Physics)
 				if ok && g != nil {
 					pos := g.Transform().WorldPosition()

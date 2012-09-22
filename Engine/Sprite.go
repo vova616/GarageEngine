@@ -70,8 +70,8 @@ func (p *Sprite) CurrentAnimation() interface{} {
 	return p.currentAnim
 }
 
-func (p *Sprite) OnComponentBind(binded *GameObject) {
-	binded.Sprite = p
+func (sp *Sprite) OnComponentBind(binded *GameObject) {
+	binded.Sprite = sp
 }
 
 func (sp *Sprite) CreateVBO(uvs ...UV) {
@@ -140,6 +140,10 @@ func (sp *Sprite) Update() {
 		sp.animation = float32(sp.startAnimation)
 	}
 
+	sp.UpdateShape()
+}
+
+func (sp *Sprite) UpdateShape() {
 	if sp.GameObject().Physics != nil {
 		box := sp.GameObject().Physics.Box
 		cir := sp.GameObject().Physics.Shape.GetAsCircle()
