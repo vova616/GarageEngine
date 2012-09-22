@@ -78,7 +78,7 @@ func (s *GameScene) Load() {
 	FPSDrawer.Transform().SetScale(NewVector2(20, 20))
 
 	//SPACCCEEEEE
-	Space.Gravity.Y = -700
+	Space.Gravity.Y = -300
 	Space.Iterations = 10
 
 	atlas := NewManagedAtlas(512, 512)
@@ -182,7 +182,7 @@ func (s *GameScene) Load() {
 	ph.Body.SetMass(100)
 	ph.Body.IgnoreGravity = false
 	ph.Body.SetMoment(Inf)
-	ph.Shape.SetFriction(0.5)
+	ph.Shape.SetFriction(1)
 	ph.Shape.SetElasticity(0)
 	sprite.Border = true
 	sprite.BorderSize = 0

@@ -239,11 +239,15 @@ func Run() {
 			fmt.Println("Destroy time", destroyDelta)
 			fmt.Println("Start time", startDelta)
 			fmt.Println("FixedUpdate time", fixedUpdateDelta)
-			fmt.Println("Physics time", physicsDelta)
 			fmt.Println("Update time", updateDelta)
 			fmt.Println("LateUpdate time", lateUpdateDelta)
 			fmt.Println("Draw time", drawDelta)
 			fmt.Println("Coroutines time", coroutinesDelta)
+			fmt.Println("------------------")
+			fmt.Println("Physics time:", physicsDelta)
+			fmt.Println("StepTime time", Space.StepTime)
+			fmt.Println("ApplyImpulse time", Space.ApplyImpulsesTime)
+			fmt.Println("ReindexQueryTime time", Space.ReindexQueryTime)
 			fmt.Println("##################")
 			fmt.Println()
 		}
@@ -328,13 +332,15 @@ func destoyGameObject(gameObject *GameObject) {
 	}
 }
 
-func onCollisionPreSolveGameObject(gameObject *GameObject, arb *Arbiter) {
+func onCollisionPreSolveGameObject(gameObject *GameObject, arb *Arbiter) bool {
 	l := len(gameObject.components)
 	comps := gameObject.components
 
+	b := true
 	for i := l - 1; i >= 0; i-- {
-		comps[i].OnCollisionPreSolve(arb)
+		b = b && comps[i].OnCollisionPreSolve(arb)
 	}
+	return b
 }
 
 func onCollisionPostSolveGameObject(gameObject *GameObject, arb *Arbiter) {
@@ -346,13 +352,15 @@ func onCollisionPostSolveGameObject(gameObject *GameObject, arb *Arbiter) {
 	}
 }
 
-func onCollisionEnterGameObject(gameObject *GameObject, arb *Arbiter) {
+func onCollisionEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
 	l := len(gameObject.components)
 	comps := gameObject.components
 
+	b := true
 	for i := l - 1; i >= 0; i-- {
-		comps[i].OnCollisionEnter(arb)
+		b = b && comps[i].OnCollisionEnter(arb)
 	}
+	return b
 }
 
 func onCollisionExitGameObject(gameObject *GameObject, arb *Arbiter) {
@@ -364,13 +372,15 @@ func onCollisionExitGameObject(gameObject *GameObject, arb *Arbiter) {
 	}
 }
 
-func onMouseEnterGameObject(gameObject *GameObject, arb *Arbiter) {
+func onMouseEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
 	l := len(gameObject.components)
 	comps := gameObject.components
 
+	b := true
 	for i := l - 1; i >= 0; i-- {
-		comps[i].OnMouseEnter(arb)
+		b = b && comps[i].OnMouseEnter(arb)
 	}
+	return b
 }
 
 func onMouseExitGameObject(gameObject *GameObject, arb *Arbiter) {
