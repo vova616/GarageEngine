@@ -130,6 +130,11 @@ func (sp *PlayerController) Update() {
 		sp.Shoot()
 	}
 
+	if Input.KeyPress('P') {
+
+		EnablePhysics = !EnablePhysics
+	}
+
 	if tState != 1 {
 		if sp.state != 0 {
 			sp.GameObject().Sprite.SetAnimation("stand")

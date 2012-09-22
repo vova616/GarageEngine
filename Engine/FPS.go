@@ -1,11 +1,4 @@
-package Components
-
-import (
-	. "github.com/vova616/GarageEngine/Engine"
-	//. "Engine/Components"
-	//"fmt"
-
-)
+package Engine
 
 type FPS struct {
 	BaseComponent
@@ -29,6 +22,7 @@ func (sp *FPS) Update() {
 	// Interval ended - update GUI text and start new interval
 	if sp.timeleft <= 0.0 {
 		sp.FPS = (sp.frames / sp.accum)
+		InternalFPS = sp.FPS
 		sp.timeleft += sp.updateInterval
 		sp.accum = 0.0
 		sp.frames = 0
