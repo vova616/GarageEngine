@@ -21,7 +21,6 @@ func init() {
 const (
 	RadianConst = math.Pi / 180
 	DegreeConst = 180 / math.Pi
-	Debug       = false
 )
 
 var (
@@ -35,6 +34,10 @@ var (
 	deltaTime    float32
 	fixedTime    float32
 	stepTime     = float32(1) / float32(60)
+
+	EnablePhysics = true
+	Debug         = false
+	InternalFPS   = float32(100)
 
 	Title  = "Engine Test"
 	Width  = 1024
@@ -51,6 +54,11 @@ func init() {
 func LoadScene(scene Scene) {
 	sn := scene.New()
 	sn.Load()
+
+	internalFPS := NewGameObject("InternalFPS")
+	internalFPS.AddComponent(NewFPS())
+	sn.SceneBase().AddGameObject(internalFPS)
+
 	mainScene = sn
 }
 
@@ -129,109 +137,151 @@ func Run() {
 
 		arr := sd.gameObjects
 
-		stepStart := time.Now()
+		timer := NewTimer()
+		timer.Start()
 
+		timer.StartCustom("Destory routines")
 		Iter(arr, destoyGameObject)
+		destroyDelta := timer.StopCustom("Destory routines")
+
+		timer.StartCustom("Start routines")
 		Iter(arr, startGameObject)
+		startDelta := timer.StopCustom("Start routines")
 
-		physicsStart := time.Now()
 		//for fixedTime > stepTime {
-
+		timer.StartCustom("FixedUpdate routines")
 		Iter(arr, fixedUdpateGameObject)
+		fixedUpdateDelta := timer.StopCustom("FixedUpdate routines")
 
-		for _, b := range Space.AllBodies {
-			g, ok := b.UserData.(*Physics)
-			if ok && g != nil {
-				pos := g.Transform().WorldPosition()
-				b.SetAngle(Float(180-g.Transform().WorldRotation().Z) * RadianConst)
-				//fmt.Println(g.Transform().WorldRotation().Z, b.Transform.Angle())
-				b.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
-				*g.lastCollision = *g.currentCollision
-				g.currentCollision.ShapeA = nil
-				g.currentCollision.ShapeB = nil
+		timer.StartCustom("Physics time")
+		if EnablePhysics {
+			for _, b := range Space.AllBodies {
+				g, ok := b.UserData.(*Physics)
+				if ok && g != nil {
+					pos := g.Transform().WorldPosition()
+					b.SetAngle(Float(180-g.Transform().WorldRotation().Z) * RadianConst)
+					//fmt.Println(g.Transform().WorldRotation().Z, b.Transform.Angle())
+					b.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
+					*g.lastCollision = *g.currentCollision
+					g.currentCollision.ShapeA = nil
+					g.currentCollision.ShapeB = nil
+				}
 			}
-		}
 
-		Space.Step(Float(stepTime))
-		//Space.Step(Float(0.1)) 
+			Space.Step(Float(stepTime))
+			//Space.Step(Float(0.1)) 
 
-		fixedTime -= stepTime
+			fixedTime -= stepTime
 
-		updatePosition := func(g *GameObject) {
-			if g.Physics != nil {
+			updatePosition := func(g *GameObject) {
+				if g.Physics != nil {
 
-				b := g.Physics.Body
-				r := g.Transform().WorldRotation()
-				g.Transform().SetWorldRotation(NewVector3(r.X, r.Y, 180-(float32(b.Angle())*DegreeConst)))
-				pos := b.Position()
-				g.Transform().SetWorldPosition(NewVector2(float32(pos.X), float32(pos.Y)))
+					b := g.Physics.Body
+					r := g.Transform().WorldRotation()
+					g.Transform().SetWorldRotation(NewVector3(r.X, r.Y, 180-(float32(b.Angle())*DegreeConst)))
+					pos := b.Position()
+					g.Transform().SetWorldPosition(NewVector2(float32(pos.X), float32(pos.Y)))
 
-				//fmt.Println(r.Z, b.Transform.Angle())
+					//fmt.Println(r.Z, b.Transform.Angle())
 
+				}
 			}
-		}
 
-		Iter(arr, updatePosition)
+			Iter(arr, updatePosition)
 
-		for _, i := range Space.Arbiters {
-			if i.NumContacts == 0 {
-				continue
-			}
-			a, _ := i.ShapeA.Body.UserData.(*Physics)
-			b, _ := i.ShapeB.Body.UserData.(*Physics)
-			if a != nil && b != nil {
-				*a.currentCollision = *i
-				*b.currentCollision = *i
-				if (a.lastCollision.ShapeA == a.currentCollision.ShapeA && a.lastCollision.ShapeB == a.currentCollision.ShapeB) ||
-					(a.lastCollision.ShapeA == a.currentCollision.ShapeB && a.lastCollision.ShapeB == a.currentCollision.ShapeA) {
-					onCollisionGameObject(a.GameObject(), a.currentCollision)
-				} else {
-					if a.lastCollision.ShapeA != nil && a.lastCollision.ShapeB != nil {
-						onCollisionExitGameObject(a.GameObject(), a.lastCollision)
+			for _, i := range Space.Arbiters {
+				if i.NumContacts == 0 {
+					continue
+				}
+				a, _ := i.ShapeA.Body.UserData.(*Physics)
+				b, _ := i.ShapeB.Body.UserData.(*Physics)
+				if a != nil && b != nil {
+					*a.currentCollision = *i
+					*b.currentCollision = *i
+					if (a.lastCollision.ShapeA == a.currentCollision.ShapeA && a.lastCollision.ShapeB == a.currentCollision.ShapeB) ||
+						(a.lastCollision.ShapeA == a.currentCollision.ShapeB && a.lastCollision.ShapeB == a.currentCollision.ShapeA) {
+						onCollisionGameObject(a.GameObject(), a.currentCollision)
+					} else {
+						if a.lastCollision.ShapeA != nil && a.lastCollision.ShapeB != nil {
+							onCollisionExitGameObject(a.GameObject(), a.lastCollision)
+						}
+						onCollisionEnterGameObject(a.GameObject(), a.currentCollision)
+						onCollisionGameObject(a.GameObject(), a.currentCollision)
 					}
-					onCollisionEnterGameObject(a.GameObject(), a.currentCollision)
-					onCollisionGameObject(a.GameObject(), a.currentCollision)
-				}
-				if (b.lastCollision.ShapeA == b.currentCollision.ShapeA && b.lastCollision.ShapeB == b.currentCollision.ShapeB) ||
-					(b.lastCollision.ShapeA == b.currentCollision.ShapeB && b.lastCollision.ShapeB == b.currentCollision.ShapeA) {
-					onCollisionGameObject(b.GameObject(), b.currentCollision)
-				} else {
-					if b.lastCollision.ShapeA != nil && b.lastCollision.ShapeB != nil {
-						onCollisionExitGameObject(b.GameObject(), b.lastCollision)
+					if (b.lastCollision.ShapeA == b.currentCollision.ShapeA && b.lastCollision.ShapeB == b.currentCollision.ShapeB) ||
+						(b.lastCollision.ShapeA == b.currentCollision.ShapeB && b.lastCollision.ShapeB == b.currentCollision.ShapeA) {
+						onCollisionGameObject(b.GameObject(), b.currentCollision)
+					} else {
+						if b.lastCollision.ShapeA != nil && b.lastCollision.ShapeB != nil {
+							onCollisionExitGameObject(b.GameObject(), b.lastCollision)
+						}
+						onCollisionEnterGameObject(b.GameObject(), b.currentCollision)
+						onCollisionGameObject(b.GameObject(), b.currentCollision)
 					}
-					onCollisionEnterGameObject(b.GameObject(), b.currentCollision)
-					onCollisionGameObject(b.GameObject(), b.currentCollision)
-				}
 
-			}
-		}
-
-		for _, b := range Space.AllBodies {
-			g, ok := b.UserData.(*Physics)
-			if ok && g != nil {
-				if g.lastCollision.ShapeA != nil && g.lastCollision.ShapeB != nil &&
-					g.currentCollision.ShapeA == nil && g.currentCollision.ShapeB == nil {
-					onCollisionExitGameObject(g.GameObject(), g.lastCollision)
 				}
 			}
+
+			for _, b := range Space.AllBodies {
+				g, ok := b.UserData.(*Physics)
+				if ok && g != nil {
+					if g.lastCollision.ShapeA != nil && g.lastCollision.ShapeB != nil &&
+						g.currentCollision.ShapeA == nil && g.currentCollision.ShapeB == nil {
+						onCollisionExitGameObject(g.GameObject(), g.lastCollision)
+					}
+				}
+			}
+
+			//}
+
+			//time.Sleep(time.Millisecond * 20)
+
 		}
+		physicsDelta := timer.StopCustom("Physics time")
 
-		//}
-
-		//time.Sleep(time.Millisecond * 20)
-		physicsEnd := time.Now()
-
+		timer.StartCustom("Update routines")
 		Iter(arr, udpateGameObject)
+		updateDelta := timer.StopCustom("Update routines")
+
+		timer.StartCustom("LateUpdate routines")
 		Iter(arr, lateudpateGameObject)
+		lateUpdateDelta := timer.StopCustom("LateUpdate routines")
+
+		timer.StartCustom("Draw routines")
 		Iter(arr, drawGameObject)
+		drawDelta := timer.StopCustom("Draw routines")
 
+		timer.StartCustom("coroutines")
 		RunCoroutines()
+		coroutinesDelta := timer.StopCustom("coroutines")
 
-		stepEnd := time.Now()
+		stepDelta := timer.Stop()
 
 		if Debug {
-			fmt.Println("Physics time", physicsEnd.Sub(physicsStart))
-			fmt.Println("Step time", stepEnd.Sub(stepStart))
+			fmt.Println()
+			fmt.Println("##################")
+			if InternalFPS < 20 {
+				fmt.Println("FPS is lower than 20. FPS:", InternalFPS)
+			} else if InternalFPS < 30 {
+				fmt.Println("FPS is lower than 30. FPS:", InternalFPS)
+			} else if InternalFPS < 40 {
+				fmt.Println("FPS is lower than 40. FPS:", InternalFPS)
+			}
+			if stepDelta > 17*time.Millisecond {
+				fmt.Println("StepDelta time is lower than normal")
+			}
+			fmt.Println("Debugging Times:")
+			fmt.Println("Step time", stepDelta)
+			fmt.Println("Destroy time", destroyDelta)
+			fmt.Println("Start time", startDelta)
+			fmt.Println("FixedUpdate time", fixedUpdateDelta)
+			fmt.Println("Physics time", physicsDelta)
+			fmt.Println("Update time", updateDelta)
+			fmt.Println("LateUpdate time", lateUpdateDelta)
+			fmt.Println("Draw time", drawDelta)
+			fmt.Println("Coroutines time", coroutinesDelta)
+			fmt.Println("##################")
+			fmt.Println()
 		}
 
 		UpdateInput()
