@@ -17,10 +17,16 @@ import (
 type Arbiter c.Arbiter
 
 func (arbiter *Arbiter) GameObjectA() *GameObject {
+	if arbiter.BodyA.UserData == nil {
+		return nil
+	}
 	return arbiter.BodyA.UserData.(*Physics).GameObject()
 }
 
 func (arbiter *Arbiter) GameObjectB() *GameObject {
+	if arbiter.BodyB.UserData == nil {
+		return nil
+	}
 	return arbiter.BodyB.UserData.(*Physics).GameObject()
 }
 
@@ -46,7 +52,7 @@ var (
 	stepTime     = float32(1) / float32(60)
 
 	EnablePhysics = true
-	Debug         = false
+	Debug         = true
 	InternalFPS   = float32(100)
 
 	Title  = "Engine Test"
@@ -104,13 +110,13 @@ func StartEngine() {
 	if err = glfw.Init(); err != nil {
 		panic(err)
 	}
-
+	println("GLFW Initialized!")
 	if err = glfw.OpenWindow(Width, Height, 8, 8, 8, 8, 8, 8, glfw.Windowed); err != nil {
 		panic(err)
 	}
 
 	glfw.SetSwapInterval(1) //0 to make FPS Maximum
-	glfw.SetWindowTitle(Title)
+	//glfw.SetWindowTitle(Title) //Disable for a while, crashes with 64bit and go 1.0.2
 	glfw.SetWindowSizeCallback(onResize)
 	glfw.SetKeyCallback(OnKey)
 	glfw.SetMouseButtonCallback(ButtonPress)
@@ -118,6 +124,7 @@ func StartEngine() {
 	if err = initGL(); err != nil {
 		panic(err)
 	}
+	println("Opengl Initialized!")
 
 	TextureMaterial = NewBasicMaterial(vertexShader, fragmentShader)
 	TextureMaterial.Load()
@@ -167,7 +174,7 @@ func Run() {
 		if EnablePhysics {
 			for _, b := range Space.Bodies {
 				g, ok := b.UserData.(*Physics)
-				if ok && g != nil {
+				if ok && g != nil && g.gameObject != nil {
 					pos := g.Transform().WorldPosition()
 					b.SetAngle(Float(180-g.Transform().WorldRotation().Z) * RadianConst)
 					//fmt.Println(g.Transform().WorldRotation().Z, b.Transform.Angle())
@@ -278,7 +285,9 @@ func Iter2(objs []*Transform, f func(*GameObject)) {
 }
 
 func drawGameObject(gameObject *GameObject) {
-
+	if gameObject.active == false {
+		return
+	}
 	//mat := gameObject.Transform().Matrix()
 
 	//gl.LoadMatrixf(mat.Ptr())
@@ -314,6 +323,9 @@ func Iter2Except(objs []*Transform, f func(*GameObject), except *GameObject) {
 }
 
 func startGameObject(gameObject *GameObject) {
+	if gameObject.active == false {
+		return
+	}
 	l := len(gameObject.components)
 	comps := gameObject.components
 
@@ -328,11 +340,14 @@ func startGameObject(gameObject *GameObject) {
 func destoyGameObject(gameObject *GameObject) {
 	if gameObject.destoryMark {
 		gameObject.destroy()
-
+		mainScene.SceneBase().RemoveGameObject(gameObject)
 	}
 }
 
 func onCollisionPreSolveGameObject(gameObject *GameObject, arb *Arbiter) bool {
+	if gameObject.active == false {
+		return true
+	}
 	l := len(gameObject.components)
 	comps := gameObject.components
 
@@ -344,6 +359,9 @@ func onCollisionPreSolveGameObject(gameObject *GameObject, arb *Arbiter) bool {
 }
 
 func onCollisionPostSolveGameObject(gameObject *GameObject, arb *Arbiter) {
+	if gameObject.active == false {
+		return
+	}
 	l := len(gameObject.components)
 	comps := gameObject.components
 
@@ -353,6 +371,9 @@ func onCollisionPostSolveGameObject(gameObject *GameObject, arb *Arbiter) {
 }
 
 func onCollisionEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
+	if gameObject == nil || gameObject.active == false {
+		return true
+	}
 	l := len(gameObject.components)
 	comps := gameObject.components
 
@@ -364,6 +385,9 @@ func onCollisionEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
 }
 
 func onCollisionExitGameObject(gameObject *GameObject, arb *Arbiter) {
+	if gameObject == nil || gameObject.active == false {
+		return
+	}
 	l := len(gameObject.components)
 	comps := gameObject.components
 
@@ -373,6 +397,9 @@ func onCollisionExitGameObject(gameObject *GameObject, arb *Arbiter) {
 }
 
 func onMouseEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
+	if gameObject == nil || gameObject.active == false {
+		return true
+	}
 	l := len(gameObject.components)
 	comps := gameObject.components
 
@@ -384,6 +411,9 @@ func onMouseEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
 }
 
 func onMouseExitGameObject(gameObject *GameObject, arb *Arbiter) {
+	if gameObject == nil || gameObject.active == false {
+		return
+	}
 	l := len(gameObject.components)
 	comps := gameObject.components
 
@@ -393,6 +423,10 @@ func onMouseExitGameObject(gameObject *GameObject, arb *Arbiter) {
 }
 
 func udpateGameObject(gameObject *GameObject) {
+	if gameObject.active == false {
+		return
+	}
+
 	l := len(gameObject.components)
 	comps := gameObject.components
 
@@ -402,6 +436,10 @@ func udpateGameObject(gameObject *GameObject) {
 }
 
 func lateudpateGameObject(gameObject *GameObject) {
+	if gameObject.active == false {
+		return
+	}
+
 	l := len(gameObject.components)
 	comps := gameObject.components
 
@@ -411,6 +449,10 @@ func lateudpateGameObject(gameObject *GameObject) {
 }
 
 func fixedUdpateGameObject(gameObject *GameObject) {
+	if gameObject.active == false {
+		return
+	}
+
 	l := len(gameObject.components)
 	comps := gameObject.components
 

@@ -13,16 +13,52 @@ const (
 
 type Matrix [16]float32
 
-func (mA *Matrix) Mul(mB Matrix) {
-	NewMatrix := Identity()
-	for i := 0; i < 4; i++ { //Cycle through each vector of first matrix.
-		index := i * 4
-		NewMatrix[index] = mA[index]*mB[0] + mA[index+1]*mB[4] + mA[index+2]*mB[8] + mA[index+3]*mB[12]
-		NewMatrix[index+1] = mA[index]*mB[1] + mA[index+1]*mB[5] + mA[index+2]*mB[9] + mA[index+3]*mB[13]
-		NewMatrix[index+2] = mA[index]*mB[2] + mA[index+1]*mB[6] + mA[index+2]*mB[10] + mA[index+3]*mB[14]
-		NewMatrix[index+3] = mA[index]*mB[3] + mA[index+1]*mB[7] + mA[index+2]*mB[11] + mA[index+3]*mB[15]
+func Mul(m1, m2 Matrix) Matrix {
+	return Matrix{
+		m1[0]*m2[0] + m1[1]*m2[4] + m1[2]*m2[8] + m1[3]*m2[12],
+		m1[0]*m2[1] + m1[1]*m2[5] + m1[2]*m2[9] + m1[3]*m2[13],
+		m1[0]*m2[2] + m1[1]*m2[6] + m1[2]*m2[10] + m1[3]*m2[14],
+		m1[0]*m2[3] + m1[1]*m2[7] + m1[2]*m2[11] + m1[3]*m2[15],
+
+		m1[4]*m2[0] + m1[5]*m2[4] + m1[6]*m2[8] + m1[7]*m2[12],
+		m1[4]*m2[1] + m1[5]*m2[5] + m1[6]*m2[9] + m1[7]*m2[13],
+		m1[4]*m2[2] + m1[5]*m2[6] + m1[6]*m2[10] + m1[7]*m2[14],
+		m1[4]*m2[3] + m1[5]*m2[7] + m1[6]*m2[11] + m1[7]*m2[15],
+
+		m1[8]*m2[0] + m1[9]*m2[4] + m1[10]*m2[8] + m1[11]*m2[12],
+		m1[8]*m2[1] + m1[9]*m2[5] + m1[10]*m2[9] + m1[11]*m2[13],
+		m1[8]*m2[2] + m1[9]*m2[6] + m1[10]*m2[10] + m1[11]*m2[14],
+		m1[8]*m2[3] + m1[9]*m2[7] + m1[10]*m2[11] + m1[11]*m2[15],
+
+		m1[12]*m2[0] + m1[13]*m2[4] + m1[14]*m2[8] + m1[15]*m2[12],
+		m1[12]*m2[1] + m1[13]*m2[5] + m1[14]*m2[9] + m1[15]*m2[13],
+		m1[12]*m2[2] + m1[13]*m2[6] + m1[14]*m2[10] + m1[15]*m2[14],
+		m1[12]*m2[3] + m1[13]*m2[7] + m1[14]*m2[11] + m1[15]*m2[15],
 	}
-	*mA = NewMatrix
+}
+
+func (m1 *Matrix) Mul(m2 Matrix) {
+	*m1 = Matrix{
+		m1[0]*m2[0] + m1[1]*m2[4] + m1[2]*m2[8] + m1[3]*m2[12],
+		m1[0]*m2[1] + m1[1]*m2[5] + m1[2]*m2[9] + m1[3]*m2[13],
+		m1[0]*m2[2] + m1[1]*m2[6] + m1[2]*m2[10] + m1[3]*m2[14],
+		m1[0]*m2[3] + m1[1]*m2[7] + m1[2]*m2[11] + m1[3]*m2[15],
+
+		m1[4]*m2[0] + m1[5]*m2[4] + m1[6]*m2[8] + m1[7]*m2[12],
+		m1[4]*m2[1] + m1[5]*m2[5] + m1[6]*m2[9] + m1[7]*m2[13],
+		m1[4]*m2[2] + m1[5]*m2[6] + m1[6]*m2[10] + m1[7]*m2[14],
+		m1[4]*m2[3] + m1[5]*m2[7] + m1[6]*m2[11] + m1[7]*m2[15],
+
+		m1[8]*m2[0] + m1[9]*m2[4] + m1[10]*m2[8] + m1[11]*m2[12],
+		m1[8]*m2[1] + m1[9]*m2[5] + m1[10]*m2[9] + m1[11]*m2[13],
+		m1[8]*m2[2] + m1[9]*m2[6] + m1[10]*m2[10] + m1[11]*m2[14],
+		m1[8]*m2[3] + m1[9]*m2[7] + m1[10]*m2[11] + m1[11]*m2[15],
+
+		m1[12]*m2[0] + m1[13]*m2[4] + m1[14]*m2[8] + m1[15]*m2[12],
+		m1[12]*m2[1] + m1[13]*m2[5] + m1[14]*m2[9] + m1[15]*m2[13],
+		m1[12]*m2[2] + m1[13]*m2[6] + m1[14]*m2[10] + m1[15]*m2[14],
+		m1[12]*m2[3] + m1[13]*m2[7] + m1[14]*m2[11] + m1[15]*m2[15],
+	}
 }
 
 func (mA *Matrix) Ptr() *float32 {
@@ -50,30 +86,24 @@ func (mA *Matrix) Invert() Matrix {
 	det11 := mA[9]*mA[15] - mA[11]*mA[13]
 	det12 := mA[10]*mA[15] - mA[11]*mA[14]
 
-	detmA := (float32)(det1*det12 - det2*det11 + det3*det10 + det4*det9 - det5*det8 + det6*det7)
+	invDetmA := 1 / (det1*det12 - det2*det11 + det3*det10 + det4*det9 - det5*det8 + det6*det7)
 
-	invDetmA := 1 / detmA
-
-	var ret Matrix // Allow for mA and result to point to the same structure
-
-	ret[0] = (mA[5]*det12 - mA[6]*det11 + mA[7]*det10) * invDetmA
-	ret[1] = (-mA[1]*det12 + mA[2]*det11 - mA[3]*det10) * invDetmA
-	ret[2] = (mA[13]*det6 - mA[14]*det5 + mA[15]*det4) * invDetmA
-	ret[3] = (-mA[9]*det6 + mA[10]*det5 - mA[11]*det4) * invDetmA
-	ret[4] = (-mA[4]*det12 + mA[6]*det9 - mA[7]*det8) * invDetmA
-	ret[5] = (mA[0]*det12 - mA[2]*det9 + mA[3]*det8) * invDetmA
-	ret[6] = (-mA[12]*det6 + mA[14]*det3 - mA[15]*det2) * invDetmA
-	ret[7] = (mA[8]*det6 - mA[10]*det3 + mA[11]*det2) * invDetmA
-	ret[8] = (mA[4]*det11 - mA[5]*det9 + mA[7]*det7) * invDetmA
-	ret[9] = (-mA[0]*det11 + mA[1]*det9 - mA[3]*det7) * invDetmA
-	ret[10] = (mA[12]*det5 - mA[13]*det3 + mA[15]*det1) * invDetmA
-	ret[11] = (-mA[8]*det5 + mA[9]*det3 - mA[11]*det1) * invDetmA
-	ret[12] = (-mA[4]*det10 + mA[5]*det8 - mA[6]*det7) * invDetmA
-	ret[13] = (mA[0]*det10 - mA[1]*det8 + mA[2]*det7) * invDetmA
-	ret[14] = (-mA[12]*det4 + mA[13]*det2 - mA[14]*det1) * invDetmA
-	ret[15] = (mA[8]*det4 - mA[9]*det2 + mA[10]*det1) * invDetmA
-
-	return ret
+	return Matrix{(mA[5]*det12 - mA[6]*det11 + mA[7]*det10) * invDetmA,
+		(-mA[1]*det12 + mA[2]*det11 - mA[3]*det10) * invDetmA,
+		(mA[13]*det6 - mA[14]*det5 + mA[15]*det4) * invDetmA,
+		(-mA[9]*det6 + mA[10]*det5 - mA[11]*det4) * invDetmA,
+		(-mA[4]*det12 + mA[6]*det9 - mA[7]*det8) * invDetmA,
+		(mA[0]*det12 - mA[2]*det9 + mA[3]*det8) * invDetmA,
+		(-mA[12]*det6 + mA[14]*det3 - mA[15]*det2) * invDetmA,
+		(mA[8]*det6 - mA[10]*det3 + mA[11]*det2) * invDetmA,
+		(mA[4]*det11 - mA[5]*det9 + mA[7]*det7) * invDetmA,
+		(-mA[0]*det11 + mA[1]*det9 - mA[3]*det7) * invDetmA,
+		(mA[12]*det5 - mA[13]*det3 + mA[15]*det1) * invDetmA,
+		(-mA[8]*det5 + mA[9]*det3 - mA[11]*det1) * invDetmA,
+		(-mA[4]*det10 + mA[5]*det8 - mA[6]*det7) * invDetmA,
+		(mA[0]*det10 - mA[1]*det8 + mA[2]*det7) * invDetmA,
+		(-mA[12]*det4 + mA[13]*det2 - mA[14]*det1) * invDetmA,
+		(mA[8]*det4 - mA[9]*det2 + mA[10]*det1) * invDetmA}
 }
 
 func (mA *Matrix) Reset() {

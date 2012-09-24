@@ -54,7 +54,7 @@ type Component interface {
 	OnMouseExit(arbiter *Arbiter)
 
 	OnComponentBind(binded *GameObject)
-	Destroy()
+	OnDestroy()
 	started() bool
 	setStarted(b bool)
 	setGameObject(gobj *GameObject)
@@ -133,6 +133,6 @@ func (c *BaseComponent) OnComponentBind(binded *GameObject) {
 
 }
 
-func (c *BaseComponent) Destroy() {
+func (c *BaseComponent) OnDestroy() {
 
 }

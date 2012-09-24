@@ -131,6 +131,11 @@ func (t *Transform) Rotation() Vector {
 	return t.rotation
 }
 
+func (t *Transform) Rotation2D() Vector {
+	angle := (180 - t.rotation.Z) * RadianConst
+	return NewVector2(float32(math.Cos(float64(angle))), float32(math.Sin(float64(angle))))
+}
+
 func (t *Transform) Scale() Vector {
 	return t.scale
 }

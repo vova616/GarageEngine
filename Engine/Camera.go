@@ -50,9 +50,9 @@ func (c *Camera) MouseLocalPosition() Vector {
 
 func (c *Camera) ScreenToWorld(x, y int) Vector {
 
-	m := NewIdentity()
+	m := Identity()
 	m.Translate(float32(x), float32(y), 0)
-	m.Mul(c.Transform().Matrix())
+	m = Mul(m, c.Transform().Matrix())
 
 	return m.Translation()
 }

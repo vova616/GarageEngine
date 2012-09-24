@@ -73,21 +73,23 @@ func (g *GameObject) IsActive() bool {
 }
 
 func (g *GameObject) Destroy() {
-	g.destoryMark = false
+	g.destoryMark = true
 	g.active = false
+	for _, c := range g.transform.children {
+		c.gameObject.Destroy()
+	}
 }
 
 func (g *GameObject) destroy() {
-	g.name = ""
-
+	for _, c := range g.components {
+		c.OnDestroy()
+	}
 	for _, c := range g.transform.children {
 		c.GameObject().destroy()
 	}
-	g.transform = nil
-	for _, c := range g.components {
-		c.Destroy()
-	}
+	g.name = ""
 	g.Transform().SetParent(nil)
+	g.transform = nil
 	g.components = nil
 	g.valid = false
 	g.active = false

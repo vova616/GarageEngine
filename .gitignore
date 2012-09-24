@@ -170,5 +170,6 @@ log.txt
 *.iml
 .idea/
 out/
+64bit/
 
  
