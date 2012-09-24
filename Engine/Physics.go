@@ -66,19 +66,36 @@ func (p *Physics) OnComponentBind(binded *GameObject) {
 }
 
 func (c *Physics) CollisionPreSolve(arbiter *c.Arbiter) bool {
+	if c.gameObject == nil {
+		return true
+	}
 	return onCollisionPreSolveGameObject(c.GameObject(), (*Arbiter)(arbiter))
 }
 
 func (c *Physics) CollisionEnter(arbiter *c.Arbiter) bool {
+	if c.gameObject == nil {
+		return true
+	}
 	return onCollisionEnterGameObject(c.GameObject(), (*Arbiter)(arbiter))
 }
 
 func (c *Physics) CollisionExit(arbiter *c.Arbiter) {
+	if c.gameObject == nil {
+		return
+	}
 	onCollisionExitGameObject(c.GameObject(), (*Arbiter)(arbiter))
 }
 
 func (c *Physics) CollisionPostSolve(arbiter *c.Arbiter) {
+	if c.gameObject == nil {
+		return
+	}
 	onCollisionPostSolveGameObject(c.GameObject(), (*Arbiter)(arbiter))
+}
+
+func (p *Physics) OnDestroy() {
+	p.gameObject = nil
+	Space.RemoveBody(p.Body)
 }
 
 func (p *Physics) Clone() {

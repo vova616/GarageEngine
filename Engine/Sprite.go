@@ -12,18 +12,21 @@ import (
 	//"glfw"
 )
 
+type OnAnimationEnd func(sprite *Sprite)
+
 type Sprite struct {
 	BaseComponent
 	*Texture
-	buffer         gl.Buffer
-	AnimationSpeed float32
-	texcoordsIndex int
-	endAnimation   int
-	startAnimation int
-	animation      float32
-	UVs            AnimatedUV
-	animMap        map[interface{}][2]int
-	currentAnim    interface{}
+	buffer               gl.Buffer
+	AnimationSpeed       float32
+	texcoordsIndex       int
+	endAnimation         int
+	startAnimation       int
+	animation            float32
+	UVs                  AnimatedUV
+	animMap              map[interface{}][2]int
+	currentAnim          interface{}
+	AnimationEndCallback OnAnimationEnd
 
 	Border     bool
 	BorderSize float32
@@ -137,6 +140,9 @@ func (sp *Sprite) Update() {
 		sp.animation += sp.AnimationSpeed * DeltaTime()
 	}
 	if sp.animation >= float32(sp.endAnimation) {
+		if sp.AnimationEndCallback != nil {
+			sp.AnimationEndCallback(sp)
+		}
 		sp.animation = float32(sp.startAnimation)
 	}
 
@@ -145,8 +151,9 @@ func (sp *Sprite) Update() {
 
 func (sp *Sprite) UpdateShape() {
 	if sp.GameObject().Physics != nil {
-		box := sp.GameObject().Physics.Box
-		cir := sp.GameObject().Physics.Shape.GetAsCircle()
+		ph := sp.GameObject().Physics
+		box := ph.Box
+		cir := ph.Shape.GetAsCircle()
 
 		scale := sp.Transform().WorldScale()
 		ratio := sp.UVs[int(sp.animation)].Ratio
@@ -156,12 +163,18 @@ func (sp *Sprite) UpdateShape() {
 			if Float(scale.Y) != box.Height || Float(scale.X) != box.Width {
 				box.Height = Float(scale.Y)
 				box.Width = Float(scale.X)
+				if !ph.Body.MomentIsInf() {
+					ph.Body.SetMoment(Float(box.Moment(float32(ph.Body.Mass()))))
+				}
 				//box.Position = Vect{box.Width/2, box.Height/2}
 				box.UpdatePoly()
 			}
 		} else if cir != nil {
 			if float32(cir.Radius) != scale.X/2 {
 				cir.Radius = Float(scale.X / 2)
+				if !ph.Body.MomentIsInf() {
+					ph.Body.SetMoment(Float(cir.Moment(float32(ph.Body.Mass()))))
+				}
 				sp.GameObject().Physics.Body.UpdateShapes()
 			}
 		}
