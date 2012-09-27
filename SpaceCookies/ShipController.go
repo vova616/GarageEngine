@@ -21,12 +21,12 @@ type ShipController struct {
 }
 
 func NewShipController() *ShipController {
-	return &ShipController{NewComponent(), 200000, 100, nil, []Vector{{10, -28, 0},
-		{10, 28, 0}}}
+	return &ShipController{NewComponent(), 200000, 100, nil, []Vector{{-28, 10, 0},
+		{28, 10, 0}}}
 }
 
 func (sp *ShipController) OnComponentBind(binded *GameObject) {
-	sp.GameObject().AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, Float(15))))
+	sp.GameObject().AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 15)))
 }
 
 func (sp *ShipController) Start() {
@@ -38,7 +38,7 @@ func (sp *ShipController) Start() {
 
 func (sp *ShipController) Shoot() {
 	if sp.Missle != nil {
-		s := sp.Transform().Rotation2D()
+		s := sp.Transform().Direction2D(Up)
 		a := sp.Transform().Rotation()
 		//scale := sp.Transform().Scale()
 		for _, pos := range sp.MisslesPosition {
@@ -47,7 +47,7 @@ func (sp *ShipController) Shoot() {
 			m := Identity()
 			//m.Scale(scale.X, scale.Y, scale.Z)
 			m.Translate(pos.X, pos.Y, pos.Z)
-			m.Rotate(a.Z, 0, 0, 1)
+			m.Rotate(a.Z, 0, 0, -1)
 			m.Translate(p.X, p.Y, p.Z)
 			p = m.Translation()
 
@@ -56,8 +56,8 @@ func (sp *ShipController) Shoot() {
 			nfire.Transform().SetWorldPosition(p)
 			nfire.Physics.Body.IgnoreGravity = true
 			nfire.Physics.Body.SetMass(1)
-
-			nfire.Physics.Body.AddForce(-s.X*30000, -s.Y*30000)
+			nfire.Tag = MissleTag
+			nfire.Physics.Body.AddForce(s.X*30000, s.Y*30000)
 
 			nfire.Physics.Shape.Group = 1
 			nfire.Physics.Body.SetMoment(Inf)
@@ -68,23 +68,23 @@ func (sp *ShipController) Shoot() {
 
 func (sp *ShipController) Update() {
 	r := sp.Transform().Rotation()
-	r2 := sp.Transform().Rotation2D()
+	r2 := sp.Transform().Direction2D(Up)
 	ph := sp.GameObject().Physics
 	rx, ry := r2.X, r2.Y
 	rx, ry = rx*DeltaTime(), ry*DeltaTime()
 
-	if Input.KeyDown('S') {
+	if Input.KeyDown('W') {
 		ph.Body.AddForce(sp.Speed*rx, sp.Speed*ry)
 	}
 
-	if Input.KeyDown('W') {
+	if Input.KeyDown('S') {
 		ph.Body.AddForce(-sp.Speed*rx, -sp.Speed*ry)
 	}
 
-	if Input.KeyDown('A') {
+	if Input.KeyDown('D') {
 		sp.Transform().SetRotationf(0, 0, r.Z-sp.RotationSpeed*DeltaTime())
 	}
-	if Input.KeyDown('D') {
+	if Input.KeyDown('A') {
 		sp.Transform().SetRotationf(0, 0, r.Z+sp.RotationSpeed*DeltaTime())
 	}
 

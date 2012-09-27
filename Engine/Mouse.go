@@ -1,8 +1,8 @@
 package Engine
 
 import (
-	c "github.com/vova616/chipmunk"
-	. "github.com/vova616/chipmunk/vect"
+	"github.com/vova616/chipmunk"
+	"github.com/vova616/chipmunk/vect"
 )
 
 type Mouse struct {
@@ -18,7 +18,7 @@ func (m *Mouse) Update() {
 }
 
 func (m *Mouse) Start() {
-	m.GameObject().AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, Float(0.5))))
+	m.GameObject().AddComponent(NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 0.5)))
 	ph := m.GameObject().Physics
 	ph.Body.IgnoreGravity = true
 	ph.Shape.IsSensor = true

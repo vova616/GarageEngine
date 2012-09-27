@@ -15,6 +15,7 @@ type GameObject struct {
 	active      bool
 	destoryMark bool
 
+	Tag     string
 	Physics *Physics
 	Sprite  *Sprite
 }
@@ -101,6 +102,7 @@ func (g *GameObject) Clone() *GameObject {
 	ng.active = true
 	ng.transform = g.transform.clone(ng)
 	ng.name = g.name + ""
+	ng.Tag = g.Tag
 	ng.components = make([]Component, 0)
 	for _, c := range g.components {
 		v := reflect.ValueOf(c).Elem()
