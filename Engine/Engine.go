@@ -56,8 +56,8 @@ var (
 	InternalFPS   = float32(100)
 
 	Title  = "Engine Test"
-	Width  = 1024
-	Height = 768
+	Width  = 1280
+	Height = 720
 
 	terminated chan bool
 )
@@ -176,7 +176,7 @@ func Run() {
 				g, ok := b.UserData.(*Physics)
 				if ok && g != nil && g.gameObject != nil {
 					pos := g.Transform().WorldPosition()
-					b.SetAngle(Float(180-g.Transform().WorldRotation().Z) * RadianConst)
+					b.SetAngle(Float(g.Transform().WorldRotation().Z) * RadianConst)
 					//fmt.Println(g.Transform().WorldRotation().Z, b.Transform.Angle())
 					b.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
 				}
@@ -192,7 +192,7 @@ func Run() {
 
 					b := g.Physics.Body
 					r := g.Transform().WorldRotation()
-					g.Transform().SetWorldRotation(NewVector3(r.X, r.Y, 180-(float32(b.Angle())*DegreeConst)))
+					g.Transform().SetWorldRotation(NewVector3(r.X, r.Y, (float32(b.Angle()) * DegreeConst)))
 					pos := b.Position()
 					g.Transform().SetWorldPosition(NewVector2(float32(pos.X), float32(pos.Y)))
 

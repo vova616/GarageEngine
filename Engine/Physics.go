@@ -48,7 +48,7 @@ func NewPhysics2(static bool, shape *c.Shape) *Physics {
 func (p *Physics) Start() {
 	//p.FixedUpdate()
 	pos := p.GameObject().Transform().WorldPosition()
-	p.Body.SetAngle(Float(180-p.GameObject().Transform().WorldRotation().Z) * RadianConst)
+	p.Body.SetAngle(Float(p.GameObject().Transform().WorldRotation().Z) * RadianConst)
 	p.Body.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
 
 	if p.GameObject().Sprite != nil {

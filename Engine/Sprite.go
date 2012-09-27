@@ -7,8 +7,8 @@ import (
 	//"image/png"
 	//"image"
 	//"os"
-	. "github.com/vova616/chipmunk/vect"
 	//"fmt"
+	. "github.com/vova616/chipmunk/vect"
 	//"glfw"
 )
 
@@ -133,6 +133,14 @@ func (sp *Sprite) CreateVBO(uvs ...UV) {
 
 func (sp *Sprite) Start() {
 
+}
+
+func (sp *Sprite) SetAnimationIndex(index int) {
+	if index <= 0 {
+		sp.animation = 0
+	} else {
+		sp.animation = float32(index % sp.endAnimation)
+	}
 }
 
 func (sp *Sprite) Update() {

@@ -17,18 +17,28 @@ func NewMissle(speed float32) *Missle {
 	return &Missle{BaseComponent: NewComponent(), Speed: speed}
 }
 
+func (ms *Missle) OnComponentBind(gameObject *GameObject) {
+	gameObject.Tag = MissleTag
+}
+
 func (ms *Missle) OnCollisionEnter(arbiter *Arbiter) bool {
 	if ms.exploded {
 		return true
 	}
 	ms.exploded = true
+	if arbiter.GameObjectA().Tag == CookieTag || arbiter.GameObjectB().Tag == CookieTag {
+
+		StartCoroutine(func() { ms.CreateBlow() })
+		arbiter.GameObjectA().Destroy()
+		arbiter.GameObjectB().Destroy()
+	}
 	//println(arbiter.GameObjectA().Name() + " to " + arbiter.GameObjectB().Name())
-	StartCoroutine(func() { ms.CreateBlow() })
+
 	return true
 }
 
 func (ms *Missle) CreateBlow() {
-	ms.GameObject().Destroy()
+	//ms.GameObject().Destroy()
 	if ms.Explosion == nil {
 		return
 	}
