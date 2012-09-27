@@ -37,6 +37,7 @@ func init() {
 const (
 	RadianConst = math.Pi / 180
 	DegreeConst = 180 / math.Pi
+	MouseTag    = "Mouse"
 )
 
 var (

@@ -13,6 +13,10 @@ func NewMouse() *Mouse {
 	return &Mouse{NewComponent()}
 }
 
+func (m *Mouse) OnComponentBind(gameObject *GameObject) {
+	gameObject.Tag = MouseTag
+}
+
 func (m *Mouse) Update() {
 	m.Transform().SetPosition(mainScene.SceneBase().Camera.MouseLocalPosition())
 }
