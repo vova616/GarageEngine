@@ -8,7 +8,7 @@ import (
 	_ "image/png"
 	//"gl"  
 	"strconv"
-	//"time" 
+	"time"
 	//"strings"
 	//"math"
 	c "github.com/vova616/chipmunk"
@@ -38,6 +38,9 @@ const (
 )
 
 func (s *GameScene) Load() {
+
+	rand.Seed(time.Now().UnixNano())
+
 	ArialFont, err := NewFont("./data/Fonts/arial.ttf", 48)
 	if err != nil {
 		panic(err)
