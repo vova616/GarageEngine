@@ -71,7 +71,7 @@ func (sp *PlayerController) Shoot() {
 		sp.Fires = append(sp.Fires, nfire)
 		nfire.Transform().SetParent2(GameSceneGeneral.Layer1)
 		nfire.Transform().SetWorldPosition(sp.Transform().WorldPosition())
-		nfire.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, Float(20))))
+		nfire.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 20)))
 		nfire.Physics.Body.IgnoreGravity = true
 		nfire.Physics.Body.SetMass(200)
 		s := sp.Transform().Rotation()

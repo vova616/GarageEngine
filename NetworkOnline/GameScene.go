@@ -137,7 +137,7 @@ func (s *GameScene) Load() {
 		//+float32(i*30)
 		sprite3.Transform().SetPosition(NewVector2(200+float32(i%4)*25, float32(i*30)+120))
 		sprite3.Transform().SetScale(NewVector2(30, 30))
-		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, Float(15)))).(*Physics)
+		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 15))).(*Physics)
 		phx.Body.SetMass(10)
 		phx.Body.SetMoment(phx.Shape.ShapeClass.Moment(10))
 
