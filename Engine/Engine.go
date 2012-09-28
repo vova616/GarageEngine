@@ -117,7 +117,7 @@ func StartEngine() {
 	}
 
 	glfw.SetSwapInterval(1) //0 to make FPS Maximum
-	//glfw.SetWindowTitle(Title) //Disable for a while, crashes with 64bit and go 1.0.2
+	glfw.SetWindowTitle(Title)
 	glfw.SetWindowSizeCallback(onResize)
 	glfw.SetKeyCallback(OnKey)
 	glfw.SetMouseButtonCallback(ButtonPress)

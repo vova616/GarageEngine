@@ -29,7 +29,7 @@ func (m *MouseDebugger) Update() {
 
 		sprite3.Transform().SetScale(NewVector2(30, 30))
 
-		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, Float(15)))).(*Physics)
+		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 15))).(*Physics)
 		phx.Shape.SetFriction(0.5)
 		//phx.Shape.Group = 1
 		phx.Shape.SetElasticity(0.5)

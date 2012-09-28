@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/NetworkOnline"
 	"github.com/vova616/GarageEngine/SpaceCookies"
 	//"math"
 	"os"
@@ -42,6 +43,8 @@ func Start() {
 		Terminate()
 	}()
 	StartEngine()
+	_ = SpaceCookies.GameSceneGeneral
+	_ = NetworkOnline.GameSceneGeneral
 	LoadScene(SpaceCookies.GameSceneGeneral)
 	for MainLoop() {
 
