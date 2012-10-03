@@ -28,7 +28,7 @@ func (ms *Missle) OnCollisionEnter(arbiter *Arbiter) bool {
 	ms.exploded = true
 	if arbiter.GameObjectA().Tag == CookieTag || arbiter.GameObjectB().Tag == CookieTag {
 
-		StartCoroutine(func() { ms.CreateBlow() })
+		ms.CreateBlow()
 		arbiter.GameObjectA().Destroy()
 		arbiter.GameObjectB().Destroy()
 	}

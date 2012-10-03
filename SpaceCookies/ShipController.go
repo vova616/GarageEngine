@@ -10,6 +10,7 @@ import (
 	. "github.com/vova616/chipmunk/vect"
 	//"fmt"
 	//"time"
+
 )
 
 type ShipController struct {
@@ -82,9 +83,13 @@ func (sp *ShipController) Update() {
 	}
 
 	if Input.KeyDown('D') {
+		ph.Body.SetAngularVelocity(0)
+		ph.Body.SetTorque(0)
 		sp.Transform().SetRotationf(0, 0, r.Z-sp.RotationSpeed*DeltaTime())
 	}
 	if Input.KeyDown('A') {
+		ph.Body.SetAngularVelocity(0)
+		ph.Body.SetTorque(0)
 		sp.Transform().SetRotationf(0, 0, r.Z+sp.RotationSpeed*DeltaTime())
 	}
 
