@@ -11,10 +11,11 @@ type Missle struct {
 	Speed     float32
 	Explosion *GameObject
 	exploded  bool
+	Damage    float32
 }
 
 func NewMissle(speed float32) *Missle {
-	return &Missle{BaseComponent: NewComponent(), Speed: speed}
+	return &Missle{BaseComponent: NewComponent(), Speed: speed, Damage: 50}
 }
 
 func (ms *Missle) OnComponentBind(gameObject *GameObject) {
@@ -27,12 +28,9 @@ func (ms *Missle) OnCollisionEnter(arbiter *Arbiter) bool {
 	}
 	ms.exploded = true
 	if arbiter.GameObjectA().Tag == CookieTag || arbiter.GameObjectB().Tag == CookieTag {
-
 		ms.CreateBlow()
-		arbiter.GameObjectA().Destroy()
-		arbiter.GameObjectB().Destroy()
+		ms.GameObject().Destroy()
 	}
-	//println(arbiter.GameObjectA().Name() + " to " + arbiter.GameObjectB().Name())
 
 	return true
 }

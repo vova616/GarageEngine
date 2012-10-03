@@ -49,6 +49,12 @@ func (v *Vector) Mul2(vect float32) Vector {
 	return Vector{v.X * vect, v.Y * vect, v.Z * vect}
 }
 
+func (v *Vector) Distance(vect Vector) float32 {
+	x := v.X - vect.X
+	y := v.Y - vect.Y
+	return float32(math.Sqrt(float64(x*x + y*y)))
+}
+
 func (v *Vector) Div(vect Vector) Vector {
 	return Vector{v.X / vect.X, v.Y / vect.Y, v.Z / vect.Z}
 }

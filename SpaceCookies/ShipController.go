@@ -56,9 +56,9 @@ func (sp *ShipController) Shoot() {
 			nfire.Transform().SetParent2(GameSceneGeneral.Layer3)
 			nfire.Transform().SetWorldPosition(p)
 			nfire.Physics.Body.IgnoreGravity = true
-			nfire.Physics.Body.SetMass(1)
+			nfire.Physics.Body.SetMass(0.1)
 			nfire.Tag = MissleTag
-			nfire.Physics.Body.AddForce(s.X*30000, s.Y*30000)
+			nfire.Physics.Body.AddForce(s.X*3000, s.Y*3000)
 
 			nfire.Physics.Shape.Group = 1
 			nfire.Physics.Body.SetMoment(Inf)
