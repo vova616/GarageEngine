@@ -30,6 +30,7 @@ var (
 	cir              *Texture
 	box              *Texture
 	cookie           *GameObject
+	Player           *GameObject
 )
 
 const (
@@ -123,6 +124,7 @@ func (s *GameScene) Load() {
 	atlasSpace.BuildAtlas()
 
 	ship := NewGameObject("Ship")
+	Player = ship
 	ship.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, SpaceShip)))
 	shipController := ship.AddComponent(NewShipController()).(*ShipController)
 	ship.Transform().SetParent2(Layer2)
@@ -150,6 +152,8 @@ func (s *GameScene) Load() {
 
 	cookie = NewGameObject("Cookie")
 	cookie.AddComponent(NewSprite(cir))
+	cookie.AddComponent(NewDestoyable(200))
+	cookie.AddComponent(NewEnemeyAI(Player))
 	cookie.Transform().SetScale(NewVector2(50, 50))
 	cookie.Transform().SetPosition(NewVector2(400, 400))
 	cookie.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 25)))

@@ -49,6 +49,16 @@ func (g *GameObject) ComponentTypeOf(typ reflect.Type) Component {
 	return nil
 }
 
+func (g *GameObject) ComponentTypeOfi(intrfce interface{}) Component {
+	typ := reflect.TypeOf(intrfce)
+	for _, c := range g.components {
+		if typ == reflect.TypeOf(c) {
+			return c
+		}
+	}
+	return nil
+}
+
 func (g *GameObject) SetName(name string) {
 	g.name = name
 }
