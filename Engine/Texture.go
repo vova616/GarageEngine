@@ -254,6 +254,11 @@ func NewTexture2(data interface{}, width int, height int, target gl.GLenum, inte
 	a := gl.GenTexture()
 	a.Bind(target)
 	gl.TexImage2D(target, 0, internalFormat, width, height, 0, typ, format, data)
+
+	ansi := []float32{0}
+	gl.GetFloatv(gl.MAX_TEXTURE_MAX_ANISOTROPY_EXT, ansi)
+	gl.TexParameterf(target, gl.TEXTURE_MAX_ANISOTROPY_EXT, ansi[0])
+
 	gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 	gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.TexParameteri(target, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -292,6 +297,18 @@ func (t *Texture) Options(filter, clamp int) {
 	gl.TexParameteri(t.target, gl.TEXTURE_MAG_FILTER, filter)
 	gl.TexParameteri(t.target, gl.TEXTURE_WRAP_S, clamp)
 	gl.TexParameteri(t.target, gl.TEXTURE_WRAP_T, clamp)
+	t.Unbind()
+}
+
+func (t *Texture) Param(filter, value int) {
+	t.Bind()
+	gl.TexParameteri(t.target, gl.GLenum(filter), value)
+	t.Unbind()
+}
+
+func (t *Texture) Paramf(filter int, value float32) {
+	t.Bind()
+	gl.TexParameterf(t.target, gl.GLenum(filter), value)
 	t.Unbind()
 }
 

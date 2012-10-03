@@ -189,7 +189,7 @@ func Run() {
 			fixedTime -= stepTime
 
 			updatePosition := func(g *GameObject) {
-				if g.Physics != nil {
+				if g.Physics != nil && g.Physics.started() {
 
 					b := g.Physics.Body
 					r := g.Transform().WorldRotation()
@@ -297,7 +297,9 @@ func drawGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].Draw()
+		if comps[i].started() {
+			comps[i].Draw()
+		}
 	}
 }
 
@@ -367,7 +369,9 @@ func onCollisionPostSolveGameObject(gameObject *GameObject, arb *Arbiter) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].OnCollisionPostSolve(arb)
+		if comps[i].started() {
+			comps[i].OnCollisionPostSolve(arb)
+		}
 	}
 }
 
@@ -380,7 +384,9 @@ func onCollisionEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
 
 	b := true
 	for i := l - 1; i >= 0; i-- {
-		b = b && comps[i].OnCollisionEnter(arb)
+		if comps[i].started() {
+			b = b && comps[i].OnCollisionEnter(arb)
+		}
 	}
 	return b
 }
@@ -393,7 +399,9 @@ func onCollisionExitGameObject(gameObject *GameObject, arb *Arbiter) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].OnCollisionExit(arb)
+		if comps[i].started() {
+			comps[i].OnCollisionExit(arb)
+		}
 	}
 }
 
@@ -406,7 +414,9 @@ func onMouseEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
 
 	b := true
 	for i := l - 1; i >= 0; i-- {
-		b = b && comps[i].OnMouseEnter(arb)
+		if comps[i].started() {
+			b = b && comps[i].OnMouseEnter(arb)
+		}
 	}
 	return b
 }
@@ -419,7 +429,9 @@ func onMouseExitGameObject(gameObject *GameObject, arb *Arbiter) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].OnMouseExit(arb)
+		if comps[i].started() {
+			comps[i].OnMouseExit(arb)
+		}
 	}
 }
 
@@ -432,7 +444,9 @@ func udpateGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].Update()
+		if comps[i].started() {
+			comps[i].Update()
+		}
 	}
 }
 
@@ -445,7 +459,9 @@ func lateudpateGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].LateUpdate()
+		if comps[i].started() {
+			comps[i].LateUpdate()
+		}
 	}
 }
 
@@ -458,7 +474,9 @@ func fixedUdpateGameObject(gameObject *GameObject) {
 	comps := gameObject.components
 
 	for i := l - 1; i >= 0; i-- {
-		comps[i].FixedUpdate()
+		if comps[i].started() {
+			comps[i].FixedUpdate()
+		}
 	}
 }
 
