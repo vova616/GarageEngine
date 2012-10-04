@@ -19,6 +19,9 @@ func (c *BaseComponent) onAdd(component Component, gameObject *GameObject) {
 }
 
 func (c *BaseComponent) GameObject() *GameObject {
+	if c.gameObject != nil && c.gameObject.IsValid() == false {
+		return nil
+	}
 	return c.gameObject
 }
 

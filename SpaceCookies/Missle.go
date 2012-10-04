@@ -18,6 +18,15 @@ func NewMissle(speed float32) *Missle {
 	return &Missle{BaseComponent: NewComponent(), Speed: speed, Damage: 50}
 }
 
+func (ms *Missle) Start() {
+	StartCoroutine(func() {
+		Wait(5)
+		if ms.GameObject() != nil {
+			ms.GameObject().Destroy()
+		}
+	})
+}
+
 func (ms *Missle) OnComponentBind(gameObject *GameObject) {
 	gameObject.Tag = MissleTag
 }

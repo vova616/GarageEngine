@@ -22,7 +22,7 @@ type ShipController struct {
 }
 
 func NewShipController() *ShipController {
-	return &ShipController{NewComponent(), 200000, 100, nil, []Vector{{-28, 10, 0},
+	return &ShipController{NewComponent(), 400000, 100, nil, []Vector{{-28, 10, 0},
 		{28, 10, 0}}}
 }
 
@@ -105,4 +105,6 @@ func (sp *ShipController) Update() {
 
 func (sp *ShipController) LateUpdate() {
 	GameSceneGeneral.SceneData.Camera.Transform().SetPosition(NewVector3(sp.Transform().Position().X-float32(Width/2), sp.Transform().Position().Y-float32(Height/2), 0))
+	
+
 }

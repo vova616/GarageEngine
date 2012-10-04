@@ -152,12 +152,21 @@ func (s *GameScene) Load() {
 
 	cookie = NewGameObject("Cookie")
 	cookie.AddComponent(NewSprite(cir))
-	cookie.AddComponent(NewDestoyable(200))
+	cookie.AddComponent(NewDestoyable(100))
 	cookie.AddComponent(NewEnemeyAI(Player))
 	cookie.Transform().SetScale(NewVector2(50, 50))
 	cookie.Transform().SetPosition(NewVector2(400, 400))
 	cookie.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 25)))
 	cookie.Tag = CookieTag
+
+	staticCookie := NewGameObject("Cookie")
+	staticCookie.AddComponent(NewSprite(cir))
+	staticCookie.AddComponent(NewDestoyable(float32(Inf)))
+	staticCookie.Transform().SetScale(NewVector2(400, 400))
+	staticCookie.Transform().SetPosition(NewVector2(400, 400))
+	staticCookie.AddComponent(NewPhysics2(true, c.NewCircle(Vect{0, 0}, 200)))
+	staticCookie.Physics.Shape.SetElasticity(0)
+	staticCookie.Tag = CookieTag
 
 	uvs, ind = AnimatedGroupUVs(atlasSpace, "s")
 	Background := NewGameObject("Background")
@@ -172,7 +181,7 @@ func (s *GameScene) Load() {
 		c := Background.Clone()
 		c.Transform().SetParent2(Layer4)
 		size := 20 + rand.Float32()*50
-		p := Vector{rand.Float32() * 3000, rand.Float32() * 3000, 1}
+		p := Vector{(rand.Float32() * 5000) - 1000, (rand.Float32() * 5000) - 1000, 1}
 
 		index := rand.Int() % 7
 		Background.Sprite.SetAnimationIndex(int(index))
@@ -188,9 +197,38 @@ func (s *GameScene) Load() {
 		//c.Tag = CookieTag
 		c.Transform().SetParent2(Layer2)
 		size := 25 + rand.Float32()*100
-		p := Vector{rand.Float32() * 3000, rand.Float32() * 3000, 1}
+		p := Vector{(rand.Float32() * 2200) + 800, (rand.Float32() * 2200) + 800, 1}
 		c.Transform().SetPosition(p)
 		c.Transform().SetScalef(size, size, 1)
+	}
+
+	for i := 0; i < (3000/400)+1; i++ {
+		c := staticCookie.Clone()
+		c.Transform().SetParent2(Layer2)
+		p := Vector{float32(i) * 400, -200, 1}
+		c.Transform().SetPosition(p)
+		c.Transform().SetScalef(400, 400, 1)
+	}
+	for i := 0; i < (3000/400)+1; i++ {
+		c := staticCookie.Clone()
+		c.Transform().SetParent2(Layer2)
+		p := Vector{float32(i) * 400, 3200, 1}
+		c.Transform().SetPosition(p)
+		c.Transform().SetScalef(400, 400, 1)
+	}
+	for i := 0; i < (3000/400)+1; i++ {
+		c := staticCookie.Clone()
+		c.Transform().SetParent2(Layer2)
+		p := Vector{-200, float32(i) * 400, 1}
+		c.Transform().SetPosition(p)
+		c.Transform().SetScalef(400, 400, 1)
+	}
+	for i := 0; i < (3000/400)+1; i++ {
+		c := staticCookie.Clone()
+		c.Transform().SetParent2(Layer2)
+		p := Vector{3200, float32(i) * 400, 1}
+		c.Transform().SetPosition(p)
+		c.Transform().SetScalef(400, 400, 1)
 	}
 
 	s.AddGameObject(cam)

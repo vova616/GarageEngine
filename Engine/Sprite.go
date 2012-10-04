@@ -189,8 +189,26 @@ func (sp *Sprite) UpdateShape() {
 	}
 }
 
+func Abs(val float32) float32 {
+	if val < 0 {
+		return -val
+	}
+	return val
+}
+
 func (sp *Sprite) Draw() {
 	if sp.Texture != nil {
+
+		camera := GetScene().SceneBase().Camera
+		cameraPos := camera.Transform().WorldPosition()
+		pos := sp.Transform().WorldPosition()
+		scale := sp.Transform().WorldScale()
+		if Abs(pos.X-cameraPos.X)-scale.X-float32(Width)/2 > float32(Width) {
+			return
+		}
+		if Abs(pos.Y-cameraPos.Y)-scale.Y-float32(Height)/2 > float32(Height) {
+			return
+		}
 
 		TextureMaterial.Begin(sp.GameObject())
 
@@ -210,8 +228,6 @@ func (sp *Sprite) Draw() {
 
 		vert.AttribPointerPtr(3, gl.FLOAT, false, 0, int(sp.animation)*12*4)
 		uv.AttribPointerPtr(2, gl.FLOAT, false, 0, sp.texcoordsIndex+(int(sp.animation)*8*4))
-
-		camera := GetScene().SceneBase().Camera
 
 		view := camera.Transform().Matrix()
 		view = view.Invert()

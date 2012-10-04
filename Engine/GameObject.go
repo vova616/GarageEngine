@@ -59,6 +59,13 @@ func (g *GameObject) ComponentTypeOfi(intrfce interface{}) Component {
 	return nil
 }
 
+func (c *GameObject) GameObject() *GameObject {
+	if c.IsValid() == false {
+		return nil
+	}
+	return c
+}
+
 func (g *GameObject) SetName(name string) {
 	g.name = name
 }
