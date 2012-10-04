@@ -172,4 +172,4 @@ log.txt
 out/
 64bit/
 
- 
+*.sublime-workspace

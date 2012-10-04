@@ -20,9 +20,9 @@ func (ai *EnemeyAI) Start() {
 		ai.Target = Player
 	}
 	StartCoroutine(func() {
-		for {
-			Wait(5)
-			if !ai.GameObject().IsValid() {
+		for ai.GameObject() != nil {
+			Wait(rand.Float32() * 5)
+			if ai.GameObject() == nil {
 				return
 			}
 			myPos := ai.Transform().WorldPosition()
