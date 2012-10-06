@@ -51,7 +51,7 @@ func init() {
 	StartBehavior(Sleep(5), func() Command { println("asd"); return Continue }, Sleep(5), func() Command { println("asd"); return Restart })
 	go func() {
 		for {
-			RunBH(10)
+			RunBT(10)
 			time.Sleep(time.Millisecond * 200)
 		}
 	}()
@@ -125,7 +125,7 @@ func StartBehavior(funcs ...RoutineFunc) *Routine {
 	return r
 }
 
-func RunBH(ticks int) {
+func RunBT(ticks int) {
 	for i := 0; i < ticks; i++ {
 		for index, r := range Routines {
 			if r != nil {

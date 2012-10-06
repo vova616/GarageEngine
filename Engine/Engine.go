@@ -244,7 +244,7 @@ func Run() {
 		coroutinesDelta = timer.StopCustom("coroutines")
 
 		timer.StartCustom("BehaviorTree")
-		RunBH(BehaviorTicks)
+		RunBT(BehaviorTicks)
 		behaviorDelta = timer.StopCustom("BehaviorTree")
 
 		UpdateInput()
