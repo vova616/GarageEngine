@@ -119,7 +119,7 @@ func (s *GameScene) Load() {
 		fmt.Println(e)
 	}
 
-	atlasSpace := NewManagedAtlas(4048, 4048)
+	atlasSpace := NewManagedAtlas(2048, 2048)
 	atlasSpace.AddGroup("./data/SpaceCookies/Space/")
 	atlasSpace.BuildAtlas()
 

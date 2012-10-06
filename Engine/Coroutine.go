@@ -15,6 +15,9 @@ const (
 
 	Running = Command(4)
 	Ended   = Command(8)
+
+	Yield   = Command(16)
+	Restart = Command(32)
 )
 
 type Coroutine struct {
@@ -94,7 +97,7 @@ func YieldCoroutine(gr *Coroutine) {
 	}
 }
 
-func Yield(Out <-chan Command) {
+func YieldUntil(Out <-chan Command) {
 	if !runningCoroutines {
 		return
 	}
