@@ -56,6 +56,8 @@ var (
 	Debug         = true
 	InternalFPS   = float32(100)
 
+	BehaviorTicks = 5
+
 	Title  = "Engine Test"
 	Width  = 1280
 	Height = 720
@@ -112,6 +114,9 @@ func StartEngine() {
 		panic(err)
 	}
 	println("GLFW Initialized!")
+
+	glfw.OpenWindowHint(glfw.Accelerated, 1)
+
 	if err = glfw.OpenWindow(Width, Height, 8, 8, 8, 8, 8, 8, glfw.Windowed); err != nil {
 		panic(err)
 	}
@@ -149,27 +154,38 @@ func Run() {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.LoadIdentity()
 
+	timer := NewTimer()
+	timer.Start()
+
+	var destroyDelta,
+		startDelta,
+		fixedUpdateDelta,
+		physicsDelta,
+		updateDelta,
+		lateUpdateDelta,
+		drawDelta,
+		coroutinesDelta,
+		stepDelta,
+		behaviorDelta time.Duration
+
 	if mainScene != nil {
 		fixedTime += deltaTime
 		sd := mainScene.SceneBase()
 
 		arr := sd.gameObjects
 
-		timer := NewTimer()
-		timer.Start()
-
 		timer.StartCustom("Destory routines")
 		Iter(arr, destoyGameObject)
-		destroyDelta := timer.StopCustom("Destory routines")
+		destroyDelta = timer.StopCustom("Destory routines")
 
 		timer.StartCustom("Start routines")
 		Iter(arr, startGameObject)
-		startDelta := timer.StopCustom("Start routines")
+		startDelta = timer.StopCustom("Start routines")
 
 		//for fixedTime > stepTime {
 		timer.StartCustom("FixedUpdate routines")
 		Iter(arr, fixedUdpateGameObject)
-		fixedUpdateDelta := timer.StopCustom("FixedUpdate routines")
+		fixedUpdateDelta = timer.StopCustom("FixedUpdate routines")
 
 		timer.StartCustom("Physics time")
 		if EnablePhysics {
@@ -209,62 +225,75 @@ func Run() {
 			//time.Sleep(time.Millisecond * 20)
 
 		}
-		physicsDelta := timer.StopCustom("Physics time")
+		physicsDelta = timer.StopCustom("Physics time")
 
 		timer.StartCustom("Update routines")
 		Iter(arr, udpateGameObject)
-		updateDelta := timer.StopCustom("Update routines")
+		updateDelta = timer.StopCustom("Update routines")
 
 		timer.StartCustom("LateUpdate routines")
 		Iter(arr, lateudpateGameObject)
-		lateUpdateDelta := timer.StopCustom("LateUpdate routines")
+		lateUpdateDelta = timer.StopCustom("LateUpdate routines")
 
 		timer.StartCustom("Draw routines")
 		Iter(arr, drawGameObject)
-		drawDelta := timer.StopCustom("Draw routines")
+		drawDelta = timer.StopCustom("Draw routines")
 
 		timer.StartCustom("coroutines")
 		RunCoroutines()
-		coroutinesDelta := timer.StopCustom("coroutines")
+		coroutinesDelta = timer.StopCustom("coroutines")
 
-		stepDelta := timer.Stop()
-
-		if Debug {
-			fmt.Println()
-			fmt.Println("##################")
-			if InternalFPS < 20 {
-				fmt.Println("FPS is lower than 20. FPS:", InternalFPS)
-			} else if InternalFPS < 30 {
-				fmt.Println("FPS is lower than 30. FPS:", InternalFPS)
-			} else if InternalFPS < 40 {
-				fmt.Println("FPS is lower than 40. FPS:", InternalFPS)
-			}
-			if stepDelta > 17*time.Millisecond {
-				fmt.Println("StepDelta time is lower than normal")
-			}
-			fmt.Println("Debugging Times:")
-			fmt.Println("Step time", stepDelta)
-			fmt.Println("Destroy time", destroyDelta)
-			fmt.Println("Start time", startDelta)
-			fmt.Println("FixedUpdate time", fixedUpdateDelta)
-			fmt.Println("Update time", updateDelta)
-			fmt.Println("LateUpdate time", lateUpdateDelta)
-			fmt.Println("Draw time", drawDelta)
-			fmt.Println("Coroutines time", coroutinesDelta)
-			fmt.Println("------------------")
-			fmt.Println("Physics time:", physicsDelta)
-			fmt.Println("StepTime time", Space.StepTime)
-			fmt.Println("ApplyImpulse time", Space.ApplyImpulsesTime)
-			fmt.Println("ReindexQueryTime time", Space.ReindexQueryTime)
-			fmt.Println("##################")
-			fmt.Println()
-		}
+		timer.StartCustom("BehaviorTree")
+		RunBH(BehaviorTicks)
+		behaviorDelta = timer.StopCustom("BehaviorTree")
 
 		UpdateInput()
+
+		stepDelta = timer.Stop()
 	}
+
+	timer.StartCustom("SwapBuffers")
 	glfw.SwapBuffers()
+	swapBuffersDelta := timer.StopCustom("SwapBuffers")
+
 	now := time.Now()
+	deltaDur := now.Sub(before)
 	deltaTime = float32(now.Sub(before).Nanoseconds()/int64(time.Millisecond)) / 1000
+
+	if Debug {
+		fmt.Println()
+		fmt.Println("##################")
+		if InternalFPS < 20 {
+			fmt.Println("FPS is lower than 20. FPS:", InternalFPS)
+		} else if InternalFPS < 30 {
+			fmt.Println("FPS is lower than 30. FPS:", InternalFPS)
+		} else if InternalFPS < 40 {
+			fmt.Println("FPS is lower than 40. FPS:", InternalFPS)
+		}
+		if stepDelta > 17*time.Millisecond {
+			fmt.Println("StepDelta time is lower than normal")
+		}
+		fmt.Println("Debugging Times:")
+		fmt.Println("Expected FPS", 1000/(deltaDur.Nanoseconds()/int64(time.Millisecond)))
+		fmt.Println("Step time", stepDelta)
+		fmt.Println("Destroy time", destroyDelta)
+		fmt.Println("Start time", startDelta)
+		fmt.Println("FixedUpdate time", fixedUpdateDelta)
+		fmt.Println("Update time", updateDelta)
+		fmt.Println("LateUpdate time", lateUpdateDelta)
+		fmt.Println("Draw time", drawDelta)
+		fmt.Println("Delta time", deltaDur)
+		fmt.Println("SwapBuffers time", swapBuffersDelta)
+		fmt.Println("Coroutines time", coroutinesDelta)
+		fmt.Println("BehaviorTree time", behaviorDelta)
+		fmt.Println("------------------")
+		fmt.Println("Physics time:", physicsDelta)
+		fmt.Println("StepTime time", Space.StepTime)
+		fmt.Println("ApplyImpulse time", Space.ApplyImpulsesTime)
+		fmt.Println("ReindexQueryTime time", Space.ReindexQueryTime)
+		fmt.Println("##################")
+		fmt.Println()
+	}
 }
 
 func Iter(objs []*GameObject, f func(*GameObject)) {
