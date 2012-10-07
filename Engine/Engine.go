@@ -182,48 +182,66 @@ func Run() {
 		Iter(arr, startGameObject)
 		startDelta = timer.StopCustom("Start routines")
 
-		//for fixedTime > stepTime {
-		timer.StartCustom("FixedUpdate routines")
-		Iter(arr, fixedUdpateGameObject)
-		fixedUpdateDelta = timer.StopCustom("FixedUpdate routines")
+		//
 
 		timer.StartCustom("Physics time")
 		if EnablePhysics {
-			for _, b := range Space.Bodies {
-				g, ok := b.UserData.(*Physics)
-				if ok && g != nil && g.gameObject != nil {
-					pos := g.Transform().WorldPosition()
-					b.SetAngle(Float(g.Transform().WorldRotation().Z) * RadianConst)
-					//fmt.Println(g.Transform().WorldRotation().Z, b.Transform.Angle())
-					b.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
+			for fixedTime > stepTime {
+
+				timer.StartCustom("Physics step time")
+
+				timer.StartCustom("FixedUpdate routines")
+				Iter(arr, fixedUdpateGameObject)
+				fixedUpdateDelta = timer.StopCustom("FixedUpdate routines")
+
+				timer.StartCustom("Physics time")
+
+				for _, b := range Space.Bodies {
+					g, ok := b.UserData.(*Physics)
+					if ok && g != nil && g.gameObject != nil {
+						pos := g.Transform().WorldPosition()
+						b.SetAngle(Float(g.Transform().WorldRotation().Z) * RadianConst)
+						//fmt.Println(g.Transform().WorldRotation().Z, b.Transform.Angle())
+						b.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
+					}
 				}
-			}
 
-			Space.Step(Float(stepTime))
-			//Space.Step(Float(0.1)) 
+				Space.Step(Float(stepTime))
 
-			fixedTime -= stepTime
+				//Space.Step(Float(0.1))
 
-			updatePosition := func(g *GameObject) {
-				if g.Physics != nil && g.Physics.started() {
+				fixedTime -= stepTime
 
-					b := g.Physics.Body
-					r := g.Transform().WorldRotation()
-					g.Transform().SetWorldRotation(NewVector3(r.X, r.Y, (float32(b.Angle()) * DegreeConst)))
-					pos := b.Position()
-					g.Transform().SetWorldPosition(NewVector2(float32(pos.X), float32(pos.Y)))
+				updatePosition := func(g *GameObject) {
+					if g.Physics != nil && g.Physics.started() {
 
-					//fmt.Println(r.Z, b.Transform.Angle())
+						b := g.Physics.Body
+						r := g.Transform().WorldRotation()
+						g.Transform().SetWorldRotation(NewVector3(r.X, r.Y, (float32(b.Angle()) * DegreeConst)))
+						pos := b.Position()
+						g.Transform().SetWorldPosition(NewVector2(float32(pos.X), float32(pos.Y)))
 
+						//fmt.Println(r.Z, b.Transform.Angle())
+
+					}
 				}
+
+				Iter(arr, updatePosition)
+
+				physicsStepDelta := timer.StopCustom("Physics step time")
+
+				if float32(physicsStepDelta.Nanoseconds()/int64(time.Millisecond))/float32(1000) > stepTime*0.7 {
+					//stepTime *= 2
+					//println("Break!")
+					break
+				} else {
+					//println("Nope!")
+					stepTime = float32(1) / float32(60)
+				}
+				//}
+
+				//time.Sleep(time.Millisecond * 20)
 			}
-
-			Iter(arr, updatePosition)
-
-			//}
-
-			//time.Sleep(time.Millisecond * 20)
-
 		}
 		physicsDelta = timer.StopCustom("Physics time")
 
@@ -274,7 +292,9 @@ func Run() {
 			fmt.Println("StepDelta time is lower than normal")
 		}
 		fmt.Println("Debugging Times:")
-		fmt.Println("Expected FPS", 1000/(deltaDur.Nanoseconds()/int64(time.Millisecond)))
+		if (deltaDur.Nanoseconds() / int64(time.Millisecond)) != 0 {
+			fmt.Println("Expected FPS", 1000/(deltaDur.Nanoseconds()/int64(time.Millisecond)))
+		}
 		fmt.Println("Step time", stepDelta)
 		fmt.Println("Destroy time", destroyDelta)
 		fmt.Println("Start time", startDelta)
@@ -282,7 +302,7 @@ func Run() {
 		fmt.Println("Update time", updateDelta)
 		fmt.Println("LateUpdate time", lateUpdateDelta)
 		fmt.Println("Draw time", drawDelta)
-		fmt.Println("Delta time", deltaDur)
+		fmt.Println("Delta time", deltaDur, deltaTime)
 		fmt.Println("SwapBuffers time", swapBuffersDelta)
 		fmt.Println("Coroutines time", coroutinesDelta)
 		fmt.Println("BehaviorTree time", behaviorDelta)

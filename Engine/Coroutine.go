@@ -79,7 +79,7 @@ func errorFunc() {
 	}
 }
 
-func YieldSkip() {
+func CoYieldSkip() {
 	if !runningCoroutines {
 		return
 	}
@@ -88,16 +88,16 @@ func YieldSkip() {
 	c.WaitForCommand()
 }
 
-func YieldCoroutine(gr *Coroutine) {
+func CoYieldCoroutine(gr *Coroutine) {
 	if !runningCoroutines {
 		return
 	}
 	for gr.State != Ended {
-		YieldSkip()
+		CoYieldSkip()
 	}
 }
 
-func YieldUntil(Out <-chan Command) {
+func CoYieldUntil(Out <-chan Command) {
 	if !runningCoroutines {
 		return
 	}
@@ -131,13 +131,13 @@ func (signal Signal) SendEnd() {
 	signal <- Ended
 }
 
-func Wait(seconds float32) {
+func CoSleep(seconds float32) {
 	if !runningCoroutines {
 		return
 	}
 	start := time.Now()
 	for {
-		YieldSkip()
+		CoYieldSkip()
 		now := time.Now()
 		if now.Sub(start).Seconds() >= float64(seconds) {
 			break

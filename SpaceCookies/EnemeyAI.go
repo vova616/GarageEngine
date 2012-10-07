@@ -21,7 +21,7 @@ func (ai *EnemeyAI) Start() {
 	}
 
 	isPlayerClose := func() engine.Command {
-		if ai.GameObject() == nil {
+		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
 			return engine.Close
 		}
 		myPos := ai.Transform().WorldPosition()
@@ -32,8 +32,17 @@ func (ai *EnemeyAI) Start() {
 		return engine.Yield
 	}
 
+	prepareForAttack := func() engine.Command {
+		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
+			return engine.Close
+		}
+
+		ai.GameObject().Physics.Body.SetTorque(7000)
+		return engine.Continue
+	}
+
 	attack := func() engine.Command {
-		if ai.GameObject() == nil {
+		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
 			return engine.Close
 		}
 		myPos := ai.Transform().WorldPosition()
@@ -48,6 +57,17 @@ func (ai *EnemeyAI) Start() {
 		}
 
 		ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*50000, (dir.Y+rnd)*50000)
+		return engine.Continue
+	}
+
+	prepareForNextAttack := func() engine.Command {
+		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
+			return engine.Close
+		}
+
+		ai.GameObject().Physics.Body.SetTorque(-10)
+		ai.GameObject().Physics.Body.SetAngularVelocity(0)
+
 		return engine.Restart
 	}
 
@@ -55,7 +75,7 @@ func (ai *EnemeyAI) Start() {
 	if co {
 		engine.StartCoroutine(func() {
 			for {
-				engine.Wait(5)
+				engine.CoSleep(5)
 				if !ai.GameObject().IsValid() {
 					return
 				}
@@ -76,11 +96,35 @@ func (ai *EnemeyAI) Start() {
 
 		})
 	} else {
-		engine.StartBehavior(engine.SleepRand(5), isPlayerClose, attack)
+		engine.StartBehavior(engine.SleepRand(5), isPlayerClose, prepareForAttack, engine.Sleep(1.5), attack, engine.WaitContinue(prepareForNextAttack, nil, 1.5))
 	}
 
 }
 
 func (ai *EnemeyAI) Update() {
 
+}
+
+func (sp *EnemeyAI) OnHit(enemey *engine.GameObject, damager *DamageDealer) {
+
+}
+
+func (sp *EnemeyAI) OnDie() {
+	for i := 0; i < 10; i++ {
+		n := Explosion.Clone()
+		n.Transform().SetParent2(GameSceneGeneral.Layer1)
+		n.Transform().SetWorldPosition(sp.Transform().WorldPosition())
+		s := n.Transform().Scale()
+		n.Transform().SetScale(s.Mul2((rand.Float32() * 3) + 0.5))
+		n.AddComponent(engine.NewPhysics(false, 1, 1))
+
+		n.Transform().SetRotationf(0, 0, rand.Float32()*360)
+		rot := n.Transform().Rotation2D()
+		n.Physics.Body.SetVelocity(-rot.X*15, -rot.Y*15)
+
+		n.Physics.Body.SetMass(1)
+		n.Physics.Shape.Group = 1
+		n.Physics.Shape.IsSensor = true
+	}
+	sp.GameObject().Destroy()
 }

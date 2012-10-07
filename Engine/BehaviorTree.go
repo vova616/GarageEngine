@@ -28,7 +28,7 @@ type Routine struct {
 	Funcs       []RoutineFunc
 }
 
-func (r *Routine) Run() bool {
+func (r *Routine) Run() (Command, bool) {
 	b := r.Funcs[r.CurrentFunc]()
 	switch b {
 	case Continue:
@@ -39,11 +39,14 @@ func (r *Routine) Run() bool {
 		break
 	case Close:
 		r.CurrentFunc = len(r.Funcs)
+		r.CurrentFunc = 0
+		return b, true
 	}
 	if r.CurrentFunc >= len(r.Funcs) {
-		return false
+		r.CurrentFunc = 0
+		return b, false
 	}
-	return true
+	return b, false
 }
 
 func init() {
@@ -58,10 +61,10 @@ func init() {
 }
 
 type Routiner interface {
-	Run() bool
+	Run() (Command, bool)
 }
 
-func WaitContinue(fnc RoutineFunc, child RoutineFunc, secTimeout float32) RoutineFunc {
+func WaitContinue(fnc RoutineFunc, child Routiner, secTimeout float32) RoutineFunc {
 	started := false
 	var start time.Time
 	return func() Command {
@@ -74,8 +77,8 @@ func WaitContinue(fnc RoutineFunc, child RoutineFunc, secTimeout float32) Routin
 			started = false
 			return Continue
 		}
-		if fnc != nil && child != nil && fnc() == Continue {
-			c := child()
+		if fnc != nil && fnc() == Continue && child != nil {
+			c, _ := child.Run()
 			if c != Yield {
 				started = false
 			}
@@ -94,7 +97,7 @@ func SleepRand(secs float32) RoutineFunc {
 	originalValue := secs
 	var start time.Time
 	return WaitContinue(func() Command { return Continue },
-		func() Command {
+		NewBehavior(func() Command {
 			if !started {
 				started = true
 				start = time.Now()
@@ -106,11 +109,16 @@ func SleepRand(secs float32) RoutineFunc {
 				return Continue
 			}
 			return Yield
-		}, secs)
+		}), secs)
+}
+
+func NewBehavior(funcs ...RoutineFunc) *Routine {
+	r := &Routine{0, 0, funcs}
+	return r
 }
 
 func StartBehavior(funcs ...RoutineFunc) *Routine {
-	r := &Routine{0, 0, funcs}
+	r := NewBehavior(funcs...)
 	found := false
 	for i, ch := range Routines {
 		if ch == nil {
@@ -129,7 +137,8 @@ func RunBT(ticks int) {
 	for i := 0; i < ticks; i++ {
 		for index, r := range Routines {
 			if r != nil {
-				if !r.Run() {
+				_, delete := r.Run()
+				if delete {
 					Routines[index] = nil
 				}
 			}

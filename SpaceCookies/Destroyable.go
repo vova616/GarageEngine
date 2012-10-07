@@ -7,32 +7,61 @@ import (
 
 type Destoyable struct {
 	BaseComponent
-	Alive  bool
-	HP     float32
-	FullHP float32
+	Alive           bool
+	HP              float32
+	FullHP          float32
+	Team            int
+	destoyableFuncs DestoyableFuncs
 }
 
-func NewDestoyable(hp float32) *Destoyable {
-	return &Destoyable{BaseComponent: NewComponent(), FullHP: hp, Alive: true, HP: hp}
+func NewDestoyable(hp float32, team int) *Destoyable {
+	return &Destoyable{BaseComponent: NewComponent(), FullHP: hp, Alive: true, HP: hp, Team: team}
+}
+
+type DestoyableFuncs interface {
+	OnDie()
+	OnHit(*GameObject, *DamageDealer)
+}
+
+func (ds *Destoyable) Start() {
+	ds.destoyableFuncs, _ = ds.GameObject().ComponentImplements(&ds.destoyableFuncs).(DestoyableFuncs)
 }
 
 func (ds *Destoyable) OnCollisionEnter(arbiter *Arbiter) bool {
 	if !ds.Alive {
 		return true
 	}
-	var missle *Missle = nil
-	if arbiter.GameObjectA().Tag == MissleTag {
-		missle = arbiter.GameObjectA().ComponentTypeOfi(missle).(*Missle)
-	} else if arbiter.GameObjectB().Tag == MissleTag {
-		missle = arbiter.GameObjectB().ComponentTypeOfi(missle).(*Missle)
+	var dmg *DamageDealer = nil
+	var enemy *GameObject
+	var enemyDestoyable *Destoyable
+
+	if arbiter.GameObjectA() == ds.GameObject() {
+		enemy = arbiter.GameObjectB()
+	} else {
+		enemy = arbiter.GameObjectA()
 	}
 
-	if missle != nil {
-		ds.HP -= missle.Damage
+	dmg, _ = enemy.ComponentTypeOfi(dmg).(*DamageDealer)
+	enemyDestoyable, _ = enemy.ComponentTypeOfi(enemyDestoyable).(*Destoyable)
+
+	if enemyDestoyable == nil || enemyDestoyable.Team == ds.Team {
+		return true
 	}
+
+	if dmg != nil {
+		ds.HP -= dmg.Damage
+	}
+	if ds.destoyableFuncs != nil {
+		ds.destoyableFuncs.OnHit(enemy, dmg)
+	}
+
 	if ds.HP <= 0 {
 		ds.Alive = false
-		ds.GameObject().Destroy()
+		if ds.destoyableFuncs != nil {
+			ds.destoyableFuncs.OnDie()
+		} else {
+			ds.GameObject().Destroy()
+		}
 	}
 
 	return true

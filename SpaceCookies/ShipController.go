@@ -9,8 +9,8 @@ import (
 	c "github.com/vova616/chipmunk"
 	. "github.com/vova616/chipmunk/vect"
 	//"fmt"
-	//"time"
-
+	"math/rand"
+	"time"
 )
 
 type ShipController struct {
@@ -19,11 +19,14 @@ type ShipController struct {
 	RotationSpeed   float32
 	Missle          *Missle
 	MisslesPosition []Vector
+	lastShoot       time.Time
+	Destoyable      *Destoyable
+	HPBar           *GameObject
 }
 
 func NewShipController() *ShipController {
-	return &ShipController{NewComponent(), 400000, 100, nil, []Vector{{-28, 10, 0},
-		{28, 10, 0}}}
+	return &ShipController{NewComponent(), 500000, 100, nil, []Vector{{-28, 10, 0},
+		{28, 10, 0}}, time.Now(), nil, nil}
 }
 
 func (sp *ShipController) OnComponentBind(binded *GameObject) {
@@ -34,7 +37,38 @@ func (sp *ShipController) Start() {
 	ph := sp.GameObject().Physics
 	ph.Body.SetMass(50)
 	ph.Shape.Group = 1
+	sp.Destoyable = sp.GameObject().ComponentTypeOfi(sp.Destoyable).(*Destoyable)
+	sp.OnHit(nil, nil)
 	//sp.Physics.Shape.Friction = 0.5
+}
+
+func (sp *ShipController) OnHit(enemey *GameObject, damager *DamageDealer) {
+	if sp.HPBar != nil && sp.Destoyable != nil {
+		hp := (float32(sp.Destoyable.HP) / float32(sp.Destoyable.FullHP)) * 100
+		s := sp.HPBar.Transform().Scale()
+		s.X = hp
+		sp.HPBar.Transform().SetScale(s)
+	}
+}
+
+func (sp *ShipController) OnDie() {
+	for i := 0; i < 20; i++ {
+		n := Explosion.Clone()
+		n.Transform().SetParent2(GameSceneGeneral.Layer1)
+		n.Transform().SetWorldPosition(sp.Transform().WorldPosition())
+		s := n.Transform().Scale()
+		n.Transform().SetScale(s.Mul2(rand.Float32() * 8))
+		n.AddComponent(NewPhysics(false, 1, 1))
+
+		n.Transform().SetRotationf(0, 0, rand.Float32()*360)
+		rot := n.Transform().Rotation2D()
+		n.Physics.Body.SetVelocity(-rot.X*100, -rot.Y*100)
+
+		n.Physics.Body.SetMass(1)
+		n.Physics.Shape.Group = 1
+		n.Physics.Shape.IsSensor = true
+	}
+	sp.GameObject().Destroy()
 }
 
 func (sp *ShipController) Shoot() {
@@ -58,6 +92,10 @@ func (sp *ShipController) Shoot() {
 			nfire.Physics.Body.IgnoreGravity = true
 			nfire.Physics.Body.SetMass(0.1)
 			nfire.Tag = MissleTag
+
+			v := sp.GameObject().Physics.Body.Velocity()
+
+			nfire.Physics.Body.SetVelocity(float32(v.X), float32(v.Y))
 			nfire.Physics.Body.AddForce(s.X*3000, s.Y*3000)
 
 			nfire.Physics.Shape.Group = 1
@@ -93,8 +131,11 @@ func (sp *ShipController) Update() {
 		sp.Transform().SetRotationf(0, 0, r.Z+sp.RotationSpeed*DeltaTime())
 	}
 
-	if Input.KeyPress('F') {
-		sp.Shoot()
+	if Input.KeyDown('F') {
+		if time.Now().After(sp.lastShoot) {
+			sp.Shoot()
+			sp.lastShoot = time.Now().Add(time.Millisecond * 200)
+		}
 	}
 
 	if Input.KeyPress('P') {
@@ -105,6 +146,5 @@ func (sp *ShipController) Update() {
 
 func (sp *ShipController) LateUpdate() {
 	GameSceneGeneral.SceneData.Camera.Transform().SetPosition(NewVector3(sp.Transform().Position().X-float32(Width/2), sp.Transform().Position().Y-float32(Height/2), 0))
-	
 
 }

@@ -43,7 +43,7 @@ func (sp *PlayerController) Start() {
 func (sp *PlayerController) TestCoroutines() {
 	autoShoot := func() {
 		for i := 0; i < 3; i++ {
-			Wait(3)
+			CoSleep(3)
 			sp.Shoot()
 		}
 	}
@@ -51,12 +51,12 @@ func (sp *PlayerController) TestCoroutines() {
 	as := StartCoroutine(autoShoot)
 
 	fastShoot := func() {
-		Wait(3)
-		YieldCoroutine(as)
+		CoSleep(3)
+		CoYieldCoroutine(as)
 		for i := 0; i < 10; i++ {
-			YieldSkip()
-			YieldSkip()
-			YieldSkip()
+			CoYieldSkip()
+			CoYieldSkip()
+			CoYieldSkip()
 			sp.Shoot()
 		}
 		sp.TestCoroutines()

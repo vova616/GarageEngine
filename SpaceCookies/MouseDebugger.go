@@ -35,6 +35,7 @@ func (m *MouseDebugger) Update() {
 		mousePosition := m.Transform().WorldPosition()
 
 		sprite3 := NewGameObject("Sprite")
+		sprite3.AddComponent(NewDestoyable(30, 3))
 		sprite3.AddComponent(NewSprite(box))
 		sprite3.Transform().SetParent2(GameSceneGeneral.Layer2)
 		sprite3.Transform().SetWorldPosition(mousePosition)
