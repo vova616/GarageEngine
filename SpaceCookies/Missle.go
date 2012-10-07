@@ -11,18 +11,17 @@ type Missle struct {
 	Speed     float32
 	Explosion *GameObject
 	exploded  bool
-	Damage    float32
 }
 
 func NewMissle(speed float32) *Missle {
-	return &Missle{BaseComponent: NewComponent(), Speed: speed, Damage: 50}
+	return &Missle{BaseComponent: NewComponent(), Speed: speed}
 }
 
 func (ms *Missle) Start() {
 	StartCoroutine(func() {
-		Wait(5)
+		CoSleep(1)
 		if ms.GameObject() != nil {
-			ms.GameObject().Destroy()
+			ms.OnDie()
 		}
 	})
 }
@@ -31,22 +30,16 @@ func (ms *Missle) OnComponentBind(gameObject *GameObject) {
 	gameObject.Tag = MissleTag
 }
 
-func (ms *Missle) OnCollisionEnter(arbiter *Arbiter) bool {
-	if ms.exploded {
-		return true
-	}
-	ms.exploded = true
-	if arbiter.GameObjectA().Tag == CookieTag || arbiter.GameObjectB().Tag == CookieTag {
-		ms.CreateBlow()
-		ms.GameObject().Destroy()
-	}
+func (ms *Missle) OnHit(enemey *GameObject, damager *DamageDealer) {
 
-	return true
 }
 
-func (ms *Missle) CreateBlow() {
-	//ms.GameObject().Destroy()
+func (ms *Missle) OnDie() {
 	if ms.Explosion == nil {
+		ms.GameObject().Destroy()
+		return
+	}
+	if ms.GameObject() == nil {
 		return
 	}
 	for i := 0; i < 10; i++ {
@@ -65,4 +58,5 @@ func (ms *Missle) CreateBlow() {
 		n.Physics.Shape.Group = 1
 		n.Physics.Shape.IsSensor = true
 	}
+	ms.GameObject().Destroy()
 }

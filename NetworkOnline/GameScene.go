@@ -79,7 +79,7 @@ func (s *GameScene) Load() {
 
 	//SPACCCEEEEE
 	Space.Gravity.Y = -300
-	Space.Iterations = 10
+	Space.Iterations = 30
 
 	atlas := NewManagedAtlas(512, 512)
 	e := atlas.AddGroup("./data/fire")
@@ -128,7 +128,7 @@ func (s *GameScene) Load() {
 		phx.Body.SetMass(1)
 	}
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 2000; i++ {
 		sprite3 := NewGameObject("Sprite" + fmt.Sprint(i))
 		sprite3.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, 222)))
 		sprite3.Transform().SetParent2(Layer2)
