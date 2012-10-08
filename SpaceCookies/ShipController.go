@@ -23,11 +23,13 @@ type ShipController struct {
 	lastShoot       time.Time
 	Destoyable      *Destoyable
 	HPBar           *GameObject
+
+	UseMouse bool
 }
 
 func NewShipController() *ShipController {
 	return &ShipController{NewComponent(), 500000, 100, nil, []Vector{{-28, 10, 0},
-		{28, 10, 0}}, time.Now(), nil, nil}
+		{28, 10, 0}}, time.Now(), nil, nil, false}
 }
 
 func (sp *ShipController) OnComponentBind(binded *GameObject) {
@@ -107,7 +109,7 @@ func (sp *ShipController) Shoot() {
 }
 
 func (sp *ShipController) Update() {
-	//r := sp.Transform().Rotation()
+
 	r2 := sp.Transform().Direction2D(Up)
 	r3 := sp.Transform().Direction2D(Left)
 	ph := sp.GameObject().Physics
@@ -122,21 +124,46 @@ func (sp *ShipController) Update() {
 		ph.Body.AddForce(-sp.Speed*rx, -sp.Speed*ry)
 	}
 
-	v := GetScene().SceneBase().Camera.MouseWorldPosition()
-	v = v.Sub(sp.Transform().WorldPosition())
-	v.Normalize()
-	angle := float32(math.Atan2(float64(v.Y), float64(v.X))) * DegreeConst
-	sp.Transform().SetRotationf(0, 0, float32(int(angle-90)))
+	if sp.UseMouse {
+		v := GetScene().SceneBase().Camera.MouseWorldPosition()
+		v = v.Sub(sp.Transform().WorldPosition())
+		v.Normalize()
+		angle := float32(math.Atan2(float64(v.Y), float64(v.X))) * DegreeConst
+		sp.Transform().SetRotationf(0, 0, float32(int(angle-90)))
 
-	if Input.KeyDown('D') {
-		ph.Body.SetAngularVelocity(0)
-		ph.Body.SetTorque(0)
-		ph.Body.AddForce(-sp.Speed*rsx, -sp.Speed*rsy)
-	}
-	if Input.KeyDown('A') {
-		ph.Body.SetAngularVelocity(0)
-		ph.Body.SetTorque(0)
-		ph.Body.AddForce(sp.Speed*rsx, sp.Speed*rsy)
+		if Input.KeyDown('D') || Input.KeyDown('E') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			ph.Body.AddForce(-sp.Speed*rsx, -sp.Speed*rsy)
+		}
+		if Input.KeyDown('A') || Input.KeyDown('Q') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			ph.Body.AddForce(sp.Speed*rsx, sp.Speed*rsy)
+		}
+	} else {
+		r := sp.Transform().Rotation()
+		if Input.KeyDown('D') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			sp.Transform().SetRotationf(0, 0, r.Z-sp.RotationSpeed*DeltaTime())
+		}
+		if Input.KeyDown('A') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			sp.Transform().SetRotationf(0, 0, r.Z+sp.RotationSpeed*DeltaTime())
+		}
+
+		if Input.KeyDown('E') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			ph.Body.AddForce(-sp.Speed*rsx, -sp.Speed*rsy)
+		}
+		if Input.KeyDown('Q') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			ph.Body.AddForce(sp.Speed*rsx, sp.Speed*rsy)
+		}
 	}
 
 	if Input.MouseDown(MouseLeft) {
@@ -148,6 +175,9 @@ func (sp *ShipController) Update() {
 
 	if Input.KeyPress('P') {
 		EnablePhysics = !EnablePhysics
+	}
+	if Input.KeyPress('T') {
+		sp.UseMouse = !sp.UseMouse
 	}
 }
 

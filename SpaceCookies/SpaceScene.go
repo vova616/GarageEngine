@@ -30,8 +30,12 @@ var (
 	cir              *Texture
 	box              *Texture
 	cookie           *GameObject
-	Player           *GameObject
-	Explosion        *GameObject
+
+	Player     *GameObject
+	PlayerShip *ShipController
+
+	Explosion *GameObject
+	PowerUpGO *GameObject
 
 	atlas      = NewManagedAtlas(2048, 2048)
 	atlasSpace = NewManagedAtlas(2048, 2048)
@@ -41,18 +45,18 @@ const (
 	MissleTag = "Missle"
 	CookieTag = "Cookie"
 )
-const SpaceShip = 333
-const MissleT = 334
-const HP = 123
-const HPGUI = 124
+const SpaceShip_A = 333
+const Missle_A = 334
+const HP_A = 123
+const HPGUI_A = 124
 
 func LoadTextures() {
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Ship1.png"), SpaceShip)
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/missile_MIRV.png"), MissleT)
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Ship1.png"), SpaceShip_A)
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/missile_MIRV.png"), Missle_A)
 	e := atlas.AddGroupSheet("./data/SpaceCookies/Explosion.png", 128, 128, 6*8)
 
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBar.png"), HP)
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBarGUI.png"), HPGUI)
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBar.png"), HP_A)
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBarGUI.png"), HPGUI_A)
 
 	if e != nil {
 		fmt.Println(e)
@@ -68,6 +72,10 @@ func LoadTextures() {
 	}
 
 	atlasSpace.AddGroup("./data/SpaceCookies/Space/")
+	e = atlasSpace.AddGroupSheet("./data/SpaceCookies/powerups.png", 61, 61, 3*4)
+	if e != nil {
+		fmt.Println(e)
+	}
 	atlasSpace.BuildAtlas()
 	atlasSpace.Texture.SetReadOnly()
 }
@@ -137,7 +145,7 @@ func (s *GameScene) Load() {
 	Health.Transform().SetPosition(NewVector2(150, 50))
 
 	HealthGUI := NewGameObject("HPGUI")
-	HealthGUI.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, HPGUI)))
+	HealthGUI.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, HPGUI_A)))
 	HealthGUI.Transform().SetParent2(Health)
 	HealthGUI.Transform().SetScale(NewVector2(50, 50))
 
@@ -146,7 +154,7 @@ func (s *GameScene) Load() {
 	HealthBar.Transform().SetPosition(NewVector2(-82, 0))
 	HealthBar.Transform().SetScale(NewVector2(100, 50))
 
-	uvHP := IndexUV(atlas, HP)
+	uvHP := IndexUV(atlas, HP_A)
 
 	HealthBarGUI := NewGameObject("HealthBarGUI")
 	HealthBarGUI.Transform().SetParent2(HealthBar)
@@ -156,13 +164,13 @@ func (s *GameScene) Load() {
 
 	ship := NewGameObject("Ship")
 	Player = ship
-	ship.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, SpaceShip)))
-	shipController := ship.AddComponent(NewShipController()).(*ShipController)
+	ship.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, SpaceShip_A)))
+	PlayerShip = ship.AddComponent(NewShipController()).(*ShipController)
 	ship.Transform().SetParent2(Layer2)
 	ship.Transform().SetPosition(NewVector2(400, 200))
 	ship.Transform().SetScale(NewVector2(100, 100))
 	ship.AddComponent(NewDestoyable(1000, 1))
-	shipController.HPBar = HealthBar
+	PlayerShip.HPBar = HealthBar
 
 	uvs, ind := AnimatedGroupUVs(atlas, "Explosion")
 	Explosion = NewGameObject("Explosion")
@@ -175,14 +183,14 @@ func (s *GameScene) Load() {
 	Explosion.Transform().SetScale(NewVector2(30, 30))
 
 	missle := NewGameObject("Missle")
-	missle.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, MissleT)))
+	missle.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, Missle_A)))
 	missle.AddComponent(NewPhysics(false, 10, 10))
 	missle.Transform().SetScale(NewVector2(20, 20))
 	missle.AddComponent(NewDamageDealer(50))
 
 	m := NewMissle(30000)
 	missle.AddComponent(m)
-	shipController.Missle = m
+	PlayerShip.Missle = m
 	m.Explosion = Explosion
 	ds := NewDestoyable(0, 1)
 	ds.SetDestroyTime(1)
@@ -216,6 +224,20 @@ func (s *GameScene) Load() {
 	Background.Transform().SetScale(NewVector2(50, 50))
 	Background.Transform().SetPosition(NewVector2(400, 400))
 
+	uvs, ind = AnimatedGroupUVs(atlasSpace, "powerups")
+	PowerUpGO = NewGameObject("Background")
+	//PowerUpGO.Transform().SetParent2(Layer2)
+	PowerUpGO.AddComponent(NewSprite3(atlasSpace.Texture, uvs))
+	PowerUpGO.AddComponent(NewPhysics(false, 60, 60))
+	PowerUpGO.Physics.Shape.IsSensor = true
+	PowerUpGO.Sprite.BindAnimations(ind)
+	PowerUpGO.Sprite.SetAnimation("powerups")
+	PowerUpGO.Sprite.AnimationSpeed = 0
+	index := (rand.Int() % 6) + 6
+	PowerUpGO.Sprite.SetAnimationIndex(int(index))
+	PowerUpGO.Transform().SetScale(NewVector2(60, 60))
+	PowerUpGO.Transform().SetPosition(NewVector2(0, 0))
+
 	for i := 0; i < 400; i++ {
 		c := Background.Clone()
 		c.Transform().SetParent2(Layer4)
@@ -223,6 +245,7 @@ func (s *GameScene) Load() {
 		p := Vector{(rand.Float32() * 5000) - 1000, (rand.Float32() * 5000) - 1000, 1}
 
 		index := rand.Int() % 7
+
 		Background.Sprite.SetAnimationIndex(int(index))
 
 		c.Transform().SetRotationf(0, 0, rand.Float32()*360)
