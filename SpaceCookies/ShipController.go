@@ -9,6 +9,7 @@ import (
 	c "github.com/vova616/chipmunk"
 	. "github.com/vova616/chipmunk/vect"
 	//"fmt"
+	"math"
 	"math/rand"
 	"time"
 )
@@ -106,11 +107,12 @@ func (sp *ShipController) Shoot() {
 }
 
 func (sp *ShipController) Update() {
-	r := sp.Transform().Rotation()
+	//r := sp.Transform().Rotation()
 	r2 := sp.Transform().Direction2D(Up)
+	r3 := sp.Transform().Direction2D(Left)
 	ph := sp.GameObject().Physics
-	rx, ry := r2.X, r2.Y
-	rx, ry = rx*DeltaTime(), ry*DeltaTime()
+	rx, ry := r2.X*DeltaTime(), r2.Y*DeltaTime()
+	rsx, rsy := r3.X*DeltaTime(), r3.Y*DeltaTime()
 
 	if Input.KeyDown('W') {
 		ph.Body.AddForce(sp.Speed*rx, sp.Speed*ry)
@@ -120,18 +122,24 @@ func (sp *ShipController) Update() {
 		ph.Body.AddForce(-sp.Speed*rx, -sp.Speed*ry)
 	}
 
+	v := GetScene().SceneBase().Camera.MouseWorldPosition()
+	v = v.Sub(sp.Transform().WorldPosition())
+	v.Normalize()
+	angle := float32(math.Atan2(float64(v.Y), float64(v.X))) * DegreeConst
+	sp.Transform().SetRotationf(0, 0, float32(int(angle-90)))
+
 	if Input.KeyDown('D') {
 		ph.Body.SetAngularVelocity(0)
 		ph.Body.SetTorque(0)
-		sp.Transform().SetRotationf(0, 0, r.Z-sp.RotationSpeed*DeltaTime())
+		ph.Body.AddForce(-sp.Speed*rsx, -sp.Speed*rsy)
 	}
 	if Input.KeyDown('A') {
 		ph.Body.SetAngularVelocity(0)
 		ph.Body.SetTorque(0)
-		sp.Transform().SetRotationf(0, 0, r.Z+sp.RotationSpeed*DeltaTime())
+		ph.Body.AddForce(sp.Speed*rsx, sp.Speed*rsy)
 	}
 
-	if Input.KeyDown('F') {
+	if Input.MouseDown(MouseLeft) {
 		if time.Now().After(sp.lastShoot) {
 			sp.Shoot()
 			sp.lastShoot = time.Now().Add(time.Millisecond * 200)
@@ -139,12 +147,12 @@ func (sp *ShipController) Update() {
 	}
 
 	if Input.KeyPress('P') {
-
 		EnablePhysics = !EnablePhysics
 	}
 }
 
 func (sp *ShipController) LateUpdate() {
-	GameSceneGeneral.SceneData.Camera.Transform().SetPosition(NewVector3(sp.Transform().Position().X-float32(Width/2), sp.Transform().Position().Y-float32(Height/2), 0))
-
+	if GameSceneGeneral.SceneData.Camera.GameObject() != nil {
+		GameSceneGeneral.SceneData.Camera.Transform().SetPosition(NewVector3(sp.Transform().Position().X-float32(Width/2), sp.Transform().Position().Y-float32(Height/2), 0))
+	}
 }

@@ -17,15 +17,6 @@ func NewMissle(speed float32) *Missle {
 	return &Missle{BaseComponent: NewComponent(), Speed: speed}
 }
 
-func (ms *Missle) Start() {
-	StartCoroutine(func() {
-		CoSleep(1)
-		if ms.GameObject() != nil {
-			ms.OnDie()
-		}
-	})
-}
-
 func (ms *Missle) OnComponentBind(gameObject *GameObject) {
 	gameObject.Tag = MissleTag
 }

@@ -3,6 +3,7 @@ package SpaceCookies
 import (
 	. "github.com/vova616/GarageEngine/Engine"
 	//"reflect"
+	"time"
 )
 
 type Destoyable struct {
@@ -12,6 +13,10 @@ type Destoyable struct {
 	FullHP          float32
 	Team            int
 	destoyableFuncs DestoyableFuncs
+
+	createTime    time.Time
+	aliveDuration time.Duration
+	autoDestory   bool
 }
 
 func NewDestoyable(hp float32, team int) *Destoyable {
@@ -24,7 +29,25 @@ type DestoyableFuncs interface {
 }
 
 func (ds *Destoyable) Start() {
+	ds.createTime = time.Now()
 	ds.destoyableFuncs, _ = ds.GameObject().ComponentImplements(&ds.destoyableFuncs).(DestoyableFuncs)
+}
+
+func (ds *Destoyable) SetDestroyTime(sec float32) {
+	ds.autoDestory = true
+	ds.aliveDuration = time.Millisecond * time.Duration(1000*sec)
+}
+
+func (ds *Destoyable) Update() {
+	if ds.autoDestory && ds.GameObject() != nil {
+		if time.Now().After(ds.createTime.Add(ds.aliveDuration)) {
+			if ds.destoyableFuncs != nil {
+				ds.destoyableFuncs.OnDie()
+			} else {
+				ds.GameObject().Destroy()
+			}
+		}
+	}
 }
 
 func (ds *Destoyable) OnCollisionEnter(arbiter *Arbiter) bool {
