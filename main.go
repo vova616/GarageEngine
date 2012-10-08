@@ -12,6 +12,7 @@ import (
 )
 
 var cpuprofile = flag.String("p", "", "write cpu profile to file")
+var memprofile = flag.String("m", "", "write mem profile to file")
 
 func main() {
 	flag.Parse()
@@ -33,6 +34,16 @@ func main() {
 
 	go Start()
 	Terminated()
+
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			fmt.Errorf("%s\n", err)
+		}
+		pprof.WriteHeapProfile(f)
+		f.Close()
+		return
+	}
 }
 
 func Start() {
@@ -43,6 +54,7 @@ func Start() {
 		Terminate()
 	}()
 	StartEngine()
+	SpaceCookies.LoadTextures()
 	_ = SpaceCookies.GameSceneGeneral
 	_ = NetworkOnline.GameSceneGeneral
 	LoadScene(SpaceCookies.GameSceneGeneral)

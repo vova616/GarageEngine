@@ -38,6 +38,10 @@ const (
 	RadianConst = math.Pi / 180
 	DegreeConst = 180 / math.Pi
 	MouseTag    = "Mouse"
+
+	MouseLeft   = glfw.MouseLeft
+	MouseRight  = glfw.MouseRight
+	MouseMiddle = glfw.MouseMiddle
 )
 
 var (
@@ -46,11 +50,16 @@ var (
 	scenes       []Scene = make([]Scene, 0)
 	activeScenes []Scene = make([]Scene, 0)
 	mainScene    Scene
-	running               = false
-	Space        *c.Space = c.NewSpace()
-	deltaTime    float32
-	fixedTime    float32
-	stepTime     = float32(1) / float32(60)
+
+	nextScene Scene = nil
+
+	running        = false
+	insideGameloop = false
+
+	Space     *c.Space = nil
+	deltaTime float32
+	fixedTime float32
+	stepTime  = float32(1) / float32(60)
 
 	EnablePhysics = true
 	Debug         = true
@@ -71,6 +80,26 @@ func init() {
 }
 
 func LoadScene(scene Scene) {
+	if insideGameloop {
+		nextScene = scene
+		return
+	}
+
+	if Space != nil {
+		for _, g := range mainScene.SceneBase().gameObjects {
+			if g != nil {
+				g.Destroy()
+			}
+		}
+		Iter(mainScene.SceneBase().gameObjects, destoyGameObject)
+		mainScene.SceneBase().gameObjects = nil
+		Space.Destory()
+		runtime.GC()
+		Space = c.NewSpace()
+	} else {
+		Space = c.NewSpace()
+	}
+
 	sn := scene.New()
 	sn.Load()
 
@@ -139,11 +168,20 @@ func StartEngine() {
 func MainLoop() bool {
 	running = true
 
+	if nextScene != nil {
+		s := nextScene
+		nextScene = nil
+		LoadScene(s)
+	}
+
+	insideGameloop = true
 	if running && glfw.WindowParam(glfw.Opened) == 1 {
 		Run()
 	} else {
 		return false
 	}
+	insideGameloop = false
+
 	return true
 }
 

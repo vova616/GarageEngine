@@ -448,4 +448,5 @@ func (ma *ManagedAtlas) BuildAtlas() {
 
 	ma.Texture = NewRGBATexture(ma.image.Pix, ma.image.Bounds().Dx(), ma.image.Bounds().Dy())
 	ma.image.Pix = nil
+	ma.image = nil
 }

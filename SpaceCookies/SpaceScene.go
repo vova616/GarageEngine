@@ -32,12 +32,45 @@ var (
 	cookie           *GameObject
 	Player           *GameObject
 	Explosion        *GameObject
+
+	atlas      = NewManagedAtlas(2048, 2048)
+	atlasSpace = NewManagedAtlas(2048, 2048)
 )
 
 const (
 	MissleTag = "Missle"
 	CookieTag = "Cookie"
 )
+const SpaceShip = 333
+const MissleT = 334
+const HP = 123
+const HPGUI = 124
+
+func LoadTextures() {
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Ship1.png"), SpaceShip)
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/missile_MIRV.png"), MissleT)
+	e := atlas.AddGroupSheet("./data/SpaceCookies/Explosion.png", 128, 128, 6*8)
+
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBar.png"), HP)
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBarGUI.png"), HPGUI)
+
+	if e != nil {
+		fmt.Println(e)
+	}
+
+	atlas.BuildAtlas()
+	atlas.Texture.SetReadOnly()
+
+	box, _ = LoadTexture("./data/rect.png")
+	cir, e = LoadTexture("./data/SpaceCookies/Cookie.png")
+	if e != nil {
+		fmt.Println(e)
+	}
+
+	atlasSpace.AddGroup("./data/SpaceCookies/Space/")
+	atlasSpace.BuildAtlas()
+	atlasSpace.Texture.SetReadOnly()
+}
 
 func (s *GameScene) Load() {
 
@@ -47,11 +80,14 @@ func (s *GameScene) Load() {
 	if err != nil {
 		panic(err)
 	}
+	ArialFont.Texture.SetReadOnly()
 
 	ArialFont2, err := NewFont("./data/Fonts/arial.ttf", 24)
 	if err != nil {
 		panic(err)
 	}
+	ArialFont2.Texture.SetReadOnly()
+
 	_ = ArialFont2
 	_ = ArialFont
 
@@ -82,47 +118,19 @@ func (s *GameScene) Load() {
 	mouse.Transform().SetParent2(cam)
 
 	FPSDrawer := NewGameObject("FPS")
+	FPSDrawer.Transform().SetParent2(cam)
 	txt := FPSDrawer.AddComponent(NewUIText(ArialFont2, "")).(*UIText)
 	fps := FPSDrawer.AddComponent(NewFPS()).(*FPS)
 	fps.SetAction(func(fps float32) {
 		txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
 	})
-	FPSDrawer.Transform().SetParent2(cam)
+
 	FPSDrawer.Transform().SetPosition(NewVector2(60, float32(Height)-20))
 	FPSDrawer.Transform().SetScale(NewVector2(20, 20))
 
 	//SPACCCEEEEE
 	Space.Gravity.Y = 0
 	Space.Iterations = 10
-
-	const SpaceShip = 333
-	const Missle = 334
-	const HP = 123
-	const HPGUI = 124
-
-	atlas := NewManagedAtlas(2048, 2048)
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Ship1.png"), SpaceShip)
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/missile_MIRV.png"), Missle)
-	e := atlas.AddGroupSheet("./data/SpaceCookies/Explosion.png", 128, 128, 6*8)
-
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBar.png"), HP)
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBarGUI.png"), HPGUI)
-
-	if e != nil {
-		fmt.Println(e)
-	}
-
-	atlas.BuildAtlas()
-
-	box, _ = LoadTexture("./data/rect.png")
-	cir, e = LoadTexture("./data/SpaceCookies/Cookie.png")
-	if e != nil {
-		fmt.Println(e)
-	}
-
-	atlasSpace := NewManagedAtlas(2048, 2048)
-	atlasSpace.AddGroup("./data/SpaceCookies/Space/")
-	atlasSpace.BuildAtlas()
 
 	Health := NewGameObject("HP")
 	Health.Transform().SetParent2(cam)
@@ -140,7 +148,7 @@ func (s *GameScene) Load() {
 
 	uvHP := IndexUV(atlas, HP)
 
-	HealthBarGUI := NewGameObject("HealthBar")
+	HealthBarGUI := NewGameObject("HealthBarGUI")
 	HealthBarGUI.Transform().SetParent2(HealthBar)
 	HealthBarGUI.AddComponent(NewSprite2(atlas.Texture, uvHP))
 	HealthBarGUI.Transform().SetScale(NewVector2(0.52, 1))
@@ -167,7 +175,7 @@ func (s *GameScene) Load() {
 	Explosion.Transform().SetScale(NewVector2(30, 30))
 
 	missle := NewGameObject("Missle")
-	missle.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, Missle)))
+	missle.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, MissleT)))
 	missle.AddComponent(NewPhysics(false, 10, 10))
 	missle.Transform().SetScale(NewVector2(20, 20))
 	missle.AddComponent(NewDamageDealer(50))
@@ -176,7 +184,9 @@ func (s *GameScene) Load() {
 	missle.AddComponent(m)
 	shipController.Missle = m
 	m.Explosion = Explosion
-	missle.AddComponent(NewDestoyable(0, 1))
+	ds := NewDestoyable(0, 1)
+	ds.SetDestroyTime(1)
+	missle.AddComponent(ds)
 
 	cookie = NewGameObject("Cookie")
 	cookie.AddComponent(NewSprite(cir))

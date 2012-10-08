@@ -112,15 +112,21 @@ func (g *GameObject) Destroy() {
 }
 
 func (g *GameObject) destroy() {
-	for _, c := range g.components {
-		c.OnDestroy()
+	l := len(g.components)
+	for i := l - 1; i >= 0; i-- {
+		g.components[i].OnDestroy()
+		g.components[i] = nil
 	}
-	for _, c := range g.transform.children {
-		c.GameObject().destroy()
-	}
-	g.name = ""
+	/*
+		chs := g.transform.children
+		l = len(chs)
+		for i := l - 1; i >= 0; i-- {
+			//chs[i].GameObject().destroy()
+		}
+	*/
 	g.Transform().SetParent(nil)
-	g.transform = nil
+	g.name = ""
+	//g.transform = nil
 	g.components = nil
 	g.valid = false
 	g.active = false
