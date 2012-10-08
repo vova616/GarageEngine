@@ -126,5 +126,8 @@ func (sp *EnemeyAI) OnDie() {
 		n.Physics.Shape.Group = 1
 		n.Physics.Shape.IsSensor = true
 	}
+
+	CreatePowerUp(sp.Transform().WorldPosition())
+
 	sp.GameObject().Destroy()
 }

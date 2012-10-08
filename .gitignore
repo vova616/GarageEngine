@@ -166,6 +166,8 @@ pip-log.txt
 #*.dll
 log.txt
 *.prof
+*.m
+*.p
 
 *.iml
 .idea/
