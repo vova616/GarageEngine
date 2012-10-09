@@ -71,15 +71,15 @@ var TextureShader gl.Program
 var TextureMaterial *BasicMaterial
 
 const vertexShader = `
-#version 130
+#version 120
 
 uniform mat4 MProj;
 uniform mat4 MView;
 uniform mat4 MModel;
 
-in  vec3 vertexPos;
-in  vec2 vertexUV;
-out vec2 UV;
+attribute  vec3 vertexPos;
+attribute  vec2 vertexUV; 
+varying vec2 UV;
 
 
  
@@ -91,12 +91,11 @@ void main(void)
 `
 
 const fragmentShader = `
-#version 130
-precision highp float; // needed only for version 1.30
- 
-out vec4 color;
+#version 120
+//precision highp float; // needed only for version 1.30
 
-in vec2 UV; 
+varying vec2 UV; 
+
 uniform sampler2D mytexture;
 uniform vec4 bcolor;
 uniform vec4 addcolor;
@@ -114,7 +113,7 @@ void main(void)
 	//t.a = 0;
 	//tcolor = mix(tcolor, t, tcolor.a); 
 
-	color = tcolor;
+	gl_FragColor = tcolor;
 }
 `
 

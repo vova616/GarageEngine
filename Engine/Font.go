@@ -140,11 +140,12 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 		return nil, err
 	}
 
-	texture.Options(gl.LINEAR, gl.CLAMP_TO_EDGE)
-
 	if readonly {
 		texture.SetReadOnly()
 	}
 
+	texture.Options(gl.LINEAR, gl.CLAMP_TO_EDGE)
+
 	return &Font{texture, LetterArray, firstRune, lastRune, size, dpi}, nil
+
 }

@@ -25,11 +25,16 @@ type ShipController struct {
 	HPBar           *GameObject
 
 	UseMouse bool
+
+	JetFire         *GameObject
+	JetFireParent   *GameObject
+	JetFirePool     []*GameObject
+	JetFirePosition []Vector
 }
 
 func NewShipController() *ShipController {
-	return &ShipController{NewComponent(), 500000, 100, nil, []Vector{{-28, 10, 0},
-		{28, 10, 0}}, time.Now(), nil, nil, false}
+	return &ShipController{NewComponent(), 500000, 250, nil, []Vector{{-28, 10, 0},
+		{28, 10, 0}}, time.Now(), nil, nil, false, nil, nil, nil, []Vector{{-0.35, -0.51, 0}, {0.35, -0.51, 0}}}
 }
 
 func (sp *ShipController) OnComponentBind(binded *GameObject) {
@@ -42,6 +47,34 @@ func (sp *ShipController) Start() {
 	ph.Shape.Group = 1
 	sp.Destoyable = sp.GameObject().ComponentTypeOfi(sp.Destoyable).(*Destoyable)
 	sp.OnHit(nil, nil)
+
+	sp.JetFireParent = NewGameObject("JetFireParent")
+	sp.JetFireParent.Transform().SetParent2(sp.GameObject())
+
+	uvJet := IndexUV(atlas, Jet_A)
+
+	if sp.JetFire != nil {
+		l := 1
+		sp.JetFirePool = make([]*GameObject, l*len(sp.JetFirePosition))
+
+		for i := 0; i < len(sp.JetFirePosition); i++ {
+			for j := 0; j < l; j++ {
+
+				jfp := NewGameObject("JetFireParent2")
+				jfp.Transform().SetParent2(sp.JetFireParent)
+				jfp.Transform().SetPosition(sp.JetFirePosition[i])
+				jfp.AddComponent(NewResizeScript(0.2, 0.3, 0.5, 1.0))
+
+				jf := sp.JetFire.Clone()
+				jf.Transform().SetParent2(jfp)
+				jf.Transform().SetPositionf(0, -((uvJet.Ratio)/2)*jf.Transform().Scale().Y, 0)
+
+				//	jf.Transform().SetWorldScalef(10, 10, 1)
+
+				sp.JetFirePool[(i*l)+j] = jf
+			}
+		}
+	}
 	//sp.Physics.Shape.Friction = 0.5
 }
 
@@ -116,12 +149,27 @@ func (sp *ShipController) Update() {
 	rx, ry := r2.X*DeltaTime(), r2.Y*DeltaTime()
 	rsx, rsy := r3.X*DeltaTime(), r3.Y*DeltaTime()
 
+	jet := false
+
 	if Input.KeyDown('W') {
 		ph.Body.AddForce(sp.Speed*rx, sp.Speed*ry)
+		jet = true
 	}
 
 	if Input.KeyDown('S') {
 		ph.Body.AddForce(-sp.Speed*rx, -sp.Speed*ry)
+		jet = true
+	}
+
+	if jet {
+		sp.JetFireParent.SetActiveRecursive(true)
+	} else {
+		sp.JetFireParent.SetActiveRecursive(false)
+	}
+
+	rotSpeed := sp.RotationSpeed
+	if Input.KeyDown(Input.KeyLshift) {
+		rotSpeed = 100
 	}
 
 	if sp.UseMouse {
@@ -146,12 +194,12 @@ func (sp *ShipController) Update() {
 		if Input.KeyDown('D') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
-			sp.Transform().SetRotationf(0, 0, r.Z-sp.RotationSpeed*DeltaTime())
+			sp.Transform().SetRotationf(0, 0, r.Z-rotSpeed*DeltaTime())
 		}
 		if Input.KeyDown('A') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
-			sp.Transform().SetRotationf(0, 0, r.Z+sp.RotationSpeed*DeltaTime())
+			sp.Transform().SetRotationf(0, 0, r.Z+rotSpeed*DeltaTime())
 		}
 
 		if Input.KeyDown('E') {
@@ -166,7 +214,7 @@ func (sp *ShipController) Update() {
 		}
 	}
 
-	if Input.MouseDown(MouseLeft) {
+	if Input.MouseDown(Input.MouseLeft) {
 		if time.Now().After(sp.lastShoot) {
 			sp.Shoot()
 			sp.lastShoot = time.Now().Add(time.Millisecond * 200)

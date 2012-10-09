@@ -83,3 +83,23 @@ func (pu *PowerUp) OnCollisionEnter(arbiter *Arbiter) bool {
 	}
 	return true
 }
+
+func PowerUpShip(p Power) {
+	if PlayerShip.GameObject() != nil {
+		switch p {
+		case Speed:
+			PlayerShip.Speed += 30000
+		case Damage:
+			var dmg *DamageDealer
+			dmg = PlayerShip.Missle.GameObject().ComponentTypeOfi(dmg).(*DamageDealer)
+			dmg.Damage += 50
+		case Range:
+			var dst *Destoyable
+			dst = PlayerShip.Missle.GameObject().ComponentTypeOfi(dst).(*Destoyable)
+			dst.aliveDuration += time.Millisecond * 500
+		case HP:
+			PlayerShip.Destoyable.HP = PlayerShip.Destoyable.FullHP
+			PlayerShip.OnHit(nil, nil)
+		}
+	}
+}

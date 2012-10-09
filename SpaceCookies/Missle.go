@@ -33,7 +33,7 @@ func (ms *Missle) OnDie() {
 	if ms.GameObject() == nil {
 		return
 	}
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 2; i++ {
 		n := ms.Explosion.Clone()
 		n.Transform().SetParent2(GameSceneGeneral.Layer1)
 		n.Transform().SetWorldPosition(ms.Transform().WorldPosition())
