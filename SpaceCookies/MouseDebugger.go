@@ -19,7 +19,7 @@ func NewMouseDebugger() *MouseDebugger {
 }
 
 func (m *MouseDebugger) Update() {
-	if Input.MouseDown(MouseMiddle) {
+	if Input.MouseDown(Input.MouseMiddle) {
 		mousePosition := m.Transform().WorldPosition()
 
 		c := cookie.Clone()
@@ -29,7 +29,7 @@ func (m *MouseDebugger) Update() {
 		c.Transform().SetPosition(mousePosition)
 		c.Transform().SetScalef(size, size, 1)
 	}
-	if Input.MouseDown(MouseRight) {
+	if Input.MouseDown(Input.MouseRight) {
 
 		mousePosition := m.Transform().WorldPosition()
 
@@ -47,7 +47,20 @@ func (m *MouseDebugger) Update() {
 		//phx.Shape.Group = 2
 		phx.Shape.SetElasticity(0.5)
 	}
+
 	if Input.KeyPress('R') {
 		LoadScene(GameSceneGeneral)
+	}
+	if Input.KeyPress(Input.KeyF1) {
+		PowerUpShip(HP)
+	}
+	if Input.KeyPress(Input.KeyF2) {
+		PowerUpShip(Damage)
+	}
+	if Input.KeyPress(Input.KeyF3) {
+		PowerUpShip(Range)
+	}
+	if Input.KeyPress(Input.KeyF4) {
+		PowerUpShip(Speed)
 	}
 }

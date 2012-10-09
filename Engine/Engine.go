@@ -38,10 +38,6 @@ const (
 	RadianConst = math.Pi / 180
 	DegreeConst = 180 / math.Pi
 	MouseTag    = "Mouse"
-
-	MouseLeft   = glfw.MouseLeft
-	MouseRight  = glfw.MouseRight
-	MouseMiddle = glfw.MouseMiddle
 )
 
 var (

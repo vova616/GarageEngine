@@ -39,6 +39,7 @@ var (
 
 	atlas      = NewManagedAtlas(2048, 2048)
 	atlasSpace = NewManagedAtlas(2048, 2048)
+	backgroung *Texture
 )
 
 const (
@@ -49,6 +50,8 @@ const SpaceShip_A = 333
 const Missle_A = 334
 const HP_A = 123
 const HPGUI_A = 124
+const Queen_A = 666
+const Jet_A = 125
 
 func LoadTextures() {
 	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Ship1.png"), SpaceShip_A)
@@ -57,7 +60,8 @@ func LoadTextures() {
 
 	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBar.png"), HP_A)
 	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBarGUI.png"), HPGUI_A)
-
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Queen.png"), Queen_A)
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Jet.png"), Jet_A)
 	if e != nil {
 		fmt.Println(e)
 	}
@@ -66,6 +70,7 @@ func LoadTextures() {
 	atlas.Texture.SetReadOnly()
 
 	box, _ = LoadTexture("./data/rect.png")
+	backgroung, _ = LoadTexture("./data/SpaceCookies/background.png")
 	cir, e = LoadTexture("./data/SpaceCookies/Cookie.png")
 	if e != nil {
 		fmt.Println(e)
@@ -162,6 +167,9 @@ func (s *GameScene) Load() {
 	HealthBarGUI.Transform().SetScale(NewVector2(0.52, 1))
 	HealthBarGUI.Transform().SetPosition(NewVector2((uvHP.Ratio/2)*HealthBarGUI.Transform().Scale().X, 0))
 
+	JetFire := NewGameObject("Jet")
+	JetFire.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, Jet_A)))
+
 	ship := NewGameObject("Ship")
 	Player = ship
 	ship.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, SpaceShip_A)))
@@ -171,6 +179,7 @@ func (s *GameScene) Load() {
 	ship.Transform().SetScale(NewVector2(100, 100))
 	ship.AddComponent(NewDestoyable(1000, 1))
 	PlayerShip.HPBar = HealthBar
+	PlayerShip.JetFire = JetFire
 
 	uvs, ind := AnimatedGroupUVs(atlas, "Explosion")
 	Explosion = NewGameObject("Explosion")
@@ -198,13 +207,24 @@ func (s *GameScene) Load() {
 
 	cookie = NewGameObject("Cookie")
 	cookie.AddComponent(NewSprite(cir))
-	cookie.AddComponent(NewDestoyable(100, 2))
+	cookie.AddComponent(NewDestoyable(150, 2))
 	cookie.AddComponent(NewDamageDealer(20))
 	cookie.AddComponent(NewEnemeyAI(Player))
 	cookie.Transform().SetScale(NewVector2(50, 50))
 	cookie.Transform().SetPosition(NewVector2(400, 400))
 	cookie.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 25)))
 	cookie.Tag = CookieTag
+
+	QueenCookie := NewGameObject("Cookie")
+	QueenCookie.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, Queen_A)))
+	QueenCookie.AddComponent(NewDestoyable(5000, 2))
+	QueenCookie.AddComponent(NewDamageDealer(200))
+	QueenCookie.AddComponent(NewEnemeyAI(Player))
+	QueenCookie.Transform().SetParent2(Layer2)
+	QueenCookie.Transform().SetScale(NewVector2(300, 300))
+	QueenCookie.Transform().SetPosition(NewVector2(2700, 2700))
+	QueenCookie.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 25)))
+	QueenCookie.Tag = CookieTag
 
 	staticCookie := NewGameObject("Cookie")
 	staticCookie.AddComponent(NewSprite(cir))
@@ -238,6 +258,13 @@ func (s *GameScene) Load() {
 	PowerUpGO.Transform().SetScale(NewVector2(60, 60))
 	PowerUpGO.Transform().SetPosition(NewVector2(0, 0))
 
+	background := NewGameObject("Background")
+	background.AddComponent(NewSprite(backgroung))
+	background.AddComponent(NewBackground(background.Sprite))
+	background.Sprite.Render = false
+	background.Transform().SetScalef(2048*0.7, 2048*0.7, 1)
+	background.Transform().SetPositionf(0, 0, 0)
+
 	for i := 0; i < 400; i++ {
 		c := Background.Clone()
 		c.Transform().SetParent2(Layer4)
@@ -258,7 +285,7 @@ func (s *GameScene) Load() {
 		c := cookie.Clone()
 		//c.Tag = CookieTag
 		c.Transform().SetParent2(Layer2)
-		size := 25 + rand.Float32()*100
+		size := 40 + rand.Float32()*100
 		p := Vector{(rand.Float32() * 3000), (rand.Float32() * 3000), 1}
 
 		if p.X < 1100 && p.Y < 800 {
@@ -305,6 +332,7 @@ func (s *GameScene) Load() {
 	s.AddGameObject(Layer2)
 	s.AddGameObject(Layer3)
 	s.AddGameObject(Layer4)
+	s.AddGameObject(background)
 	//s.AddGameObject(shadowShader)
 
 	fmt.Println("Scene loaded")

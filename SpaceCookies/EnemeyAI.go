@@ -110,7 +110,7 @@ func (sp *EnemeyAI) OnHit(enemey *engine.GameObject, damager *DamageDealer) {
 }
 
 func (sp *EnemeyAI) OnDie() {
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 4; i++ {
 		n := Explosion.Clone()
 		n.Transform().SetParent2(GameSceneGeneral.Layer1)
 		n.Transform().SetWorldPosition(sp.Transform().WorldPosition())

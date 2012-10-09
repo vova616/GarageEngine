@@ -95,8 +95,16 @@ func (g *GameObject) IsValid() bool {
 	return g.valid
 }
 
-func (g *GameObject) SetActive(a bool) {
-	g.active = a
+func (g *GameObject) SetActive(active bool) {
+	g.active = active
+}
+
+func (g *GameObject) SetActiveRecursive(active bool) {
+	g.SetActive(active)
+	childen := g.Transform().Children()
+	for _, c := range childen {
+		c.GameObject().SetActiveRecursive(active)
+	}
 }
 
 func (g *GameObject) IsActive() bool {

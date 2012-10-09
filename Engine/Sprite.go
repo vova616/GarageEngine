@@ -28,6 +28,8 @@ type Sprite struct {
 	currentAnim          interface{}
 	AnimationEndCallback OnAnimationEnd
 
+	Render bool
+
 	Border     bool
 	BorderSize float32
 }
@@ -48,7 +50,8 @@ func NewSprite3(tex *Texture, uv AnimatedUV) *Sprite {
 		buffer:         gl.GenBuffer(),
 		AnimationSpeed: 1,
 		endAnimation:   len(uv),
-		UVs:            uv}
+		UVs:            uv,
+		Render:         true}
 	sp.CreateVBO(uv...)
 
 	return sp
@@ -197,7 +200,7 @@ func Abs(val float32) float32 {
 }
 
 func (sp *Sprite) Draw() {
-	if sp.Texture != nil {
+	if sp.Texture != nil && sp.Render {
 
 		camera := GetScene().SceneBase().Camera
 		cameraPos := camera.Transform().WorldPosition()
@@ -271,13 +274,29 @@ func (sp *Sprite) Draw() {
 }
 
 func (sp *Sprite) DrawScreen() {
-	if sp.Texture != nil {
+	if sp.Texture != nil && sp.Render {
 
-		program := TextureShader
-		program.Use()
+		camera := GetScene().SceneBase().Camera
+		cameraPos := camera.Transform().WorldPosition()
+		pos := sp.Transform().WorldPosition()
+		scale := sp.Transform().WorldScale()
+		if Abs(pos.X-cameraPos.X)-scale.X-float32(Width)/2 > float32(Width) {
+			return
+		}
+		if Abs(pos.Y-cameraPos.Y)-scale.Y-float32(Height)/2 > float32(Height) {
+			return
+		}
 
-		vert := program.GetAttribLocation("vectexPos")
-		uv := program.GetAttribLocation("vertexUV")
+		TextureMaterial.Begin(sp.GameObject())
+
+		vert := TextureMaterial.Verts
+		uv := TextureMaterial.UV
+		mp := TextureMaterial.ProjMatrix
+		mv := TextureMaterial.ViewMatrix
+		mm := TextureMaterial.ModelMatrix
+		mc := TextureMaterial.BorderColor
+		tx := TextureMaterial.Texture
+		ac := TextureMaterial.AddColor
 
 		vert.EnableArray()
 		uv.EnableArray()
@@ -287,31 +306,46 @@ func (sp *Sprite) DrawScreen() {
 		vert.AttribPointerPtr(3, gl.FLOAT, false, 0, int(sp.animation)*12*4)
 		uv.AttribPointerPtr(2, gl.FLOAT, false, 0, sp.texcoordsIndex+(int(sp.animation)*8*4))
 
-		camera := GetScene().SceneBase().Camera
 		proj := NewIdentity()
 		proj = camera.Projection
 		view := NewIdentity()
 		model := NewIdentity()
-		model.Scale(float32(Height), float32(Height), 1)
-		model.Translate(float32(Width)/2, float32(Height)/2, 1)
+		model.Scale(scale.X, scale.Y, 1)
+		model.Translate((float32(scale.X)/2)+pos.X, (float32(scale.Y)/2)+pos.Y, 1)
 
-		mv := program.GetUniformLocation("MView")
 		mv.Uniform4fv([]float32(view[:]))
-		mp := program.GetUniformLocation("MProj")
 		mp.Uniform4fv([]float32(proj[:]))
-		mm := program.GetUniformLocation("MModel")
 		mm.Uniform4fv([]float32(model[:]))
 
 		sp.Bind()
 		gl.ActiveTexture(gl.TEXTURE0)
-		tx := program.GetUniformLocation("mytexture")
 		tx.Uniform1i(0)
+
+		//ac.Uniform4f(1, 1, 1, 0) 
+		ac.Uniform4f(1, 1, 1, 1)
+
+		if sp.Border {
+			mc.Uniform4f(1, 1, 1, 0)
+
+			gl.DrawArrays(gl.QUADS, 0, 4)
+
+			scale := sp.Transform().Scale()
+			scalex := scale.Mul2(1 - (sp.BorderSize / 100))
+			sp.Transform().SetScale(scalex)
+			*model = sp.GameObject().Transform().Matrix()
+
+			mm.Uniform4fv([]float32(model[:]))
+			sp.Transform().SetScale(scale)
+		}
+
+		mc.Uniform4f(0, 0, 0, 0)
 
 		gl.DrawArrays(gl.QUADS, 0, 4)
 
 		sp.Unbind()
 		vert.DisableArray()
 		uv.DisableArray()
-	}
 
+		TextureMaterial.End(sp.GameObject())
+	}
 }
