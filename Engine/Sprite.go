@@ -181,8 +181,14 @@ func (sp *Sprite) UpdateShape() {
 				box.UpdatePoly()
 			}
 		} else if cir != nil {
-			if float32(cir.Radius) != scale.X/2 {
-				cir.Radius = Float(scale.X / 2)
+			s := float32(0)
+			if scale.X > scale.Y {
+				s = scale.X
+			} else {
+				s = scale.Y
+			}
+			if float32(cir.Radius) != s/2 {
+				cir.Radius = Float(s / 2)
 				if !ph.Body.MomentIsInf() {
 					ph.Body.SetMoment(Float(cir.Moment(float32(ph.Body.Mass()))))
 				}
@@ -277,15 +283,8 @@ func (sp *Sprite) DrawScreen() {
 	if sp.Texture != nil && sp.Render {
 
 		camera := GetScene().SceneBase().Camera
-		cameraPos := camera.Transform().WorldPosition()
 		pos := sp.Transform().WorldPosition()
 		scale := sp.Transform().WorldScale()
-		if Abs(pos.X-cameraPos.X)-scale.X-float32(Width)/2 > float32(Width) {
-			return
-		}
-		if Abs(pos.Y-cameraPos.Y)-scale.Y-float32(Height)/2 > float32(Height) {
-			return
-		}
 
 		TextureMaterial.Begin(sp.GameObject())
 
@@ -311,7 +310,7 @@ func (sp *Sprite) DrawScreen() {
 		view := NewIdentity()
 		model := NewIdentity()
 		model.Scale(scale.X, scale.Y, 1)
-		model.Translate((float32(scale.X)/2)+pos.X, (float32(scale.Y)/2)+pos.Y, 1)
+		model.Translate((float32(Width)/2)+pos.X, (float32(Height)/2)+pos.Y, 1)
 
 		mv.Uniform4fv([]float32(view[:]))
 		mp.Uniform4fv([]float32(proj[:]))

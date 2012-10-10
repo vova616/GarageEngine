@@ -24,7 +24,7 @@ func NewDestoyable(hp float32, team int) *Destoyable {
 }
 
 type DestoyableFuncs interface {
-	OnDie()
+	OnDie(byTimer bool)
 	OnHit(*GameObject, *DamageDealer)
 }
 
@@ -42,7 +42,7 @@ func (ds *Destoyable) Update() {
 	if ds.autoDestory && ds.GameObject() != nil {
 		if time.Now().After(ds.createTime.Add(ds.aliveDuration)) {
 			if ds.destoyableFuncs != nil {
-				ds.destoyableFuncs.OnDie()
+				ds.destoyableFuncs.OnDie(true)
 			} else {
 				ds.GameObject().Destroy()
 			}
@@ -81,7 +81,7 @@ func (ds *Destoyable) OnCollisionEnter(arbiter *Arbiter) bool {
 	if ds.HP <= 0 {
 		ds.Alive = false
 		if ds.destoyableFuncs != nil {
-			ds.destoyableFuncs.OnDie()
+			ds.destoyableFuncs.OnDie(false)
 		} else {
 			ds.GameObject().Destroy()
 		}

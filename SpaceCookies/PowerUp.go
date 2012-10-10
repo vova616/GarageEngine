@@ -15,8 +15,8 @@ type PowerUp struct {
 
 const (
 	Speed  = Power(2)
-	Damage = Power(6)
-	Range  = Power(1)
+	Damage = Power(1)
+	Range  = Power(6)
 	HP     = Power(5)
 )
 
@@ -49,7 +49,7 @@ func CreatePowerUp(position Vector) {
 
 		index := int(HP) - 1
 
-		for index == 2 || index == 3 {
+		for index == 2 || index == 3 || index == 1 {
 			index = (rand.Int() % 6)
 		}
 
@@ -64,21 +64,7 @@ func CreatePowerUp(position Vector) {
 
 func (pu *PowerUp) OnCollisionEnter(arbiter *Arbiter) bool {
 	if pu.GameObject() != nil && (arbiter.GameObjectA() == Player || arbiter.GameObjectB() == Player) {
-		switch pu.Type {
-		case Speed:
-			PlayerShip.Speed += 30000
-		case Damage:
-			var dmg *DamageDealer
-			dmg = PlayerShip.Missle.GameObject().ComponentTypeOfi(dmg).(*DamageDealer)
-			dmg.Damage += 50
-		case Range:
-			var dst *Destoyable
-			dst = PlayerShip.Missle.GameObject().ComponentTypeOfi(dst).(*Destoyable)
-			dst.aliveDuration += time.Millisecond * 500
-		case HP:
-			PlayerShip.Destoyable.HP = PlayerShip.Destoyable.FullHP
-			PlayerShip.OnHit(nil, nil)
-		}
+		PowerUpShip(pu.Type)
 		pu.GameObject().Destroy()
 	}
 	return true
@@ -90,13 +76,19 @@ func PowerUpShip(p Power) {
 		case Speed:
 			PlayerShip.Speed += 30000
 		case Damage:
-			var dmg *DamageDealer
-			dmg = PlayerShip.Missle.GameObject().ComponentTypeOfi(dmg).(*DamageDealer)
-			dmg.Damage += 50
+			/*
+				var dmg *DamageDealer
+				dmg = PlayerShip.Missle.GameObject().ComponentTypeOfi(dmg).(*DamageDealer)
+				dmg.Damage += 50
+			*/
+			PlayerShip.MissleLevel++
+			if PlayerShip.MissleLevel > PlayerShip.MaxMissleLevel {
+				PlayerShip.MissleLevel = PlayerShip.MaxMissleLevel
+			}
 		case Range:
 			var dst *Destoyable
 			dst = PlayerShip.Missle.GameObject().ComponentTypeOfi(dst).(*Destoyable)
-			dst.aliveDuration += time.Millisecond * 500
+			dst.aliveDuration += time.Millisecond * 100
 		case HP:
 			PlayerShip.Destoyable.HP = PlayerShip.Destoyable.FullHP
 			PlayerShip.OnHit(nil, nil)
