@@ -16,25 +16,35 @@ import (
 
 type ShipController struct {
 	BaseComponent
-	Speed           float32
-	RotationSpeed   float32
-	Missle          *Missle
-	MisslesPosition []Vector
-	lastShoot       time.Time
-	Destoyable      *Destoyable
-	HPBar           *GameObject
+	Speed            float32
+	RotationSpeed    float32
+	Missle           *Missle
+	MisslesPosition  []Vector
+	MisslesDirection [][]Vector
+	MissleLevel      int
+	MaxMissleLevel   int
+	lastShoot        time.Time
+	Destoyable       *Destoyable
+	HPBar            *GameObject
 
 	UseMouse bool
 
 	JetFire         *GameObject
 	JetFireParent   *GameObject
-	JetFirePool     []*GameObject
+	JetFirePool     []*ResizeScript
 	JetFirePosition []Vector
 }
 
 func NewShipController() *ShipController {
-	return &ShipController{NewComponent(), 500000, 250, nil, []Vector{{-28, 10, 0},
-		{28, 10, 0}}, time.Now(), nil, nil, false, nil, nil, nil, []Vector{{-0.35, -0.51, 0}, {0.35, -0.51, 0}}}
+
+	misslesDirection := [][]Vector{{{0, 1, 0}, {0, 1, 0}},
+		{{-0.2, 1, 0}, {0.2, 1, 0}, {0, 1, 0}},
+		{{-0.2, 1, 0}, {0.2, 1, 0}, {0, 1, 0}, {-0.1, 1, 0}, {0.1, 1, 0}}}
+
+	misslePositions := []Vector{{-28, 10, 0}, {28, 10, 0}, {0, 20, 0}, {-14, 20, 0}, {14, 20, 0}}
+
+	return &ShipController{NewComponent(), 500000, 250, nil, misslePositions, misslesDirection, 0, len(misslesDirection) - 1,
+		time.Now(), nil, nil, false, nil, nil, nil, []Vector{{-0.1, -0.51, 0}, {0.1, -0.51, 0}}}
 }
 
 func (sp *ShipController) OnComponentBind(binded *GameObject) {
@@ -55,7 +65,7 @@ func (sp *ShipController) Start() {
 
 	if sp.JetFire != nil {
 		l := 1
-		sp.JetFirePool = make([]*GameObject, l*len(sp.JetFirePosition))
+		sp.JetFirePool = make([]*ResizeScript, l*len(sp.JetFirePosition))
 
 		for i := 0; i < len(sp.JetFirePosition); i++ {
 			for j := 0; j < l; j++ {
@@ -63,7 +73,8 @@ func (sp *ShipController) Start() {
 				jfp := NewGameObject("JetFireParent2")
 				jfp.Transform().SetParent2(sp.JetFireParent)
 				jfp.Transform().SetPosition(sp.JetFirePosition[i])
-				jfp.AddComponent(NewResizeScript(0.2, 0.3, 0.5, 1.0))
+				rz := NewResizeScript(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+				jfp.AddComponent(rz)
 
 				jf := sp.JetFire.Clone()
 				jf.Transform().SetParent2(jfp)
@@ -71,7 +82,7 @@ func (sp *ShipController) Start() {
 
 				//	jf.Transform().SetWorldScalef(10, 10, 1)
 
-				sp.JetFirePool[(i*l)+j] = jf
+				sp.JetFirePool[(i*l)+j] = rz
 			}
 		}
 	}
@@ -87,7 +98,7 @@ func (sp *ShipController) OnHit(enemey *GameObject, damager *DamageDealer) {
 	}
 }
 
-func (sp *ShipController) OnDie() {
+func (sp *ShipController) OnDie(byTimer bool) {
 	for i := 0; i < 20; i++ {
 		n := Explosion.Clone()
 		n.Transform().SetParent2(GameSceneGeneral.Layer1)
@@ -109,10 +120,14 @@ func (sp *ShipController) OnDie() {
 
 func (sp *ShipController) Shoot() {
 	if sp.Missle != nil {
-		s := sp.Transform().Direction2D(Up)
+
 		a := sp.Transform().Rotation()
 		//scale := sp.Transform().Scale()
-		for _, pos := range sp.MisslesPosition {
+		for i := 0; i < len(sp.MisslesDirection[sp.MissleLevel]); i++ {
+			pos := sp.MisslesPosition[i]
+			s := sp.Transform().Direction2D(sp.MisslesDirection[sp.MissleLevel][i])
+			//s = s.Mul(sp.MisslesDirection[i])
+
 			p := sp.Transform().WorldPosition()
 			_ = a
 			m := Identity()
@@ -150,6 +165,7 @@ func (sp *ShipController) Update() {
 	rsx, rsy := r3.X*DeltaTime(), r3.Y*DeltaTime()
 
 	jet := false
+	back := false
 
 	if Input.KeyDown('W') {
 		ph.Body.AddForce(sp.Speed*rx, sp.Speed*ry)
@@ -159,10 +175,28 @@ func (sp *ShipController) Update() {
 	if Input.KeyDown('S') {
 		ph.Body.AddForce(-sp.Speed*rx, -sp.Speed*ry)
 		jet = true
+		back = true
 	}
 
 	if jet {
-		sp.JetFireParent.SetActiveRecursive(true)
+		for _, resize := range sp.JetFirePool {
+			if back {
+				resize.SetValues(0.1, 0.1, 0.2, 0.0, 0.2, 0.3)
+			} else {
+				resize.SetValues(0.2, 0.2, 0.3, 0.0, 0.6, 0.8)
+			}
+		}
+		if !sp.JetFireParent.IsActive() {
+			sp.JetFireParent.SetActiveRecursive(true)
+			for _, resize := range sp.JetFirePool {
+				resize.State = 0
+				if back {
+					resize.SetValues(0.1, 0.1, 0.2, 0.0, 0.2, 0.3)
+				} else {
+					resize.SetValues(0.2, 0.2, 0.3, 0.0, 0.6, 0.8)
+				}
+			}
+		}
 	} else {
 		sp.JetFireParent.SetActiveRecursive(false)
 	}

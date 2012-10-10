@@ -144,16 +144,9 @@ func (t *Transform) Rotation2D() Vector {
 
 func (t *Transform) Direction2D(up Vector) Vector {
 	angle := float32(RadianConst)
-	switch up {
-	case Up:
-		angle *= (t.rotation.Z + 90)
-	case Down:
-		angle *= (t.rotation.Z - 90)
-	case Right:
-		angle *= t.rotation.Z
-	case Left:
-		angle *= t.rotation.Z - 180
-	}
+
+	angle *= (t.rotation.Z + float32(math.Atan2(float64(up.Y), float64(up.X)))*float32(DegreeConst))
+
 	return NewVector2(float32(math.Cos(float64(angle))), float32(math.Sin(float64(angle))))
 }
 

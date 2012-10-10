@@ -266,8 +266,6 @@ func NewTexture2(data interface{}, width int, height int, target gl.GLenum, inte
 	gl.GetFloatv(gl.MAX_TEXTURE_MAX_ANISOTROPY_EXT, ansi)
 	gl.TexParameterf(target, gl.TEXTURE_MAX_ANISOTROPY_EXT, ansi[0])
 
-	log.Println(gl.GetError())
-
 	a.Unbind(target)
 
 	return &Texture{a, false, data, format, typ, internalFormat, target, width, height}

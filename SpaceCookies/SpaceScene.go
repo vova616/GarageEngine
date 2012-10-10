@@ -55,7 +55,7 @@ const Jet_A = 125
 
 func LoadTextures() {
 	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Ship1.png"), SpaceShip_A)
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/missile_MIRV.png"), Missle_A)
+	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/missile.png"), Missle_A)
 	e := atlas.AddGroupSheet("./data/SpaceCookies/Explosion.png", 128, 128, 6*8)
 
 	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBar.png"), HP_A)
@@ -207,9 +207,9 @@ func (s *GameScene) Load() {
 
 	cookie = NewGameObject("Cookie")
 	cookie.AddComponent(NewSprite(cir))
-	cookie.AddComponent(NewDestoyable(150, 2))
+	cookie.AddComponent(NewDestoyable(100, 2))
 	cookie.AddComponent(NewDamageDealer(20))
-	cookie.AddComponent(NewEnemeyAI(Player))
+	cookie.AddComponent(NewEnemeyAI(Player, Enemey_Cookie))
 	cookie.Transform().SetScale(NewVector2(50, 50))
 	cookie.Transform().SetPosition(NewVector2(400, 400))
 	cookie.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 25)))
@@ -219,7 +219,7 @@ func (s *GameScene) Load() {
 	QueenCookie.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, Queen_A)))
 	QueenCookie.AddComponent(NewDestoyable(5000, 2))
 	QueenCookie.AddComponent(NewDamageDealer(200))
-	QueenCookie.AddComponent(NewEnemeyAI(Player))
+	QueenCookie.AddComponent(NewEnemeyAI(Player, Enemey_Boss))
 	QueenCookie.Transform().SetParent2(Layer2)
 	QueenCookie.Transform().SetScale(NewVector2(300, 300))
 	QueenCookie.Transform().SetPosition(NewVector2(2700, 2700))
@@ -262,7 +262,8 @@ func (s *GameScene) Load() {
 	background.AddComponent(NewSprite(backgroung))
 	background.AddComponent(NewBackground(background.Sprite))
 	background.Sprite.Render = false
-	background.Transform().SetScalef(2048*0.7, 2048*0.7, 1)
+	//background.Transform().SetScalef(float32(backgroung.Height()), float32(backgroung.Height()), 1)
+	background.Transform().SetScalef(800, 800, 1)
 	background.Transform().SetPositionf(0, 0, 0)
 
 	for i := 0; i < 400; i++ {
