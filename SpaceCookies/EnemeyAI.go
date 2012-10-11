@@ -108,10 +108,19 @@ func (ai *EnemeyAI) Start() {
 		c := cookie.Clone()
 		//c.Tag = CookieTag
 		c.Transform().SetParent2(GameSceneGeneral.Layer2)
-		size := 25 + rand.Float32()*100
+		size := 50 + rand.Float32()*100
 		c.Transform().SetPosition(myPos.Add(dir.Mul(c.Transform().WorldScale())))
 		c.Transform().SetScalef(size, size, 1)
 		c.GameObject().Physics.Body.AddForce((dir.X+rnd)*25000, (dir.Y+rnd)*25000)
+
+		return engine.Continue
+	}
+
+	appear := func() engine.Command {
+		if ai.GameObject() == nil {
+			return engine.Close
+		}
+		ai.GameObject().SetActive(true)
 
 		return engine.Continue
 	}
@@ -155,7 +164,8 @@ func (ai *EnemeyAI) Start() {
 		if ai.Type == Enemey_Cookie {
 			engine.StartBehavior(engine.SleepRand(5), isPlayerClose(600), prepareForAttack, engine.Sleep(1.5), attack, engine.WaitContinue(prepareForNextAttack, nil, 1.5))
 		} else {
-			engine.StartBehavior(engine.SleepRand(1.5), isPlayerClose(800), randomMove, sendCookies)
+			ai.GameObject().SetActive(false)
+			engine.StartBehavior(engine.Sleep(5), appear, engine.Sequence(engine.SleepRand(0.5), isPlayerClose(800), randomMove, sendCookies))
 		}
 	}
 

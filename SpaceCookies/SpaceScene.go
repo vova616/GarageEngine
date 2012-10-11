@@ -222,7 +222,7 @@ func (s *GameScene) Load() {
 	QueenCookie.AddComponent(NewEnemeyAI(Player, Enemey_Boss))
 	QueenCookie.Transform().SetParent2(Layer2)
 	QueenCookie.Transform().SetScale(NewVector2(300, 300))
-	QueenCookie.Transform().SetPosition(NewVector2(2700, 2700))
+	QueenCookie.Transform().SetPosition(NewVector2(400, 200))
 	QueenCookie.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 25)))
 	QueenCookie.Tag = CookieTag
 
@@ -282,7 +282,7 @@ func (s *GameScene) Load() {
 		c.Transform().SetScalef(size, size, 1)
 	}
 
-	for i := 0; i < 400; i++ {
+	for i := 0; i < 0; i++ {
 		c := cookie.Clone()
 		//c.Tag = CookieTag
 		c.Transform().SetParent2(Layer2)

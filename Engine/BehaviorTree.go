@@ -88,6 +88,17 @@ func WaitContinue(fnc RoutineFunc, child Routiner, secTimeout float32) RoutineFu
 	}
 }
 
+func Sequence(funcs ...RoutineFunc) RoutineFunc {
+	r := NewBehavior(funcs...)
+	return func() Command {
+		c, _ := r.Run()
+		if c != Close {
+			return Yield
+		}
+		return Close
+	}
+}
+
 func Sleep(secs float32) RoutineFunc {
 	return WaitContinue(func() Command { return Yield }, nil, secs)
 }
