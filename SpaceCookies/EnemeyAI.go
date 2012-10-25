@@ -77,16 +77,32 @@ func (ai *EnemeyAI) Start() {
 
 		myPos := ai.Transform().WorldPosition()
 		targetPos := ai.Target.Transform().WorldPosition()
+		if targetPos.Distance(myPos) < 500 {
 
-		dir := targetPos.Sub(myPos)
-		dir.Normalize()
+			if rand.Float32() > 0.5 {
 
-		rnd := rand.Float32() * 0.5
-		if rand.Float32() > 0.5 {
-			rnd = -rnd
+				dir := targetPos.Sub(myPos)
+				dir.Normalize()
+
+				rnd := rand.Float32() * 0.5
+				if rand.Float32() > 0.5 {
+					rnd = -rnd
+				}
+
+				ai.GameObject().Physics.Body.AddForce((-dir.X+rnd)*20000, (-dir.Y+rnd)*20000)
+			} else {
+				dir := targetPos.Sub(myPos)
+				dir.Normalize()
+
+				rnd := rand.Float32() * 0.5
+				if rand.Float32() > 0.5 {
+					rnd = -rnd
+				}
+
+				ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*50000, (dir.Y+rnd)*50000)
+			}
 		}
 
-		ai.GameObject().Physics.Body.AddForce((-dir.X+rnd)*20000, (-dir.Y+rnd)*20000)
 		return engine.Continue
 	}
 
@@ -109,8 +125,14 @@ func (ai *EnemeyAI) Start() {
 		//c.Tag = CookieTag
 		c.Transform().SetParent2(GameSceneGeneral.Layer2)
 		size := 50 + rand.Float32()*100
-		c.Transform().SetPosition(myPos.Add(dir.Mul(c.Transform().WorldScale())))
 		c.Transform().SetScalef(size, size, 1)
+
+		s := ai.Transform().WorldScale()
+		s = s.Add(c.Transform().WorldScale())
+		s = s.Mul2(0.5)
+		p := myPos.Add(dir.Mul(s))
+
+		c.Transform().SetPosition(p)
 		c.GameObject().Physics.Body.AddForce((dir.X+rnd)*25000, (dir.Y+rnd)*25000)
 
 		return engine.Continue
@@ -120,7 +142,8 @@ func (ai *EnemeyAI) Start() {
 		if ai.GameObject() == nil {
 			return engine.Close
 		}
-		ai.GameObject().SetActive(true)
+
+		ai.Transform().SetPositionf(1500, 1500, 1)
 
 		return engine.Continue
 	}
@@ -164,8 +187,7 @@ func (ai *EnemeyAI) Start() {
 		if ai.Type == Enemey_Cookie {
 			engine.StartBehavior(engine.SleepRand(5), isPlayerClose(600), prepareForAttack, engine.Sleep(1.5), attack, engine.WaitContinue(prepareForNextAttack, nil, 1.5))
 		} else {
-			ai.GameObject().SetActive(false)
-			engine.StartBehavior(engine.Sleep(5), appear, engine.Sequence(engine.SleepRand(0.5), isPlayerClose(800), randomMove, sendCookies))
+			engine.StartBehavior(engine.Sleep(120), appear, engine.Sequence(engine.SleepRand(0.5), isPlayerClose(800), randomMove, sendCookies))
 		}
 	}
 
@@ -180,12 +202,24 @@ func (sp *EnemeyAI) OnHit(enemey *engine.GameObject, damager *DamageDealer) {
 }
 
 func (sp *EnemeyAI) OnDie(byTimer bool) {
-	for i := 0; i < 4; i++ {
+
+	sxps := 4
+	size := float32(0.5)
+	if sp.Type == Enemey_Boss {
+		sxps = 10
+		size = 3
+		Wall.Destroy()
+		queenDead = true
+	} else {
+		CreatePowerUp(sp.Transform().WorldPosition())
+	}
+
+	for i := 0; i < sxps; i++ {
 		n := Explosion.Clone()
 		n.Transform().SetParent2(GameSceneGeneral.Layer1)
 		n.Transform().SetWorldPosition(sp.Transform().WorldPosition())
 		s := n.Transform().Scale()
-		n.Transform().SetScale(s.Mul2((rand.Float32() * 3) + 0.5))
+		n.Transform().SetScale(s.Mul2((rand.Float32() * 3) + size))
 		n.AddComponent(engine.NewPhysics(false, 1, 1))
 
 		n.Transform().SetRotationf(0, 0, rand.Float32()*360)
@@ -196,8 +230,6 @@ func (sp *EnemeyAI) OnDie(byTimer bool) {
 		n.Physics.Shape.Group = 1
 		n.Physics.Shape.IsSensor = true
 	}
-
-	CreatePowerUp(sp.Transform().WorldPosition())
 
 	sp.GameObject().Destroy()
 }

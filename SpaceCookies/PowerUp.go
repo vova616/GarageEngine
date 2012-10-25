@@ -33,7 +33,7 @@ func CreatePowerUp(position Vector) {
 
 		index := (rand.Int() % 6)
 
-		for index == 2 || index == 3 || index == 4 {
+		for index == 2 || index == 3 || index == 4 || index == 1 {
 			index = (rand.Int() % 6)
 		}
 
