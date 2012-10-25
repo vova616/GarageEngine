@@ -6,20 +6,35 @@ import (
 
 type Timer map[interface{}]time.Time
 
-const defaultKey = "DefTimer"
+const defaultKey = "0-=|DefTimer|=-0"
 
 func NewTimer() Timer {
 	return make(map[interface{}]time.Time)
 }
 
 func (timer Timer) Start() {
-	timer[defaultKey] = time.Now()
+	timer.StartCustom(defaultKey)
+}
+
+func (timer Timer) Stop() time.Duration {
+	return timer.StopCustom(defaultKey)
+}
+
+func (timer Timer) Defer(result *time.Duration) func() {
+	return timer.DeferCustom(defaultKey, result)
+}
+
+func (timer Timer) DeferCustom(key interface{}, result *time.Duration) func() {
+	if result == nil {
+		panic("Result is nil.")
+	}
+	timer.StartCustom(key)
+	return func() {
+		*result = timer.StopCustom(key)
+	}
 }
 
 func (timer Timer) StartCustom(key interface{}) {
-	if key == defaultKey {
-		panic("Cannot use " + defaultKey + " as a key.")
-	}
 	timer[key] = time.Now()
 }
 
@@ -28,15 +43,5 @@ func (timer Timer) StopCustom(key interface{}) time.Duration {
 	if !exist {
 		panic("No such custom key")
 	}
-	now := time.Now()
-	return now.Sub(startTime)
-}
-
-func (timer Timer) Stop() time.Duration {
-	startTime, exist := timer[defaultKey]
-	if !exist {
-		panic("You must start the timer before stopping it")
-	}
-	now := time.Now()
-	return now.Sub(startTime)
+	return time.Since(startTime)
 }

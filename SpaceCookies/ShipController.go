@@ -39,9 +39,9 @@ func NewShipController() *ShipController {
 
 	misslesDirection := [][]Vector{{{0, 1, 0}, {0, 1, 0}},
 		{{-0.2, 1, 0}, {0.2, 1, 0}, {0, 1, 0}},
-		{{-0.8, 1, 0}, {0.8, 1, 0}, {0, 1, 0}, {-0.2, 1, 0}, {0.2, 1, 0}}}
+		{{-0.2, 1, 0}, {0.2, 1, 0}, {0, 1, 0}, {-0.2, 1, 0}, {0.2, 1, 0}}}
 
-	misslePositions := []Vector{{-28, 10, 0}, {28, 10, 0}, {0, 20, 0}, {-14, 20, 0}, {14, 20, 0}}
+	misslePositions := []Vector{{-28, 10, 0}, {28, 10, 0}, {0, 20, 0}, {-28, 40, 0}, {28, 40, 0}}
 
 	return &ShipController{NewComponent(), 500000, 250, nil, misslePositions, misslesDirection, 0, len(misslesDirection) - 1,
 		time.Now(), nil, nil, false, nil, nil, nil, []Vector{{-0.1, -0.51, 0}, {0.1, -0.51, 0}}}

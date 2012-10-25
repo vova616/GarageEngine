@@ -20,14 +20,16 @@ func NewMouseDebugger() *MouseDebugger {
 
 func (m *MouseDebugger) Update() {
 	if Input.MouseDown(Input.MouseMiddle) {
-		mousePosition := m.Transform().WorldPosition()
+		if queenDead {
+			mousePosition := m.Transform().WorldPosition()
 
-		c := cookie.Clone()
-		//c.Tag = CookieTag
-		c.Transform().SetParent2(GameSceneGeneral.Layer2)
-		size := 25 + rand.Float32()*100
-		c.Transform().SetPosition(mousePosition)
-		c.Transform().SetScalef(size, size, 1)
+			c := cookie.Clone()
+			//c.Tag = CookieTag
+			c.Transform().SetParent2(GameSceneGeneral.Layer2)
+			size := 25 + rand.Float32()*100
+			c.Transform().SetPosition(mousePosition)
+			c.Transform().SetScalef(size, size, 1)
+		}
 	}
 	if Input.MouseDown(Input.MouseRight) {
 
@@ -51,16 +53,18 @@ func (m *MouseDebugger) Update() {
 	if Input.KeyPress('R') {
 		LoadScene(GameSceneGeneral)
 	}
-	if Input.KeyPress(Input.KeyF1) {
-		PowerUpShip(HP)
-	}
-	if Input.KeyPress(Input.KeyF2) {
-		PowerUpShip(Damage)
-	}
-	if Input.KeyPress(Input.KeyF3) {
-		PowerUpShip(Range)
-	}
-	if Input.KeyPress(Input.KeyF4) {
-		PowerUpShip(Speed)
+	if queenDead {
+		if Input.KeyPress(Input.KeyF1) {
+			PowerUpShip(HP)
+		}
+		if Input.KeyPress(Input.KeyF2) {
+			PowerUpShip(Damage)
+		}
+		if Input.KeyPress(Input.KeyF3) {
+			PowerUpShip(Range)
+		}
+		if Input.KeyPress(Input.KeyF4) {
+			PowerUpShip(Speed)
+		}
 	}
 }

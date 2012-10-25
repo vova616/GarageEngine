@@ -37,9 +37,13 @@ var (
 	Explosion *GameObject
 	PowerUpGO *GameObject
 
+	Wall *GameObject
+
 	atlas      = NewManagedAtlas(2048, 2048)
 	atlasSpace = NewManagedAtlas(2048, 2048)
 	backgroung *Texture
+
+	queenDead = false
 )
 
 const (
@@ -69,7 +73,7 @@ func LoadTextures() {
 	atlas.BuildAtlas()
 	atlas.Texture.SetReadOnly()
 
-	box, _ = LoadTexture("./data/rect.png")
+	box, _ = LoadTexture("./data/SpaceCookies/wall.png")
 	backgroung, _ = LoadTexture("./data/SpaceCookies/background.png")
 	cir, e = LoadTexture("./data/SpaceCookies/Cookie.png")
 	if e != nil {
@@ -85,7 +89,13 @@ func LoadTextures() {
 	atlasSpace.Texture.SetReadOnly()
 }
 
+func init() {
+	Title = "Space Cookies"
+}
+
 func (s *GameScene) Load() {
+
+	queenDead = false
 
 	rand.Seed(time.Now().UnixNano())
 
@@ -222,7 +232,7 @@ func (s *GameScene) Load() {
 	QueenCookie.AddComponent(NewEnemeyAI(Player, Enemey_Boss))
 	QueenCookie.Transform().SetParent2(Layer2)
 	QueenCookie.Transform().SetScale(NewVector2(300, 300))
-	QueenCookie.Transform().SetPosition(NewVector2(400, 200))
+	QueenCookie.Transform().SetPosition(NewVector2(999999, 999999))
 	QueenCookie.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 25)))
 	QueenCookie.Tag = CookieTag
 
@@ -232,7 +242,10 @@ func (s *GameScene) Load() {
 	staticCookie.Transform().SetPosition(NewVector2(400, 400))
 	staticCookie.AddComponent(NewDestoyable(float32(Inf), 2))
 	staticCookie.AddComponent(NewPhysics2(true, c.NewCircle(Vect{0, 0}, 200)))
+
 	staticCookie.Physics.Shape.SetElasticity(0)
+	staticCookie.Physics.Body.SetMass(999999999999)
+	staticCookie.Physics.Body.SetMoment(staticCookie.Physics.Shape.Moment(999999999999))
 	staticCookie.Tag = CookieTag
 
 	uvs, ind = AnimatedGroupUVs(atlasSpace, "s")
@@ -266,7 +279,7 @@ func (s *GameScene) Load() {
 	background.Transform().SetScalef(800, 800, 1)
 	background.Transform().SetPositionf(0, 0, 0)
 
-	for i := 0; i < 400; i++ {
+	for i := 0; i < 300; i++ {
 		c := Background.Clone()
 		c.Transform().SetParent2(Layer4)
 		size := 20 + rand.Float32()*50
@@ -282,12 +295,12 @@ func (s *GameScene) Load() {
 		c.Transform().SetScalef(size, size, 1)
 	}
 
-	for i := 0; i < 0; i++ {
+	for i := 0; i < 600; i++ {
 		c := cookie.Clone()
 		//c.Tag = CookieTag
 		c.Transform().SetParent2(Layer2)
 		size := 40 + rand.Float32()*100
-		p := Vector{(rand.Float32() * 3000), (rand.Float32() * 3000), 1}
+		p := Vector{(rand.Float32() * 4000), (rand.Float32() * 4000), 1}
 
 		if p.X < 1100 && p.Y < 800 {
 			p.X += 1100
@@ -298,31 +311,34 @@ func (s *GameScene) Load() {
 		c.Transform().SetScalef(size, size, 1)
 	}
 
-	for i := 0; i < (3000/400)+2; i++ {
+	Wall = NewGameObject("Wall")
+	Wall.Transform().SetParent2(Layer2)
+
+	for i := 0; i < (4000/400)+2; i++ {
 		c := staticCookie.Clone()
-		c.Transform().SetParent2(Layer2)
+		c.Transform().SetParent2(Wall)
 		p := Vector{float32(i) * 400, -200, 1}
 		c.Transform().SetPosition(p)
 		c.Transform().SetScalef(400, 400, 1)
 	}
-	for i := 0; i < (3000/400)+2; i++ {
+	for i := 0; i < (4000/400)+2; i++ {
 		c := staticCookie.Clone()
-		c.Transform().SetParent2(Layer2)
-		p := Vector{float32(i) * 400, 3200, 1}
+		c.Transform().SetParent2(Wall)
+		p := Vector{float32(i) * 400, 4200, 1}
 		c.Transform().SetPosition(p)
 		c.Transform().SetScalef(400, 400, 1)
 	}
-	for i := 0; i < (3000/400)+2; i++ {
+	for i := 0; i < (4000/400)+2; i++ {
 		c := staticCookie.Clone()
-		c.Transform().SetParent2(Layer2)
+		c.Transform().SetParent2(Wall)
 		p := Vector{-200, float32(i) * 400, 1}
 		c.Transform().SetPosition(p)
 		c.Transform().SetScalef(400, 400, 1)
 	}
-	for i := 0; i < (3000/400)+2; i++ {
+	for i := 0; i < (4000/400)+2; i++ {
 		c := staticCookie.Clone()
-		c.Transform().SetParent2(Layer2)
-		p := Vector{3200, float32(i) * 400, 1}
+		c.Transform().SetParent2(Wall)
+		p := Vector{4200, float32(i) * 400, 1}
 		c.Transform().SetPosition(p)
 		c.Transform().SetScalef(400, 400, 1)
 	}
