@@ -396,6 +396,11 @@ func (t *Texture) ReadTextureFromGPU() []byte {
 	return x
 }
 
+func (t *Texture) SetData(data interface{}) {
+	t.Bind()
+	gl.TexSubImage2D(t.target, 0, 0, 0, t.width, t.height, t.format, data)
+}
+
 func (t *Texture) SetReadOnly() {
 	if t.readOnly {
 		return
