@@ -186,6 +186,49 @@ func NewManagedAtlas(width, height int) *ManagedAtlas {
 		Tree:   NewAtlasNode(width, height)}
 }
 
+func (atlas *ManagedAtlas) AddGIF(path string) (err error) {
+	file, e := os.Open(path)
+	if e != nil {
+		return e
+	}
+	defer file.Close()
+	ds, e := file.Stat()
+	if e != nil {
+		return e
+	}
+	if ds.IsDir() {
+		return errors.New("The path is not a file. " + path)
+	}
+
+	fullName := ds.Name()
+	extIndex := strings.LastIndex(fullName, ".")
+	fName := fullName
+	if extIndex != -1 {
+		fName = fullName[:extIndex]
+	}
+
+	file.Close()
+
+	imgs, e := LoadGIF(path)
+	if e != nil {
+		return e
+	}
+
+	group := make([]interface{}, 0)
+
+	for i, img := range imgs {
+		is := strconv.FormatInt(int64(i), 10)
+		if i == 0 {
+			is = ""
+		}
+		group = append(group, fName+is)
+		atlas.AddImage(img, fName+is)
+		i++
+	}
+	atlas.groups[fName] = group
+	return nil
+}
+
 func (atlas *ManagedAtlas) AddGroupSheet(path string, width, height, frames int) error {
 	file, e := os.Open(path)
 	if e != nil {
