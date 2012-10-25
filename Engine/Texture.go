@@ -5,6 +5,8 @@ import (
 	"github.com/vova616/gl"
 	"image"
 	"image/color"
+	"image/gif"
+	_ "image/jpeg"
 	_ "image/png"
 	"log"
 	"os"
@@ -117,6 +119,24 @@ func LoadImage(path string) (img image.Image, err error) {
 	return img, nil
 }
 
+func LoadGIF(path string) (imgs []image.Image, err error) {
+	f, e := os.Open(path)
+	if e != nil {
+		return nil, e
+	}
+	GIF, e := gif.DecodeAll(f)
+	if e != nil {
+		return nil, e
+	}
+
+	imgs = make([]image.Image, len(GIF.Image))
+	for i, img := range GIF.Image {
+		imgs[i] = img
+	}
+
+	return imgs, nil
+}
+
 func LoadImageQuiet(path string) (img image.Image) {
 	f, e := os.Open(path)
 	if e != nil {
@@ -142,7 +162,6 @@ func LoadTextureFromImage(image image.Image) (tex *Texture, err error) {
 		}
 		return nil, false, nil
 	*/
-
 	internalFormat, typ, format, target, e := ColorModelToGLTypes(image.ColorModel())
 	if e != nil {
 		return nil, nil
@@ -155,6 +174,12 @@ func LoadTextureFromImage(image image.Image) (tex *Texture, err error) {
 }
 
 func ColorModelToGLTypes(model color.Model) (internalFormat int, typ gl.GLenum, format gl.GLenum, target gl.GLenum, err error) {
+
+	switch model.(type) {
+	case color.Palette:
+		return gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, gl.TEXTURE_2D, nil
+	}
+
 	switch model {
 	case color.RGBAModel, color.NRGBAModel:
 		return gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, gl.TEXTURE_2D, nil
@@ -186,12 +211,28 @@ func ImageData(image image.Image) (data interface{}, err error) {
 	h := image.Bounds().Dy()
 	model := image.ColorModel()
 
+	switch model.(type) {
+	case color.Palette:
+		data2 := make([]byte, 4*h*w)
+		for x := 0; x < w; x++ {
+			for y := 0; y < h; y++ {
+				offset := (x + (y * w)) * 4
+				r, g, b, a := image.At(x, y).RGBA()
+				data2[offset] = byte(r / 257)
+				data2[offset+1] = byte(g / 257)
+				data2[offset+2] = byte(b / 257)
+				data2[offset+3] = byte(a / 257)
+			}
+		}
+		return data2, nil
+	}
+
 	switch model {
 	case color.YCbCrModel:
 		data := make([]byte, 3*h*w)
 		for x := 0; x < w; x++ {
 			for y := 0; y < h; y++ {
-				offset := x + y*w
+				offset := (x + y*w) * 3
 				r, g, b, _ := image.At(x, y).RGBA()
 				data[offset] = byte(r / 257)
 				data[offset+1] = byte(g / 257)
@@ -216,7 +257,7 @@ func ImageData(image image.Image) (data interface{}, err error) {
 		data := make([]byte, 4*h*w)
 		for x := 0; x < w; x++ {
 			for y := 0; y < h; y++ {
-				offset := x + y*w
+				offset := (x + y*w) * 4
 				r, g, b, a := image.At(x, y).RGBA()
 				data[offset] = byte(r / 257)
 				data[offset+1] = byte(g / 257)
