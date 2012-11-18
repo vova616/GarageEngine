@@ -7,7 +7,7 @@ type FPS struct {
 }
 
 func NewFPS() *FPS {
-	return &FPS{NewComponent(), 0, 0.5, 0, 0, 0.5, nil}
+	return &FPS{NewComponent(), 0, 1, 0, 0, 0.5, nil}
 }
 
 func (sp *FPS) SetAction(action func(float32)) {

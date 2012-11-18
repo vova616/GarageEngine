@@ -35,19 +35,17 @@ func (m *MouseDebugger) Update() {
 
 		mousePosition := m.Transform().WorldPosition()
 
-		sprite3 := NewGameObject("Sprite")
-		ds := NewDestoyable(30, 3)
-		ds.SetDestroyTime(5)
-		sprite3.AddComponent(ds)
-		sprite3.AddComponent(NewSprite(box))
-		sprite3.Transform().SetParent2(GameSceneGeneral.Layer2)
-		sprite3.Transform().SetWorldPosition(mousePosition)
-		sprite3.Tag = CookieTag
-		sprite3.Transform().SetScale(NewVector2(50, 50))
-		phx := sprite3.AddComponent(NewPhysics(false, 50, 50)).(*Physics)
-		phx.Shape.SetFriction(0.5)
-		//phx.Shape.Group = 2
-		phx.Shape.SetElasticity(0.5)
+		b := defender.Clone()
+		/*
+			phx := b.AddComponent(NewPhysics(false, 50, 50)).(*Physics)
+			phx.Shape.SetFriction(0.5)
+			//phx.Shape.Group = 2
+			phx.Shape.SetElasticity(0.5)
+		*/
+		b.Transform().SetParent2(GameSceneGeneral.Layer2)
+		b.Transform().SetWorldPosition(mousePosition)
+		b.Transform().SetScale(NewVector2(50, 50))
+
 	}
 
 	if Input.KeyPress('R') {

@@ -220,10 +220,8 @@ func Run() {
 
 		timer.StartCustom("Physics time")
 		if EnablePhysics {
+			timer.StartCustom("Physics step time")
 			for fixedTime > stepTime {
-
-				timer.StartCustom("Physics step time")
-
 				timer.StartCustom("FixedUpdate routines")
 				Iter(arr, fixedUdpateGameObject)
 				fixedUpdateDelta = timer.StopCustom("FixedUpdate routines")

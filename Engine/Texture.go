@@ -14,6 +14,24 @@ import (
 	"unsafe"
 )
 
+type FilterType int
+type Filter int
+
+const (
+	MinFilter            = FilterType(gl.TEXTURE_MIN_FILTER)
+	MagFilter            = FilterType(gl.TEXTURE_MAG_FILTER)
+	Nearest              = Filter(gl.NEAREST)
+	Linear               = Filter(gl.LINEAR)
+	MipMapLinearNearest  = Filter(gl.LINEAR_MIPMAP_NEAREST)
+	MipMapLinearLinear   = Filter(gl.LINEAR_MIPMAP_LINEAR)
+	MipMapNearestLinear  = Filter(gl.NEAREST_MIPMAP_LINEAR)
+	MipMapNearestNearest = Filter(gl.NEAREST_MIPMAP_NEAREST)
+)
+
+/*
+
+*/
+
 var (
 	CustomColorModels = make(map[color.Model]*GLColorModel)
 )
@@ -296,12 +314,24 @@ func NewTexture2(data interface{}, width int, height int, target gl.GLenum, inte
 	a.Bind(target)
 	gl.TexImage2D(target, 0, internalFormat, width, height, 0, typ, format, data)
 
+	t := &Texture{a, false, data, format, typ, internalFormat, target, width, height}
+
 	gl.TexParameteri(target, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 	gl.TexParameteri(target, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 	//gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 	//gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-	gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	//gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	//gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+
+	gl.TexParameteri(target, gl.GLenum(MinFilter), int(Nearest))
+	gl.TexParameteri(target, gl.GLenum(MagFilter), int(Nearest))
+
+	/*
+		LINEAR is bilinear filtering.
+		LINEAR_MIPMAP_LINEAR is trilinear filtering.
+		*LINEAR_MIPMAP_NEAREST is trilinear filtering.
+		NEAREST is point filtering.
+	*/
 
 	ansi := []float32{0}
 	gl.GetFloatv(gl.MAX_TEXTURE_MAX_ANISOTROPY_EXT, ansi)
@@ -309,7 +339,7 @@ func NewTexture2(data interface{}, width int, height int, target gl.GLenum, inte
 
 	a.Unbind(target)
 
-	return &Texture{a, false, data, format, typ, internalFormat, target, width, height}
+	return t
 }
 
 func NewTextureEmpty(width int, height int, model color.Model) *Texture {
@@ -320,6 +350,9 @@ func NewTextureEmpty(width int, height int, model color.Model) *Texture {
 	a := gl.GenTexture()
 	a.Bind(target)
 	gl.TexImage2D(target, 0, internalFormat, width, height, 0, typ, format, nil)
+
+	t := &Texture{a, false, nil, format, typ, internalFormat, target, width, height}
+
 	gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 	gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.TexParameteri(target, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -329,7 +362,7 @@ func NewTextureEmpty(width int, height int, model color.Model) *Texture {
 
 	a.Unbind(target)
 
-	return &Texture{a, false, nil, format, typ, internalFormat, target, width, height}
+	return t
 }
 
 func (t *Texture) Options(filter, clamp int) {
@@ -353,10 +386,18 @@ func (t *Texture) Paramf(filter int, value float32) {
 	t.Unbind()
 }
 
+func (t *Texture) SetFilter(filter FilterType, value Filter) {
+	t.Bind()
+	gl.TexParameteri(t.target, gl.GLenum(filter), int(value))
+	t.Unbind()
+}
+
 func (t *Texture) BuildMipmaps() {
 	t.Bind()
+	//gl.TexParameteri(t.target, gl.GENERATE_MIPMAP, 1)
+	gl.GenerateMipmap(t.target)
 	//glu.Build2DMipmaps(t.target, t.internalFormat, t.width, t.height, t.format, t.data)
-	t.Unbind()
+	//t.Unbind()
 }
 
 func (t *Texture) PixelSize() int {
