@@ -28,8 +28,9 @@ type GameScene struct {
 var (
 	GameSceneGeneral *GameScene
 	cir              *Texture
-	box              *Texture
+	boxt             *Texture
 	cookie           *GameObject
+	defender         *GameObject
 
 	Player     *GameObject
 	PlayerShip *ShipController
@@ -39,9 +40,10 @@ var (
 
 	Wall *GameObject
 
-	atlas      = NewManagedAtlas(2048, 2048)
-	atlasSpace = NewManagedAtlas(2048, 2048)
-	backgroung *Texture
+	atlas        = NewManagedAtlas(2048, 2048)
+	atlasSpace   = NewManagedAtlas(1024, 1024)
+	atlasPowerUp = NewManagedAtlas(256, 256)
+	backgroung   *Texture
 
 	queenDead = false
 )
@@ -66,27 +68,42 @@ func LoadTextures() {
 	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBarGUI.png"), HPGUI_A)
 	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Queen.png"), Queen_A)
 	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Jet.png"), Jet_A)
+
 	if e != nil {
 		fmt.Println(e)
 	}
 
 	atlas.BuildAtlas()
+	atlas.BuildMipmaps()
+	atlas.SetFilter(MinFilter, MipMapLinearNearest)
+	atlas.SetFilter(MagFilter, Nearest)
 	atlas.Texture.SetReadOnly()
 
-	box, _ = LoadTexture("./data/SpaceCookies/wall.png")
+	boxt, _ = LoadTexture("./data/SpaceCookies/wall.png")
+	boxt.BuildMipmaps()
+	boxt.SetFilter(MinFilter, MipMapLinearNearest)
+	boxt.SetFilter(MagFilter, Nearest)
+
 	backgroung, _ = LoadTexture("./data/SpaceCookies/background.png")
 	cir, e = LoadTexture("./data/SpaceCookies/Cookie.png")
+	cir.BuildMipmaps()
+	cir.SetFilter(MinFilter, MipMapLinearNearest)
+	cir.SetFilter(MagFilter, Nearest)
 	if e != nil {
 		fmt.Println(e)
 	}
 
 	atlasSpace.AddGroup("./data/SpaceCookies/Space/")
-	e = atlasSpace.AddGroupSheet("./data/SpaceCookies/powerups.png", 61, 61, 3*4)
-	if e != nil {
-		fmt.Println(e)
-	}
 	atlasSpace.BuildAtlas()
+	atlasSpace.BuildMipmaps()
+	atlasSpace.SetFilter(MinFilter, MipMapLinearNearest)
+	atlasSpace.SetFilter(MagFilter, Nearest)
 	atlasSpace.Texture.SetReadOnly()
+
+	atlasPowerUp.AddGroupSheet("./data/SpaceCookies/powerups.png", 61, 61, 3*4)
+	atlasPowerUp.BuildAtlas()
+	atlasPowerUp.SetFilter(MinFilter, Linear)
+	atlasPowerUp.SetFilter(MagFilter, Linear)
 }
 
 func init() {
@@ -225,6 +242,19 @@ func (s *GameScene) Load() {
 	cookie.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 25)))
 	cookie.Tag = CookieTag
 
+	defender = NewGameObject("Box")
+	ds = NewDestoyable(30, 3)
+	ds.SetDestroyTime(5)
+	defender.AddComponent(ds)
+	defender.AddComponent(NewSprite(boxt))
+	defender.Tag = CookieTag
+	defender.Transform().SetScale(NewVector2(50, 50))
+
+	phx := defender.AddComponent(NewPhysics(false, 50, 50)).(*Physics)
+	phx.Shape.SetFriction(0.5)
+	//phx.Shape.Group = 2
+	phx.Shape.SetElasticity(0.5)
+
 	QueenCookie := NewGameObject("Cookie")
 	QueenCookie.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, Queen_A)))
 	QueenCookie.AddComponent(NewDestoyable(5000, 2))
@@ -257,18 +287,18 @@ func (s *GameScene) Load() {
 	Background.Transform().SetScale(NewVector2(50, 50))
 	Background.Transform().SetPosition(NewVector2(400, 400))
 
-	uvs, ind = AnimatedGroupUVs(atlasSpace, "powerups")
+	uvs, ind = AnimatedGroupUVs(atlasPowerUp, "powerups")
 	PowerUpGO = NewGameObject("Background")
 	//PowerUpGO.Transform().SetParent2(Layer2)
-	PowerUpGO.AddComponent(NewSprite3(atlasSpace.Texture, uvs))
-	PowerUpGO.AddComponent(NewPhysics(false, 60, 60))
+	PowerUpGO.AddComponent(NewSprite3(atlasPowerUp.Texture, uvs))
+	PowerUpGO.AddComponent(NewPhysics(false, 61, 61))
 	PowerUpGO.Physics.Shape.IsSensor = true
 	PowerUpGO.Sprite.BindAnimations(ind)
 	PowerUpGO.Sprite.SetAnimation("powerups")
 	PowerUpGO.Sprite.AnimationSpeed = 0
 	index := (rand.Int() % 6) + 6
 	PowerUpGO.Sprite.SetAnimationIndex(int(index))
-	PowerUpGO.Transform().SetScale(NewVector2(60, 60))
+	PowerUpGO.Transform().SetScale(NewVector2(61, 61))
 	PowerUpGO.Transform().SetPosition(NewVector2(0, 0))
 
 	background := NewGameObject("Background")
