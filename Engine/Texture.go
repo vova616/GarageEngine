@@ -8,7 +8,7 @@ import (
 	"image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"log"
+	//"log"
 	"os"
 	"reflect"
 	"unsafe"
@@ -16,6 +16,9 @@ import (
 
 type FilterType int
 type Filter int
+
+type WrapType int
+type Wrap int
 
 const (
 	MinFilter            = FilterType(gl.TEXTURE_MIN_FILTER)
@@ -26,6 +29,16 @@ const (
 	MipMapLinearLinear   = Filter(gl.LINEAR_MIPMAP_LINEAR)
 	MipMapNearestLinear  = Filter(gl.NEAREST_MIPMAP_LINEAR)
 	MipMapNearestNearest = Filter(gl.NEAREST_MIPMAP_NEAREST)
+
+	WrapS = WrapType(gl.TEXTURE_WRAP_S)
+	WrapR = WrapType(gl.TEXTURE_WRAP_R)
+	WrapT = WrapType(gl.TEXTURE_WRAP_T)
+
+	ClampToEdge    = Wrap(gl.CLAMP_TO_EDGE)
+	ClampToBorder  = Wrap(gl.CLAMP_TO_BORDER)
+	MirroredRepeat = Wrap(gl.MIRRORED_REPEAT)
+	Repeat         = Wrap(gl.REPEAT)
+	//gl.CLAMP
 )
 
 /*
@@ -156,17 +169,7 @@ func LoadGIF(path string) (imgs []image.Image, err error) {
 }
 
 func LoadImageQuiet(path string) (img image.Image) {
-	f, e := os.Open(path)
-	if e != nil {
-		log.Println(e)
-		return nil
-	}
-	img, _, e = image.Decode(f)
-	if e != nil {
-		log.Println(e)
-		return nil
-	}
-	return img
+	panic("Deprecated")
 }
 
 func LoadTextureFromImage(image image.Image) (tex *Texture, err error) {
@@ -316,28 +319,17 @@ func NewTexture2(data interface{}, width int, height int, target gl.GLenum, inte
 
 	t := &Texture{a, false, data, format, typ, internalFormat, target, width, height}
 
-	gl.TexParameteri(target, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-	gl.TexParameteri(target, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-	//gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-	//gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-	//gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	//gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-
-	gl.TexParameteri(target, gl.GLenum(MinFilter), int(Nearest))
-	gl.TexParameteri(target, gl.GLenum(MagFilter), int(Nearest))
-
-	/*
-		LINEAR is bilinear filtering.
-		LINEAR_MIPMAP_LINEAR is trilinear filtering.
-		*LINEAR_MIPMAP_NEAREST is trilinear filtering.
-		NEAREST is point filtering.
-	*/
+	t.SetWraping(WrapS, ClampToEdge)
+	t.SetWraping(WrapT, ClampToEdge)
+	t.SetFiltering(MinFilter, Nearest)
+	t.SetFiltering(MagFilter, Nearest)
 
 	ansi := []float32{0}
 	gl.GetFloatv(gl.MAX_TEXTURE_MAX_ANISOTROPY_EXT, ansi)
 	gl.TexParameterf(target, gl.TEXTURE_MAX_ANISOTROPY_EXT, ansi[0])
 
-	a.Unbind(target)
+	t.PreloadRender() //Forcing texture to go to VRAM and prevent shuttering
+	t.data = nil
 
 	return t
 }
@@ -353,14 +345,10 @@ func NewTextureEmpty(width int, height int, model color.Model) *Texture {
 
 	t := &Texture{a, false, nil, format, typ, internalFormat, target, width, height}
 
-	gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	gl.TexParameteri(target, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-	gl.TexParameteri(target, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-	//gl.TexParameteri(target, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-	//gl.TexParameteri(target, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-
-	a.Unbind(target)
+	t.SetWraping(WrapS, ClampToEdge)
+	t.SetWraping(WrapT, ClampToEdge)
+	t.SetFiltering(MinFilter, Nearest)
+	t.SetFiltering(MagFilter, Nearest)
 
 	return t
 }
@@ -371,33 +359,31 @@ func (t *Texture) Options(filter, clamp int) {
 	gl.TexParameteri(t.target, gl.TEXTURE_MAG_FILTER, filter)
 	gl.TexParameteri(t.target, gl.TEXTURE_WRAP_S, clamp)
 	gl.TexParameteri(t.target, gl.TEXTURE_WRAP_T, clamp)
-	t.Unbind()
 }
 
 func (t *Texture) Param(filter, value int) {
 	t.Bind()
 	gl.TexParameteri(t.target, gl.GLenum(filter), value)
-	t.Unbind()
 }
 
 func (t *Texture) Paramf(filter int, value float32) {
 	t.Bind()
 	gl.TexParameterf(t.target, gl.GLenum(filter), value)
-	t.Unbind()
 }
 
-func (t *Texture) SetFilter(filter FilterType, value Filter) {
+func (t *Texture) SetFiltering(filterType FilterType, filter Filter) {
 	t.Bind()
-	gl.TexParameteri(t.target, gl.GLenum(filter), int(value))
-	t.Unbind()
+	gl.TexParameteri(t.target, gl.GLenum(filterType), int(filter))
+}
+
+func (t *Texture) SetWraping(wrapType WrapType, wrap Wrap) {
+	t.Bind()
+	gl.TexParameteri(t.target, gl.GLenum(wrapType), int(wrap))
 }
 
 func (t *Texture) BuildMipmaps() {
 	t.Bind()
-	//gl.TexParameteri(t.target, gl.GENERATE_MIPMAP, 1)
 	gl.GenerateMipmap(t.target)
-	//glu.Build2DMipmaps(t.target, t.internalFormat, t.width, t.height, t.format, t.data)
-	//t.Unbind()
 }
 
 func (t *Texture) PixelSize() int {
@@ -461,7 +447,6 @@ func (t *Texture) Unbind() {
 
 func (t *Texture) Render() {
 	t.Bind()
-
 	xratio := float32(t.width) / float32(t.height)
 	gl.Begin(gl.QUADS)
 	gl.TexCoord2f(0, 1)
@@ -473,7 +458,20 @@ func (t *Texture) Render() {
 	gl.TexCoord2f(0, 0)
 	gl.Vertex3f(-0.5, 0.5, 1)
 	gl.End()
-	t.Unbind()
+}
+
+func (t *Texture) PreloadRender() {
+	t.Bind()
+	gl.Begin(gl.QUADS)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(0, 0, 1)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(0, 0, 1)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(0, 0, 1)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(0, 0, 1)
+	gl.End()
 }
 
 func (t *Texture) Release() {

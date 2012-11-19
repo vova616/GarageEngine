@@ -148,6 +148,11 @@ func (g *GameObject) Clone() *GameObject {
 	ng.name = g.name + ""
 	ng.Tag = g.Tag
 	ng.components = make([]Component, 0)
+
+	/*
+		It might be possible to make this a little faster by storing size of each Component in a map and use unsafe to copy the values instead of reflect. 
+		(but this is already done by reflect package so I think it will be waste of time)
+	*/
 	for _, c := range g.components {
 		v := reflect.ValueOf(c).Elem()
 		n := reflect.New(v.Type())

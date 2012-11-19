@@ -40,7 +40,7 @@ var (
 
 	Wall *GameObject
 
-	atlas        = NewManagedAtlas(2048, 2048)
+	atlas        = NewManagedAtlas(2048, 1024)
 	atlasSpace   = NewManagedAtlas(1024, 1024)
 	atlasPowerUp = NewManagedAtlas(256, 256)
 	backgroung   *Texture
@@ -59,51 +59,57 @@ const HPGUI_A = 124
 const Queen_A = 666
 const Jet_A = 125
 
-func LoadTextures() {
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Ship1.png"), SpaceShip_A)
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/missile.png"), Missle_A)
-	e := atlas.AddGroupSheet("./data/SpaceCookies/Explosion.png", 128, 128, 6*8)
-
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBar.png"), HP_A)
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/HealthBarGUI.png"), HPGUI_A)
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Queen.png"), Queen_A)
-	atlas.AddImage(LoadImageQuiet("./data/SpaceCookies/Jet.png"), Jet_A)
-
-	if e != nil {
-		fmt.Println(e)
+func CheckError(err error) bool {
+	if err != nil {
+		fmt.Println(err)
+		return true
 	}
+	return false
+}
+
+func LoadTextures() {
+	CheckError(atlas.LoadImage("./data/SpaceCookies/Ship1.png", SpaceShip_A))
+	CheckError(atlas.LoadImage("./data/SpaceCookies/missile.png", Missle_A))
+	CheckError(atlas.LoadGroupSheet("./data/SpaceCookies/Explosion.png", 128, 128, 6*8))
+
+	CheckError(atlas.LoadImage("./data/SpaceCookies/HealthBar.png", HP_A))
+	CheckError(atlas.LoadImage("./data/SpaceCookies/HealthBarGUI.png", HPGUI_A))
+	CheckError(atlas.LoadImage("./data/SpaceCookies/Queen.png", Queen_A))
+	CheckError(atlas.LoadImage("./data/SpaceCookies/Jet.png", Jet_A))
 
 	atlas.BuildAtlas()
 	atlas.BuildMipmaps()
-	atlas.SetFilter(MinFilter, MipMapLinearNearest)
-	atlas.SetFilter(MagFilter, Nearest)
+	atlas.SetFiltering(MinFilter, MipMapLinearNearest)
+	atlas.SetFiltering(MagFilter, Nearest)
 	atlas.Texture.SetReadOnly()
 
-	boxt, _ = LoadTexture("./data/SpaceCookies/wall.png")
+	var e error
+	boxt, e = LoadTexture("./data/SpaceCookies/wall.png")
+
 	boxt.BuildMipmaps()
-	boxt.SetFilter(MinFilter, MipMapLinearNearest)
-	boxt.SetFilter(MagFilter, Nearest)
+	boxt.SetFiltering(MinFilter, MipMapLinearNearest)
+	boxt.SetFiltering(MagFilter, Nearest)
 
-	backgroung, _ = LoadTexture("./data/SpaceCookies/background.png")
+	backgroung, e = LoadTexture("./data/SpaceCookies/background.png")
+	CheckError(e)
 	cir, e = LoadTexture("./data/SpaceCookies/Cookie.png")
-	cir.BuildMipmaps()
-	cir.SetFilter(MinFilter, MipMapLinearNearest)
-	cir.SetFilter(MagFilter, Nearest)
-	if e != nil {
-		fmt.Println(e)
-	}
+	CheckError(e)
 
-	atlasSpace.AddGroup("./data/SpaceCookies/Space/")
+	cir.BuildMipmaps()
+	cir.SetFiltering(MinFilter, MipMapLinearNearest)
+	cir.SetFiltering(MagFilter, Nearest)
+
+	CheckError(atlasSpace.LoadGroup("./data/SpaceCookies/Space/"))
 	atlasSpace.BuildAtlas()
 	atlasSpace.BuildMipmaps()
-	atlasSpace.SetFilter(MinFilter, MipMapLinearNearest)
-	atlasSpace.SetFilter(MagFilter, Nearest)
+	atlasSpace.SetFiltering(MinFilter, MipMapLinearNearest)
+	atlasSpace.SetFiltering(MagFilter, Nearest)
 	atlasSpace.Texture.SetReadOnly()
 
-	atlasPowerUp.AddGroupSheet("./data/SpaceCookies/powerups.png", 61, 61, 3*4)
+	CheckError(atlasPowerUp.LoadGroupSheet("./data/SpaceCookies/powerups.png", 61, 61, 3*4))
 	atlasPowerUp.BuildAtlas()
-	atlasPowerUp.SetFilter(MinFilter, Linear)
-	atlasPowerUp.SetFilter(MagFilter, Linear)
+	atlasPowerUp.SetFiltering(MinFilter, Linear)
+	atlasPowerUp.SetFiltering(MagFilter, Linear)
 }
 
 func init() {
