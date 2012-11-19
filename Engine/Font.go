@@ -2,7 +2,6 @@ package Engine
 
 import (
 	"github.com/vova616/GarageEngine/freetype"
-	"github.com/vova616/gl"
 	"image"
 	"image/draw"
 	"io/ioutil"
@@ -72,6 +71,8 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 	if err != nil {
 		return nil, err
 	}
+
+	fontBytes = nil
 
 	c := freetype.NewContext()
 	c.SetDPI(dpi)
@@ -144,7 +145,8 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 		texture.SetReadOnly()
 	}
 
-	texture.Options(gl.LINEAR, gl.CLAMP_TO_EDGE)
+	texture.SetFiltering(MinFilter, Linear)
+	texture.SetFiltering(MagFilter, Linear)
 
 	return &Font{texture, LetterArray, firstRune, lastRune, size, dpi}, nil
 

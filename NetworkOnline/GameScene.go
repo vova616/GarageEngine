@@ -82,16 +82,16 @@ func (s *GameScene) Load() {
 	Space.Iterations = 30
 
 	atlas := NewManagedAtlas(512, 512)
-	e := atlas.AddGroup("./data/fire")
+	e := atlas.LoadGroup("./data/fire")
 	if e != nil {
 		fmt.Println(e)
 	}
-	e = atlas.AddGroup("./data/Charecter")
+	e = atlas.LoadGroup("./data/Charecter")
 	if e != nil {
 		fmt.Println(e)
 	}
-	atlas.AddImage(LoadImageQuiet("./data/rect.png"), 333)
-	atlas.AddImage(LoadImageQuiet("./data/circle.png"), 222)
+	atlas.LoadImage("./data/rect.png", 333)
+	atlas.LoadImage("./data/circle.png", 222)
 
 	atlas.BuildAtlas()
 
