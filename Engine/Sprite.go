@@ -8,7 +8,7 @@ import (
 	//"image"
 	//"os"
 	//"fmt"
-	. "github.com/vova616/chipmunk/vect"
+	"github.com/vova616/chipmunk/vect"
 	//"glfw"
 )
 
@@ -171,11 +171,11 @@ func (sp *Sprite) UpdateShape() {
 		scale.X *= ratio
 
 		if box != nil {
-			if Float(scale.Y) != box.Height || Float(scale.X) != box.Width {
-				box.Height = Float(scale.Y)
-				box.Width = Float(scale.X)
+			if vect.Float(scale.Y) != box.Height || vect.Float(scale.X) != box.Width {
+				box.Height = vect.Float(scale.Y)
+				box.Width = vect.Float(scale.X)
 				if !ph.Body.MomentIsInf() {
-					ph.Body.SetMoment(Float(box.Moment(float32(ph.Body.Mass()))))
+					ph.Body.SetMoment(vect.Float(box.Moment(float32(ph.Body.Mass()))))
 				}
 				//box.Position = Vect{box.Width/2, box.Height/2}
 				box.UpdatePoly()
@@ -188,9 +188,9 @@ func (sp *Sprite) UpdateShape() {
 				s = scale.Y
 			}
 			if float32(cir.Radius) != s/2 {
-				cir.Radius = Float(s / 2)
+				cir.Radius = vect.Float(s / 2)
 				if !ph.Body.MomentIsInf() {
-					ph.Body.SetMoment(Float(cir.Moment(float32(ph.Body.Mass()))))
+					ph.Body.SetMoment(vect.Float(cir.Moment(float32(ph.Body.Mass()))))
 				}
 				sp.GameObject().Physics.Body.UpdateShapes()
 			}

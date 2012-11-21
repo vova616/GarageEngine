@@ -1,13 +1,13 @@
 package SpaceCookies
 
 import (
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	//"reflect"
 	"time"
 )
 
 type Destoyable struct {
-	BaseComponent
+	Engine.BaseComponent
 	Alive           bool
 	HP              float32
 	FullHP          float32
@@ -20,12 +20,12 @@ type Destoyable struct {
 }
 
 func NewDestoyable(hp float32, team int) *Destoyable {
-	return &Destoyable{BaseComponent: NewComponent(), FullHP: hp, Alive: true, HP: hp, Team: team}
+	return &Destoyable{BaseComponent: Engine.NewComponent(), FullHP: hp, Alive: true, HP: hp, Team: team}
 }
 
 type DestoyableFuncs interface {
 	OnDie(byTimer bool)
-	OnHit(*GameObject, *DamageDealer)
+	OnHit(*Engine.GameObject, *DamageDealer)
 }
 
 func (ds *Destoyable) Start() {
@@ -50,12 +50,12 @@ func (ds *Destoyable) Update() {
 	}
 }
 
-func (ds *Destoyable) OnCollisionEnter(arbiter *Arbiter) bool {
+func (ds *Destoyable) OnCollisionEnter(arbiter *Engine.Arbiter) bool {
 	if !ds.Alive {
 		return true
 	}
 	var dmg *DamageDealer = nil
-	var enemy *GameObject
+	var enemy *Engine.GameObject
 	var enemyDestoyable *Destoyable
 
 	if arbiter.GameObjectA() == ds.GameObject() {

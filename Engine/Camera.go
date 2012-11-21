@@ -1,7 +1,7 @@
 package Engine
 
 import (
-	. "github.com/vova616/GarageEngine/Engine/Input"
+	"github.com/vova616/GarageEngine/Engine/Input"
 )
 
 type Camera struct {
@@ -35,14 +35,14 @@ func (c *Camera) UpdateResolution() {
 }
 
 func (c *Camera) MouseWorldPosition() Vector {
-	x, y := MousePosition()
+	x, y := Input.MousePosition()
 	x, y = x, Height-y
 
 	return c.ScreenToWorld(x, y)
 }
 
 func (c *Camera) MouseLocalPosition() Vector {
-	x, y := MousePosition()
+	x, y := Input.MousePosition()
 	x, y = x, Height-y
 
 	return NewVector2(float32(x), float32(y))

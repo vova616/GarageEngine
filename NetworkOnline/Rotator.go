@@ -1,20 +1,20 @@
 package NetworkOnline
 
 import (
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	//"log"
 )
 
 type Rotator struct {
-	BaseComponent
+	Engine.BaseComponent
 }
 
 func NewRotator() *Rotator {
-	return &Rotator{NewComponent()}
+	return &Rotator{Engine.NewComponent()}
 }
 
 func (sp *Rotator) Update() {
 	//log.Panicln("Rotate")
 	rot := sp.Transform().Rotation()
-	sp.Transform().SetRotation(rot.Add(NewVector3(0, 1, 0)))
+	sp.Transform().SetRotation(rot.Add(Engine.NewVector3(0, 1, 0)))
 }

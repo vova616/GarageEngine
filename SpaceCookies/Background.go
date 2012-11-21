@@ -1,17 +1,17 @@
 package SpaceCookies
 
 import (
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	//"reflect"
 )
 
 type Background struct {
-	BaseComponent
-	sprite *Sprite
+	Engine.BaseComponent
+	sprite *Engine.Sprite
 }
 
-func NewBackground(sprite *Sprite) *Background {
-	return &Background{BaseComponent: NewComponent(), sprite: sprite}
+func NewBackground(sprite *Engine.Sprite) *Background {
+	return &Background{BaseComponent: Engine.NewComponent(), sprite: sprite}
 }
 
 func (sp *Background) Draw() {

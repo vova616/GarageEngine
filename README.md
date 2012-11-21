@@ -22,6 +22,10 @@ for gl just google glew and download them.
 ## Coroutines:
 The useage is same as unity coroutines.
 
+## Videos:
+http://www.youtube.com/watch?v=iMMbf6SRb9Q
+http://www.youtube.com/watch?v=BMRlY9dFVLg
+
 ## Example:
 	func (sp *PlayerController) Start() {
 		as := StartCoroutine(func() { sp.AutoShoot() })

@@ -1,12 +1,12 @@
 package SpaceCookies
 
 import (
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	"math/rand"
 )
 
 type ResizeScript struct {
-	BaseComponent
+	Engine.BaseComponent
 	MinX, MediumX, MaxX float32
 	MinY, MediumY, MaxY float32
 	State               int
@@ -14,7 +14,7 @@ type ResizeScript struct {
 }
 
 func NewResizeScript(minX, mediumX, maxX, minY, mediumY, maxY float32) *ResizeScript {
-	return &ResizeScript{BaseComponent: NewComponent(), MinX: minX, MediumX: mediumX, MaxX: maxX, MinY: minY, MediumY: mediumY, MaxY: maxY, Speed: 3}
+	return &ResizeScript{BaseComponent: Engine.NewComponent(), MinX: minX, MediumX: mediumX, MaxX: maxX, MinY: minY, MediumY: mediumY, MaxY: maxY, Speed: 3}
 }
 
 func (m *ResizeScript) SetValues(minX, mediumX, maxX, minY, mediumY, maxY float32) {
@@ -53,7 +53,7 @@ func (m *ResizeScript) Update() {
 		deltaX := m.MaxX - m.MinX
 		deltaY := m.MaxY - m.MinY
 		s := m.Transform().Scale()
-		s.X, s.Y = s.X+(deltaX*m.Speed*DeltaTime()), s.Y+(deltaY*m.Speed*DeltaTime())
+		s.X, s.Y = s.X+(deltaX*m.Speed*Engine.DeltaTime()), s.Y+(deltaY*m.Speed*Engine.DeltaTime())
 		m.Transform().SetScale(s)
 		if s.X > m.MaxX || s.Y > m.MaxY {
 			m.State = 2
@@ -62,7 +62,7 @@ func (m *ResizeScript) Update() {
 		deltaX := m.MaxX - m.MediumX
 		deltaY := m.MaxY - m.MediumY
 		s := m.Transform().Scale()
-		s.X, s.Y = s.X-(deltaX*m.Speed*DeltaTime()), s.Y-(deltaY*m.Speed*DeltaTime())
+		s.X, s.Y = s.X-(deltaX*m.Speed*Engine.DeltaTime()), s.Y-(deltaY*m.Speed*Engine.DeltaTime())
 		m.Transform().SetScale(s)
 		if s.X < m.MediumX || s.Y < m.MediumY {
 			m.State = 3
@@ -71,7 +71,7 @@ func (m *ResizeScript) Update() {
 		deltaX := m.MaxX - m.MediumX
 		deltaY := m.MaxY - m.MediumY
 		s := m.Transform().Scale()
-		s.X, s.Y = s.X+(deltaX*m.Speed*DeltaTime()), s.Y+(deltaY*m.Speed*DeltaTime())
+		s.X, s.Y = s.X+(deltaX*m.Speed*Engine.DeltaTime()), s.Y+(deltaY*m.Speed*Engine.DeltaTime())
 		m.Transform().SetScale(s)
 		if s.X > m.MaxX || s.Y > m.MaxY {
 			m.State = 2

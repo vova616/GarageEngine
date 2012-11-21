@@ -2,8 +2,8 @@ package NetworkOnline
 
 import (
 	"fmt"
-	. "github.com/vova616/GarageEngine/Engine"
-	. "github.com/vova616/GarageEngine/Engine/Components"
+	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine/Components"
 	_ "image/jpeg"
 	_ "image/png"
 	//"gl"  
@@ -11,31 +11,31 @@ import (
 	//"time" 
 	//"strings"
 	//"math"
-	c "github.com/vova616/chipmunk"
-	. "github.com/vova616/chipmunk/vect"
+	"github.com/vova616/chipmunk"
+	"github.com/vova616/chipmunk/vect"
 	//"image"
 )
 
 type GameScene struct {
-	*SceneData
-	Layer1 *GameObject
-	Layer2 *GameObject
-	Layer3 *GameObject
+	*Engine.SceneData
+	Layer1 *Engine.GameObject
+	Layer2 *Engine.GameObject
+	Layer3 *Engine.GameObject
 }
 
 var (
 	GameSceneGeneral *GameScene
-	cir              *Texture
-	box              *Texture
+	cir              *Engine.Texture
+	box              *Engine.Texture
 )
 
 func (s *GameScene) Load() {
-	ArialFont, err := NewFont("./data/Fonts/arial.ttf", 48)
+	ArialFont, err := Engine.NewFont("./data/Fonts/arial.ttf", 48)
 	if err != nil {
 		panic(err)
 	}
 
-	ArialFont2, err := NewFont("./data/Fonts/arial.ttf", 24)
+	ArialFont2, err := Engine.NewFont("./data/Fonts/arial.ttf", 24)
 	if err != nil {
 		panic(err)
 	}
@@ -44,44 +44,44 @@ func (s *GameScene) Load() {
 
 	GameSceneGeneral = s
 
-	s.Camera = NewCamera()
+	s.Camera = Engine.NewCamera()
 
-	cam := NewGameObject("Camera")
+	cam := Engine.NewGameObject("Camera")
 	cam.AddComponent(s.Camera)
 	cam.AddComponent(NewCameraCtl())
 
-	cam.Transform().SetScale(NewVector3(1, 1, 1))
+	cam.Transform().SetScalef(1, 1, 1)
 
-	gui := NewGameObject("GUI")
+	gui := Engine.NewGameObject("GUI")
 
-	Layer1 := NewGameObject("Layer1")
-	Layer2 := NewGameObject("Layer2")
-	Layer3 := NewGameObject("Layer3")
+	Layer1 := Engine.NewGameObject("Layer1")
+	Layer2 := Engine.NewGameObject("Layer2")
+	Layer3 := Engine.NewGameObject("Layer3")
 
 	s.Layer1 = Layer1
 	s.Layer2 = Layer2
 	s.Layer3 = Layer3
 
-	mouse := NewGameObject("Mouse")
+	mouse := Engine.NewGameObject("Mouse")
 	mouse.AddComponent(NewMouseDebugger())
-	mouse.AddComponent(NewMouse())
+	mouse.AddComponent(Engine.NewMouse())
 	mouse.Transform().SetParent2(cam)
 
-	FPSDrawer := NewGameObject("FPS")
-	txt := FPSDrawer.AddComponent(NewUIText(ArialFont2, "")).(*UIText)
-	fps := FPSDrawer.AddComponent(NewFPS()).(*FPS)
+	FPSDrawer := Engine.NewGameObject("FPS")
+	txt := FPSDrawer.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
+	fps := FPSDrawer.AddComponent(Engine.NewFPS()).(*Engine.FPS)
 	fps.SetAction(func(fps float32) {
 		txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
 	})
 	FPSDrawer.Transform().SetParent2(cam)
-	FPSDrawer.Transform().SetPosition(NewVector2(60, float32(Height)-20))
-	FPSDrawer.Transform().SetScale(NewVector2(20, 20))
+	FPSDrawer.Transform().SetPositionf(60, float32(Engine.Height)-20, 1)
+	FPSDrawer.Transform().SetScalef(20, 20, 1)
 
 	//SPACCCEEEEE
-	Space.Gravity.Y = -300
-	Space.Iterations = 30
+	Engine.Space.Gravity.Y = -300
+	Engine.Space.Iterations = 30
 
-	atlas := NewManagedAtlas(512, 512)
+	atlas := Engine.NewManagedAtlas(512, 512)
 	e := atlas.LoadGroup("./data/fire")
 	if e != nil {
 		fmt.Println(e)
@@ -95,49 +95,49 @@ func (s *GameScene) Load() {
 
 	atlas.BuildAtlas()
 
-	uvsFire, indFire := AnimatedGroupUVs(atlas, "fire")
+	uvsFire, indFire := Engine.AnimatedGroupUVs(atlas, "fire")
 	_ = uvsFire
 	_ = indFire
 
-	clone2 := NewGameObject("Sprite")
-	s2 := clone2.AddComponent(NewSprite3(atlas.Texture, uvsFire)).(*Sprite)
+	clone2 := Engine.NewGameObject("Sprite")
+	s2 := clone2.AddComponent(Engine.NewSprite3(atlas.Texture, uvsFire)).(*Engine.Sprite)
 	s2.BindAnimations(indFire)
 	s2.AnimationSpeed = 6
-	clone2.Transform().SetPosition(NewVector2(775, 300))
-	clone2.Transform().SetScale(NewVector2(58, 58))
+	clone2.Transform().SetPositionf(775, 300, 1)
+	clone2.Transform().SetScalef(58, 58, 1)
 	clone2.Transform().SetParent2(Layer1)
 
 	f := clone2.Clone()
-	f.Transform().SetPosition(NewVector2(25, 300))
+	f.Transform().SetPositionf(25, 300, 1)
 	f.Transform().SetParent2(Layer1)
 
-	box, _ = LoadTexture("./data/rect.png")
-	cir, _ = LoadTexture("./data/circle.png")
+	box, _ = Engine.LoadTexture("./data/rect.png")
+	cir, _ = Engine.LoadTexture("./data/circle.png")
 
 	for i := 0; i < 0; i++ {
-		sprite3 := NewGameObject("Sprite" + fmt.Sprint(i))
-		sprite3.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, 333)))
+		sprite3 := Engine.NewGameObject("Sprite" + fmt.Sprint(i))
+		sprite3.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, 333)))
 		sprite3.Transform().SetParent2(Layer2)
-		sprite3.Transform().SetRotation(NewVector3(0, 0, 180))
-		sprite3.Transform().SetPosition(NewVector2(160, 120+float32(i*31)))
-		sprite3.Transform().SetScale(NewVector2(30, 30))
+		sprite3.Transform().SetRotation(Engine.NewVector3(0, 0, 180))
+		sprite3.Transform().SetPosition(Engine.NewVector2(160, 120+float32(i*31)))
+		sprite3.Transform().SetScale(Engine.NewVector2(30, 30))
 
-		phx := sprite3.AddComponent(NewPhysics(false, 30, 30)).(*Physics)
+		phx := sprite3.AddComponent(Engine.NewPhysics(false, 30, 30)).(*Engine.Physics)
 		phx.Shape.SetFriction(1)
 		phx.Shape.SetElasticity(0.0)
 		phx.Body.SetMass(1)
 	}
 
 	for i := 0; i < 2000; i++ {
-		sprite3 := NewGameObject("Sprite" + fmt.Sprint(i))
-		sprite3.AddComponent(NewSprite2(atlas.Texture, IndexUV(atlas, 222)))
+		sprite3 := Engine.NewGameObject("Sprite" + fmt.Sprint(i))
+		sprite3.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, 222)))
 		sprite3.Transform().SetParent2(Layer2)
 		//i*31 - 220
 		//+(float32(i%4))*25
 		//+float32(i*30)
-		sprite3.Transform().SetPosition(NewVector2(200+float32(i%4)*25, float32(i*30)+120))
-		sprite3.Transform().SetScale(NewVector2(30, 30))
-		phx := sprite3.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 15))).(*Physics)
+		sprite3.Transform().SetPosition(Engine.NewVector2(200+float32(i%4)*25, float32(i*30)+120))
+		sprite3.Transform().SetScale(Engine.NewVector2(30, 30))
+		phx := sprite3.AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15))).(*Engine.Physics)
 		phx.Body.SetMass(10)
 		phx.Body.SetMoment(phx.Shape.ShapeClass.Moment(10))
 
@@ -145,43 +145,43 @@ func (s *GameScene) Load() {
 		phx.Shape.SetElasticity(0.8)
 	}
 
-	floor := NewGameObject("Floor")
-	floor.AddComponent(NewSprite(box))
-	phx := floor.AddComponent(NewPhysics(true, 1000000, 100)).(*Physics)
+	floor := Engine.NewGameObject("Floor")
+	floor.AddComponent(Engine.NewSprite(box))
+	phx := floor.AddComponent(Engine.NewPhysics(true, 1000000, 100)).(*Engine.Physics)
 	floor.Transform().SetParent2(Layer2)
-	floor.Transform().SetPosition(NewVector2(100, -20))
-	floor.Transform().SetScale(NewVector2(10000, 100))
+	floor.Transform().SetPosition(Engine.NewVector2(100, -20))
+	floor.Transform().SetScale(Engine.NewVector2(10000, 100))
 	phx.Shape.SetFriction(1)
 	phx.Shape.SetElasticity(1)
 
 	floor2 := floor.Clone()
 	floor2.Transform().SetParent2(Layer2)
-	floor2.Transform().SetPosition(NewVector2(800, -20))
+	floor2.Transform().SetPosition(Engine.NewVector2(800, -20))
 	floor2.Transform().SetRotationf(0, 0, 90)
 
 	floor3 := floor2.Clone()
 	floor3.Transform().SetParent2(Layer2)
-	floor3.Transform().SetPosition(NewVector2(0, -20))
+	floor3.Transform().SetPosition(Engine.NewVector2(0, -20))
 
-	uvs2, ind := AnimatedGroupUVs(atlas, "stand", "walk")
+	uvs2, ind := Engine.AnimatedGroupUVs(atlas, "stand", "walk")
 	_ = uvs2
 	_ = ind
 
-	sprite4 := NewGameObject("Sprite")
-	sprite := sprite4.AddComponent(NewSprite3(atlas.Texture, uvs2)).(*Sprite)
+	sprite4 := Engine.NewGameObject("Sprite")
+	sprite := sprite4.AddComponent(Engine.NewSprite3(atlas.Texture, uvs2)).(*Engine.Sprite)
 	sprite.BindAnimations(ind)
 	//sprite4.AddComponent(NewSprite(sp))
 	sprite.AnimationSpeed = 5
 	player := sprite4.AddComponent(NewPlayerController()).(*PlayerController)
 	//sprite4.AddComponent(NewRotator())
-	ph := sprite4.AddComponent(NewPhysics(false, 100, 100)).(*Physics)
+	ph := sprite4.AddComponent(Engine.NewPhysics(false, 100, 100)).(*Engine.Physics)
 	player.Fire = clone2
 	sprite4.Transform().SetParent2(Layer1)
 	sprite4.Transform().SetPositionf(900, 100, 0)
 	sprite4.Transform().SetScalef(100, 100, 0)
 	ph.Body.SetMass(100)
 	ph.Body.IgnoreGravity = false
-	ph.Body.SetMoment(Inf)
+	ph.Body.SetMoment(Engine.Inf)
 	ph.Shape.SetFriction(1)
 	ph.Shape.SetElasticity(0)
 	sprite.Border = true
@@ -201,10 +201,10 @@ func (s *GameScene) Load() {
 		//phx.Shape.Friction = 1
 		_ = phx
 	*/
-	shadowShader := NewGameObject("Shadow")
-	sCam := NewCamera()
+	shadowShader := Engine.NewGameObject("Shadow")
+	sCam := Engine.NewCamera()
 	shadowShader.AddComponent(sCam)
-	sShadow := NewShadowShader(s.Camera)
+	sShadow := Engine.NewShadowShader(s.Camera)
 	cam.AddComponent(sShadow)
 
 	//sShadow.Sprite = bbBox
@@ -219,12 +219,12 @@ func (s *GameScene) Load() {
 	fmt.Println("Scene loaded")
 }
 
-func (s *GameScene) SceneBase() *SceneData {
+func (s *GameScene) SceneBase() *Engine.SceneData {
 	return s.SceneData
 }
 
-func (s *GameScene) New() Scene {
+func (s *GameScene) New() Engine.Scene {
 	gs := new(GameScene)
-	gs.SceneData = NewScene("GameScene")
+	gs.SceneData = Engine.NewScene("GameScene")
 	return gs
 }

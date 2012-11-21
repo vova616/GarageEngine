@@ -3,12 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	"github.com/vova616/GarageEngine/NetworkOnline"
 	"github.com/vova616/GarageEngine/SpaceCookies"
 	//"math"
+	//"github.com/vova616/gl"
 	"os"
+	//"runtime"
 	"runtime/pprof"
+	//"time"
 )
 
 var cpuprofile = flag.String("p", "", "write cpu profile to file")
@@ -33,7 +36,7 @@ func main() {
 	defer file.Close()
 
 	go Start()
-	Terminated()
+	Engine.Terminated()
 
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)
@@ -49,16 +52,16 @@ func main() {
 func Start() {
 	defer func() {
 		if p := recover(); p != nil {
-			fmt.Println(p, PanicPath())
+			fmt.Println(p, Engine.PanicPath())
 		}
-		Terminate()
+
+		Engine.Terminate()
 	}()
-	StartEngine()
-	SpaceCookies.LoadTextures()
+	Engine.StartEngine()
 	_ = SpaceCookies.GameSceneGeneral
 	_ = NetworkOnline.GameSceneGeneral
-	LoadScene(SpaceCookies.GameSceneGeneral)
-	for MainLoop() {
+	Engine.LoadScene(SpaceCookies.GameSceneGeneral)
+	for Engine.MainLoop() {
 
 	}
 }

@@ -1,31 +1,31 @@
 package NetworkOnline
 
 import (
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	//"Engine/Components"
 	"github.com/jteeuwen/glfw"
 	"github.com/vova616/GarageEngine/Engine/Input"
 	//"log"
-	c "github.com/vova616/chipmunk"
-	. "github.com/vova616/chipmunk/vect"
+	"github.com/vova616/chipmunk"
+	"github.com/vova616/chipmunk/vect"
 	//"fmt"
 	//"time"
 )
 
 type PlayerController struct {
-	BaseComponent
+	Engine.BaseComponent
 	Speed     float32
 	JumpSpeed float32
-	Physics   *Physics
+	Physics   *Engine.Physics
 	state     int
-	Fire      *GameObject
+	Fire      *Engine.GameObject
 
-	Floor *GameObject
-	Fires []*GameObject
+	Floor *Engine.GameObject
+	Fires []*Engine.GameObject
 }
 
 func NewPlayerController() *PlayerController {
-	return &PlayerController{NewComponent(), 10, 20000, nil, -1, nil, nil, make([]*GameObject, 0)}
+	return &PlayerController{Engine.NewComponent(), 10, 20000, nil, -1, nil, nil, make([]*Engine.GameObject, 0)}
 }
 
 func (sp *PlayerController) Start() {
@@ -43,26 +43,26 @@ func (sp *PlayerController) Start() {
 func (sp *PlayerController) TestCoroutines() {
 	autoShoot := func() {
 		for i := 0; i < 3; i++ {
-			CoSleep(3)
+			Engine.CoSleep(3)
 			sp.Shoot()
 		}
 	}
 
-	as := StartCoroutine(autoShoot)
+	as := Engine.StartCoroutine(autoShoot)
 
 	fastShoot := func() {
-		CoSleep(3)
-		CoYieldCoroutine(as)
+		Engine.CoSleep(3)
+		Engine.CoYieldCoroutine(as)
 		for i := 0; i < 10; i++ {
-			CoYieldSkip()
-			CoYieldSkip()
-			CoYieldSkip()
+			Engine.CoYieldSkip()
+			Engine.CoYieldSkip()
+			Engine.CoYieldSkip()
 			sp.Shoot()
 		}
 		sp.TestCoroutines()
 	}
 
-	StartCoroutine(fastShoot)
+	Engine.StartCoroutine(fastShoot)
 }
 
 func (sp *PlayerController) Shoot() {
@@ -71,7 +71,7 @@ func (sp *PlayerController) Shoot() {
 		sp.Fires = append(sp.Fires, nfire)
 		nfire.Transform().SetParent2(GameSceneGeneral.Layer1)
 		nfire.Transform().SetWorldPosition(sp.Transform().WorldPosition())
-		nfire.AddComponent(NewPhysics2(false, c.NewCircle(Vect{0, 0}, 20)))
+		nfire.AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 20)))
 		nfire.Physics.Body.IgnoreGravity = true
 		nfire.Physics.Body.SetMass(200)
 		s := sp.Transform().Rotation()
@@ -87,7 +87,7 @@ func (sp *PlayerController) Shoot() {
 			nfire.Physics.Body.SetVelocity(550, 0)
 		}
 		nfire.Physics.Shape.Group = 1
-		nfire.Physics.Body.SetMoment(Inf)
+		nfire.Physics.Body.SetMoment(Engine.Inf)
 		nfire.Transform().SetRotation(s2)
 	}
 }
@@ -132,7 +132,7 @@ func (sp *PlayerController) Update() {
 
 	if Input.KeyPress('P') {
 
-		EnablePhysics = !EnablePhysics
+		Engine.EnablePhysics = !Engine.EnablePhysics
 	}
 
 	if tState != 1 {
@@ -156,11 +156,11 @@ func (sp *PlayerController) Update() {
 		if fire.Transform().Rotation().Z <= -80 && fire.Physics.Body.Velocity().X <= 1 {
 			//fire.Destory()
 			//HACK
-			fire.Transform().SetWorldPosition(NewVector3(-10000, -1000, -1000))
+			fire.Transform().SetWorldPosition(Engine.NewVector3(-10000, -1000, -1000))
 			sp.Fires = append(sp.Fires[:i], sp.Fires[i+1:]...)
 			i--
 		} else if fire.Transform().Rotation().Z >= 80 && fire.Physics.Body.Velocity().X >= -1 {
-			fire.Transform().SetWorldPosition(NewVector3(-10000, -1000, -1000))
+			fire.Transform().SetWorldPosition(Engine.NewVector3(-10000, -1000, -1000))
 			sp.Fires = append(sp.Fires[:i], sp.Fires[i+1:]...)
 			i--
 		}

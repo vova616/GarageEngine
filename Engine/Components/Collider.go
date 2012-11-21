@@ -1,15 +1,15 @@
 package Components
 
 import (
+	"github.com/vova616/GarageEngine/Engine"
 	"image"
-	. "github.com/vova616/GarageEngine/Engine"
-	)
+)
 
 type Collider struct {
-	BaseComponent
+	Engine.BaseComponent
 	Rect *image.Rectangle
 }
 
 func NewCollider() *Collider {
-	return &Collider{NewComponent(),nil}
-} 
+	return &Collider{Engine.NewComponent(), nil}
+}

@@ -2,7 +2,7 @@ package SpaceCookies
 
 import (
 	//"fmt"
-	engine "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	"math/rand"
 )
 
@@ -14,13 +14,13 @@ const (
 )
 
 type EnemeyAI struct {
-	engine.BaseComponent
-	Target *engine.GameObject
+	Engine.BaseComponent
+	Target *Engine.GameObject
 	Type   EnemeyType
 }
 
-func NewEnemeyAI(target *engine.GameObject, typ EnemeyType) *EnemeyAI {
-	return &EnemeyAI{BaseComponent: engine.NewComponent(), Target: target, Type: typ}
+func NewEnemeyAI(target *Engine.GameObject, typ EnemeyType) *EnemeyAI {
+	return &EnemeyAI{BaseComponent: Engine.NewComponent(), Target: target, Type: typ}
 }
 
 func (ai *EnemeyAI) Start() {
@@ -28,32 +28,32 @@ func (ai *EnemeyAI) Start() {
 		ai.Target = Player
 	}
 
-	isPlayerClose := func(distance float32) func() engine.Command {
-		return func() engine.Command {
+	isPlayerClose := func(distance float32) func() Engine.Command {
+		return func() Engine.Command {
 			if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-				return engine.Close
+				return Engine.Close
 			}
 			myPos := ai.Transform().WorldPosition()
 			targetPos := ai.Target.Transform().WorldPosition()
 			if targetPos.Distance(myPos) < distance {
-				return engine.Continue
+				return Engine.Continue
 			}
-			return engine.Yield
+			return Engine.Yield
 		}
 	}
 
-	prepareForAttack := func() engine.Command {
+	prepareForAttack := func() Engine.Command {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-			return engine.Close
+			return Engine.Close
 		}
 
 		ai.GameObject().Physics.Body.SetTorque(7000)
-		return engine.Continue
+		return Engine.Continue
 	}
 
-	attack := func() engine.Command {
+	attack := func() Engine.Command {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-			return engine.Close
+			return Engine.Close
 		}
 		myPos := ai.Transform().WorldPosition()
 		targetPos := ai.Target.Transform().WorldPosition()
@@ -67,12 +67,12 @@ func (ai *EnemeyAI) Start() {
 		}
 
 		ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*50000, (dir.Y+rnd)*50000)
-		return engine.Continue
+		return Engine.Continue
 	}
 
-	randomMove := func() engine.Command {
+	randomMove := func() Engine.Command {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-			return engine.Close
+			return Engine.Close
 		}
 
 		myPos := ai.Transform().WorldPosition()
@@ -103,12 +103,12 @@ func (ai *EnemeyAI) Start() {
 			}
 		}
 
-		return engine.Continue
+		return Engine.Continue
 	}
 
-	sendCookies := func() engine.Command {
+	sendCookies := func() Engine.Command {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-			return engine.Close
+			return Engine.Close
 		}
 		myPos := ai.Transform().WorldPosition()
 		targetPos := ai.Target.Transform().WorldPosition()
@@ -135,35 +135,35 @@ func (ai *EnemeyAI) Start() {
 		c.Transform().SetPosition(p)
 		c.GameObject().Physics.Body.AddForce((dir.X+rnd)*25000, (dir.Y+rnd)*25000)
 
-		return engine.Continue
+		return Engine.Continue
 	}
 
-	appear := func() engine.Command {
+	appear := func() Engine.Command {
 		if ai.GameObject() == nil {
-			return engine.Close
+			return Engine.Close
 		}
 
 		ai.Transform().SetPositionf(1500, 1500, 1)
 
-		return engine.Continue
+		return Engine.Continue
 	}
 
-	prepareForNextAttack := func() engine.Command {
+	prepareForNextAttack := func() Engine.Command {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-			return engine.Close
+			return Engine.Close
 		}
 
 		ai.GameObject().Physics.Body.SetTorque(-10)
 		ai.GameObject().Physics.Body.SetAngularVelocity(0)
 
-		return engine.Restart
+		return Engine.Restart
 	}
 
 	co := false
 	if co {
-		engine.StartCoroutine(func() {
+		Engine.StartCoroutine(func() {
 			for {
-				engine.CoSleep(5)
+				Engine.CoSleep(5)
 				if !ai.GameObject().IsValid() {
 					return
 				}
@@ -185,9 +185,9 @@ func (ai *EnemeyAI) Start() {
 		})
 	} else {
 		if ai.Type == Enemey_Cookie {
-			engine.StartBehavior(engine.SleepRand(5), isPlayerClose(600), prepareForAttack, engine.Sleep(1.5), attack, engine.WaitContinue(prepareForNextAttack, nil, 1.5))
+			Engine.StartBehavior(Engine.SleepRand(5), isPlayerClose(600), prepareForAttack, Engine.Sleep(1.5), attack, Engine.WaitContinue(prepareForNextAttack, nil, 1.5))
 		} else {
-			engine.StartBehavior(engine.Sleep(120), appear, engine.Sequence(engine.SleepRand(0.5), isPlayerClose(800), randomMove, sendCookies))
+			Engine.StartBehavior(Engine.Sleep(120), appear, Engine.Sequence(Engine.SleepRand(0.5), isPlayerClose(800), randomMove, sendCookies))
 		}
 	}
 
@@ -197,7 +197,7 @@ func (ai *EnemeyAI) Update() {
 
 }
 
-func (sp *EnemeyAI) OnHit(enemey *engine.GameObject, damager *DamageDealer) {
+func (sp *EnemeyAI) OnHit(enemey *Engine.GameObject, damager *DamageDealer) {
 
 }
 
@@ -220,7 +220,7 @@ func (sp *EnemeyAI) OnDie(byTimer bool) {
 		n.Transform().SetWorldPosition(sp.Transform().WorldPosition())
 		s := n.Transform().Scale()
 		n.Transform().SetScale(s.Mul2((rand.Float32() * 3) + size))
-		n.AddComponent(engine.NewPhysics(false, 1, 1))
+		n.AddComponent(Engine.NewPhysics(false, 1, 1))
 
 		n.Transform().SetRotationf(0, 0, rand.Float32()*360)
 		rot := n.Transform().Rotation2D()
