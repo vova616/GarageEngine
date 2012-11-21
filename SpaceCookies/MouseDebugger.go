@@ -1,7 +1,7 @@
 package SpaceCookies
 
 import (
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	"github.com/vova616/GarageEngine/Engine/Input"
 	//"log" 
 	//"github.com/jteeuwen/glfw"
@@ -11,11 +11,11 @@ import (
 )
 
 type MouseDebugger struct {
-	BaseComponent
+	Engine.BaseComponent
 }
 
 func NewMouseDebugger() *MouseDebugger {
-	return &MouseDebugger{NewComponent()}
+	return &MouseDebugger{Engine.NewComponent()}
 }
 
 func (m *MouseDebugger) Update() {
@@ -44,12 +44,12 @@ func (m *MouseDebugger) Update() {
 		*/
 		b.Transform().SetParent2(GameSceneGeneral.Layer2)
 		b.Transform().SetWorldPosition(mousePosition)
-		b.Transform().SetScale(NewVector2(50, 50))
+		b.Transform().SetScalef(50, 50, 1)
 
 	}
 
 	if Input.KeyPress('R') {
-		LoadScene(GameSceneGeneral)
+		Engine.LoadScene(GameSceneGeneral)
 	}
 	if queenDead {
 		if Input.KeyPress(Input.KeyF1) {

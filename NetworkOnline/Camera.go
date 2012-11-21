@@ -1,17 +1,17 @@
 package NetworkOnline
 
 import (
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	//"log"
 	"github.com/vova616/GarageEngine/Engine/Input"
 )
 
 type CameraController struct {
-	BaseComponent
+	Engine.BaseComponent
 }
 
 func NewCameraCtl() *CameraController {
-	return &CameraController{NewComponent()}
+	return &CameraController{Engine.NewComponent()}
 }
 
 func (sp *CameraController) Update() {

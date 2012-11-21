@@ -187,10 +187,81 @@ func LoadTextureFromImage(image image.Image) (tex *Texture, err error) {
 	if e != nil {
 		return nil, nil
 	}
-	data, e := ImageData(image)
-	if e != nil {
-		return nil, nil
+
+	//
+	w := image.Bounds().Dx()
+	h := image.Bounds().Dy()
+	model := image.ColorModel()
+	var data []byte
+
+	switch model.(type) {
+	case color.Palette:
+		memHandle := Allocate(4 * h * w)
+		data = memHandle.Bytes()
+		defer memHandle.Release()
+		for x := 0; x < w; x++ {
+			for y := 0; y < h; y++ {
+				offset := (x + (y * w)) * 4
+				r, g, b, a := image.At(x, y).RGBA()
+				data[offset] = byte(r / 257)
+				data[offset+1] = byte(g / 257)
+				data[offset+2] = byte(b / 257)
+				data[offset+3] = byte(a / 257)
+			}
+		}
 	}
+
+	switch model {
+	case color.YCbCrModel:
+		memHandle := Allocate(3 * h * w)
+		data = memHandle.Bytes()
+		defer memHandle.Release()
+		for x := 0; x < w; x++ {
+			for y := 0; y < h; y++ {
+				offset := (x + y*w) * 3
+				r, g, b, _ := image.At(x, y).RGBA()
+				data[offset] = byte(r / 257)
+				data[offset+1] = byte(g / 257)
+				data[offset+2] = byte(b / 257)
+			}
+		}
+	case color.RGBAModel, color.NRGBAModel:
+		memHandle := Allocate(4 * h * w)
+		data = memHandle.Bytes()
+		defer memHandle.Release()
+		for x := 0; x < w; x++ {
+			for y := 0; y < h; y++ {
+				offset := (x + (y * w)) * 4
+				r, g, b, a := image.At(x, y).RGBA()
+				data[offset] = byte(r / 257)
+				data[offset+1] = byte(g / 257)
+				data[offset+2] = byte(b / 257)
+				data[offset+3] = byte(a / 257)
+			}
+		}
+	case color.RGBA64Model, color.NRGBA64Model:
+		memHandle := Allocate(4 * h * w)
+		data = memHandle.Bytes()
+		defer memHandle.Release()
+		for x := 0; x < w; x++ {
+			for y := 0; y < h; y++ {
+				offset := (x + y*w) * 4
+				r, g, b, a := image.At(x, y).RGBA()
+				data[offset] = byte(r / 257)
+				data[offset+1] = byte(g / 257)
+				data[offset+2] = byte(b / 257)
+				data[offset+3] = byte(a / 257)
+			}
+		}
+	default:
+		m, e := CustomColorModels[model]
+		if e {
+			return NewTexture2(m.Model.Data(), image.Bounds().Dx(), image.Bounds().Dy(), target, internalFormat, typ, format), nil
+		} else {
+			return nil, errors.New("unsupported format")
+		}
+	}
+
 	return NewTexture2(data, image.Bounds().Dx(), image.Bounds().Dy(), target, internalFormat, typ, format), nil
 }
 
@@ -224,76 +295,6 @@ func ColorModelToGLTypes(model color.Model) (internalFormat int, typ gl.GLenum, 
 		break
 	}
 	return 0, 0, 0, 0, errors.New("unsupported format")
-}
-
-func ImageData(image image.Image) (data interface{}, err error) {
-	//
-	w := image.Bounds().Dx()
-	h := image.Bounds().Dy()
-	model := image.ColorModel()
-
-	switch model.(type) {
-	case color.Palette:
-		data2 := make([]byte, 4*h*w)
-		for x := 0; x < w; x++ {
-			for y := 0; y < h; y++ {
-				offset := (x + (y * w)) * 4
-				r, g, b, a := image.At(x, y).RGBA()
-				data2[offset] = byte(r / 257)
-				data2[offset+1] = byte(g / 257)
-				data2[offset+2] = byte(b / 257)
-				data2[offset+3] = byte(a / 257)
-			}
-		}
-		return data2, nil
-	}
-
-	switch model {
-	case color.YCbCrModel:
-		data := make([]byte, 3*h*w)
-		for x := 0; x < w; x++ {
-			for y := 0; y < h; y++ {
-				offset := (x + y*w) * 3
-				r, g, b, _ := image.At(x, y).RGBA()
-				data[offset] = byte(r / 257)
-				data[offset+1] = byte(g / 257)
-				data[offset+2] = byte(b / 257)
-			}
-		}
-		return data, nil
-	case color.RGBAModel, color.NRGBAModel:
-		data2 := make([]byte, 4*h*w)
-		for x := 0; x < w; x++ {
-			for y := 0; y < h; y++ {
-				offset := (x + (y * w)) * 4
-				r, g, b, a := image.At(x, y).RGBA()
-				data2[offset] = byte(r / 257)
-				data2[offset+1] = byte(g / 257)
-				data2[offset+2] = byte(b / 257)
-				data2[offset+3] = byte(a / 257)
-			}
-		}
-		return data2, nil
-	case color.RGBA64Model, color.NRGBA64Model:
-		data := make([]byte, 4*h*w)
-		for x := 0; x < w; x++ {
-			for y := 0; y < h; y++ {
-				offset := (x + y*w) * 4
-				r, g, b, a := image.At(x, y).RGBA()
-				data[offset] = byte(r / 257)
-				data[offset+1] = byte(g / 257)
-				data[offset+2] = byte(b / 257)
-				data[offset+3] = byte(a / 257)
-			}
-		}
-		return data, nil
-	default:
-		m, e := CustomColorModels[model]
-		if e {
-			return m.Model.Data(), nil
-		}
-	}
-	return nil, errors.New("unsupported format")
 }
 
 func NewRGBTexture(rgbData interface{}, width int, height int) *Texture {
@@ -330,6 +331,9 @@ func NewTexture2(data interface{}, width int, height int, target gl.GLenum, inte
 
 	t.PreloadRender() //Forcing texture to go to VRAM and prevent shuttering
 	t.data = nil
+	data = nil
+
+	ResourceManager.Add(t)
 
 	return t
 }
@@ -349,6 +353,8 @@ func NewTextureEmpty(width int, height int, model color.Model) *Texture {
 	t.SetWraping(WrapT, ClampToEdge)
 	t.SetFiltering(MinFilter, Nearest)
 	t.SetFiltering(MagFilter, Nearest)
+
+	ResourceManager.Add(t)
 
 	return t
 }
@@ -476,5 +482,8 @@ func (t *Texture) PreloadRender() {
 
 func (t *Texture) Release() {
 	t.data = nil
-	gl.DeleteTextures([]gl.Texture{t.handle})
+	if t.handle != 0 {
+		t.handle.Delete()
+		t.handle = 0
+	}
 }

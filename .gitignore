@@ -168,7 +168,6 @@ log.txt
 *.prof
 *.m
 *.p
-
 *.iml
 .idea/
 out/

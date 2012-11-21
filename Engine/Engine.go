@@ -3,18 +3,18 @@ package Engine
 import (
 	"github.com/vova616/gl"
 	//"log"
-	. "github.com/vova616/GarageEngine/Engine/Input"
+	"github.com/vova616/GarageEngine/Engine/Input"
 	//"os"
 	"fmt"
 	"github.com/jteeuwen/glfw"
-	c "github.com/vova616/chipmunk"
-	. "github.com/vova616/chipmunk/vect"
+	"github.com/vova616/chipmunk"
+	"github.com/vova616/chipmunk/vect"
 	"math"
 	"runtime"
 	"time"
 )
 
-type Arbiter c.Arbiter
+type Arbiter chipmunk.Arbiter
 
 func (arbiter *Arbiter) GameObjectA() *GameObject {
 	if arbiter.BodyA.UserData == nil {
@@ -41,7 +41,7 @@ const (
 )
 
 var (
-	Inf = Float(math.Inf(1))
+	Inf = vect.Float(math.Inf(1))
 
 	scenes       []Scene = make([]Scene, 0)
 	activeScenes []Scene = make([]Scene, 0)
@@ -52,10 +52,10 @@ var (
 	running        = false
 	insideGameloop = false
 
-	Space     *c.Space = nil
+	Space     *chipmunk.Space = nil
 	deltaTime float32
 	fixedTime float32
-	stepTime  = float32(1) / float32(60)
+	stepTime  = float32(1) / float32(62)
 
 	EnablePhysics = true
 	Debug         = true
@@ -81,6 +81,8 @@ func LoadScene(scene Scene) {
 		return
 	}
 
+	ResourceManager.Release()
+
 	if Space != nil {
 		for _, g := range mainScene.SceneBase().gameObjects {
 			if g != nil {
@@ -91,9 +93,9 @@ func LoadScene(scene Scene) {
 		mainScene.SceneBase().gameObjects = nil
 		Space.Destory()
 		runtime.GC()
-		Space = c.NewSpace()
+		Space = chipmunk.NewSpace()
 	} else {
-		Space = c.NewSpace()
+		Space = chipmunk.NewSpace()
 	}
 
 	sn := scene.New()
@@ -149,8 +151,8 @@ func StartEngine() {
 	glfw.SetSwapInterval(1) //0 to make FPS Maximum
 	glfw.SetWindowTitle(Title)
 	glfw.SetWindowSizeCallback(onResize)
-	glfw.SetKeyCallback(OnKey)
-	glfw.SetMouseButtonCallback(ButtonPress)
+	glfw.SetKeyCallback(Input.OnKey)
+	glfw.SetMouseButtonCallback(Input.ButtonPress)
 
 	if err = initGL(); err != nil {
 		panic(err)
@@ -232,13 +234,13 @@ func Run() {
 					g, ok := b.UserData.(*Physics)
 					if ok && g != nil && g.gameObject != nil {
 						pos := g.Transform().WorldPosition()
-						b.SetAngle(Float(g.Transform().WorldRotation().Z) * RadianConst)
+						b.SetAngle(vect.Float(g.Transform().WorldRotation().Z) * RadianConst)
 						//fmt.Println(g.Transform().WorldRotation().Z, b.Transform.Angle())
-						b.SetPosition(Vect{Float(pos.X), Float(pos.Y)})
+						b.SetPosition(vect.Vect{vect.Float(pos.X), vect.Float(pos.Y)})
 					}
 				}
 
-				Space.Step(Float(stepTime))
+				Space.Step(vect.Float(stepTime))
 
 				//Space.Step(Float(0.1))
 
@@ -297,7 +299,7 @@ func Run() {
 		RunBT(BehaviorTicks)
 		behaviorDelta = timer.StopCustom("BehaviorTree")
 
-		UpdateInput()
+		Input.UpdateInput()
 
 		stepDelta = timer.Stop()
 	}

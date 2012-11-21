@@ -1,7 +1,7 @@
 package SpaceCookies
 
 import (
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	"math/rand"
 	"time"
 )
@@ -9,7 +9,7 @@ import (
 type Power int
 
 type PowerUp struct {
-	BaseComponent
+	Engine.BaseComponent
 	Type Power
 }
 
@@ -21,10 +21,10 @@ const (
 )
 
 func NewPowerUp(typ Power) *PowerUp {
-	return &PowerUp{BaseComponent: NewComponent(), Type: typ}
+	return &PowerUp{BaseComponent: Engine.NewComponent(), Type: typ}
 }
 
-func CreatePowerUp(position Vector) {
+func CreatePowerUp(position Engine.Vector) {
 	chance := rand.Int() % 100
 	if chance <= 2 {
 		c := PowerUpGO.Clone()
@@ -62,7 +62,7 @@ func CreatePowerUp(position Vector) {
 
 }
 
-func (pu *PowerUp) OnCollisionEnter(arbiter *Arbiter) bool {
+func (pu *PowerUp) OnCollisionEnter(arbiter *Engine.Arbiter) bool {
 	if pu.GameObject() != nil && (arbiter.GameObjectA() == Player || arbiter.GameObjectB() == Player) {
 		PowerUpShip(pu.Type)
 		pu.GameObject().Destroy()

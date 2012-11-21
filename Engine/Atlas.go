@@ -107,11 +107,12 @@ func RenderAtlas(a Atlas) {
 
 type ManagedAtlas struct {
 	*Texture
-	image  *image.RGBA
-	uvs    map[interface{}]image.Rectangle
-	groups map[interface{}][]interface{}
-	images map[interface{}]image.Image
-	Tree   *AtlasNode
+	memHandle *MemHandle
+	image     *image.RGBA
+	uvs       map[interface{}]image.Rectangle
+	groups    map[interface{}][]interface{}
+	images    map[interface{}]image.Image
+	Tree      *AtlasNode
 }
 
 type AtlasNode struct {
@@ -125,12 +126,22 @@ func NewAtlasNode(width, height int) *AtlasNode {
 }
 
 func NewManagedAtlas(width, height int) *ManagedAtlas {
+	img, mem := NewRGBA(image.Rect(0, 0, width, height))
 	return &ManagedAtlas{
-		image:  image.NewRGBA(image.Rect(0, 0, width, height)),
-		uvs:    make(map[interface{}]image.Rectangle),
-		groups: make(map[interface{}][]interface{}),
-		images: make(map[interface{}]image.Image),
-		Tree:   NewAtlasNode(width, height)}
+		image:     img,
+		memHandle: mem,
+		uvs:       make(map[interface{}]image.Rectangle),
+		groups:    make(map[interface{}][]interface{}),
+		images:    make(map[interface{}]image.Image),
+		Tree:      NewAtlasNode(width, height)}
+}
+
+func NewRGBA(r image.Rectangle) (*image.RGBA, *MemHandle) {
+	w, h := r.Dx(), r.Dy()
+	memHandle := Allocate(4 * w * h)
+	buf := memHandle.Bytes()
+	ResourceManager.Add(memHandle)
+	return &image.RGBA{buf, 4 * w, r}, memHandle
 }
 
 func AtlasFromSheet(path string, width, height, frames int) (atlas *ManagedAtlas, err error) {
@@ -188,6 +199,13 @@ func AtlasFromSheet(path string, width, height, frames int) (atlas *ManagedAtlas
 	}
 	atlas.groups[fName] = group
 	return atlas, nil
+}
+
+func (atlas *ManagedAtlas) Release() {
+	if atlas.Texture != nil {
+		atlas.Texture.Release()
+	}
+	atlas.memHandle.Release()
 }
 
 func (node *AtlasNode) Insert(img image.Image, id interface{}) *AtlasNode {
@@ -501,6 +519,7 @@ func (ma *ManagedAtlas) BuildAtlas() error {
 	}
 
 	ma.Texture = NewRGBATexture(ma.image.Pix, ma.image.Bounds().Dx(), ma.image.Bounds().Dy())
+	ma.memHandle.Release()
 	ma.image.Pix = nil
 	ma.image = nil
 	return nil

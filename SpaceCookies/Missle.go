@@ -1,27 +1,27 @@
 package SpaceCookies
 
 import (
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	"math/rand"
 	//"reflect"
 )
 
 type Missle struct {
-	BaseComponent
+	Engine.BaseComponent
 	Speed     float32
-	Explosion *GameObject
+	Explosion *Engine.GameObject
 	exploded  bool
 }
 
 func NewMissle(speed float32) *Missle {
-	return &Missle{BaseComponent: NewComponent(), Speed: speed}
+	return &Missle{BaseComponent: Engine.NewComponent(), Speed: speed}
 }
 
-func (ms *Missle) OnComponentBind(gameObject *GameObject) {
+func (ms *Missle) OnComponentBind(gameObject *Engine.GameObject) {
 	gameObject.Tag = MissleTag
 }
 
-func (ms *Missle) OnHit(enemey *GameObject, damager *DamageDealer) {
+func (ms *Missle) OnHit(enemey *Engine.GameObject, damager *DamageDealer) {
 
 }
 
@@ -40,7 +40,7 @@ func (ms *Missle) OnDie(byTimer bool) {
 			n.Transform().SetWorldPosition(ms.Transform().WorldPosition())
 			s := n.Transform().Scale()
 			n.Transform().SetScale(s.Mul2(rand.Float32() + 0.5))
-			n.AddComponent(NewPhysics(false, 1, 1))
+			n.AddComponent(Engine.NewPhysics(false, 1, 1))
 
 			n.Transform().SetRotationf(0, 0, rand.Float32()*360)
 			rot := n.Transform().Rotation2D()

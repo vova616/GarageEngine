@@ -12,14 +12,14 @@ import (
 	//"os" 
 	//"strconv"
 	//"github.com/jteeuwen/glfw"
-	. "github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/GarageEngine/Engine"
 	//. "github.com/vova616/GarageEngine/Engine/Input"
-	. "github.com/vova616/chipmunk/vect"
+	"github.com/vova616/chipmunk/vect"
 )
 
 type UIText struct {
-	BaseComponent
-	Font           *Font
+	Engine.BaseComponent
+	Font           *Engine.Font
 	text           string
 	buffer         gl.Buffer
 	vertexCount    int
@@ -27,24 +27,24 @@ type UIText struct {
 
 	width  float32
 	height float32
-	align  AlignType
+	align  Engine.AlignType
 
 	hover bool
 	red   bool
 }
 
-func NewUIText(font *Font, text string) *UIText {
+func NewUIText(font *Engine.Font, text string) *UIText {
 	if font == nil {
 		return nil
 	}
 
-	uitext := &UIText{NewComponent(), font, text, gl.GenBuffer(), 0, 0, 0, 0, AlignCenter, false, false}
+	uitext := &UIText{Engine.NewComponent(), font, text, gl.GenBuffer(), 0, 0, 0, 0, Engine.AlignCenter, false, false}
 	uitext.SetString(text)
 	return uitext
 }
 
-func (ui *UIText) OnComponentBind(binded *GameObject) {
-	ph := ui.GameObject().AddComponent(NewPhysics(false, 1, 1)).(*Physics)
+func (ui *UIText) OnComponentBind(binded *Engine.GameObject) {
+	ph := ui.GameObject().AddComponent(Engine.NewPhysics(false, 1, 1)).(*Engine.Physics)
 	_ = ph
 	ph.Body.IgnoreGravity = true
 	ph.Shape.IsSensor = true
@@ -90,7 +90,7 @@ func (ui *UIText) SetString(text string) {
 
 		vertexCount += 4
 
-		uv := IndexUV(ui.Font, rune)
+		uv := Engine.IndexUV(ui.Font, rune)
 
 		data[(i*12)+0] = xgrid
 		data[(i*12)+1] = ygrid
@@ -140,21 +140,21 @@ func (ui *UIText) Update() {
 	//}
 }
 
-func (ui *UIText) OnCollisionEnter(arbiter *Arbiter) bool {
+func (ui *UIText) OnCollisionEnter(arbiter *Engine.Arbiter) bool {
 
 	return true
 }
 
-func (ui *UIText) OnCollisionExit(arbiter *Arbiter) {
+func (ui *UIText) OnCollisionExit(arbiter *Engine.Arbiter) {
 
 }
 
-func (ui *UIText) OnMouseEnter(arbiter *Arbiter) bool {
+func (ui *UIText) OnMouseEnter(arbiter *Engine.Arbiter) bool {
 	ui.hover = true
 	return true
 }
 
-func (ui *UIText) OnMouseExit(arbiter *Arbiter) {
+func (ui *UIText) OnMouseExit(arbiter *Engine.Arbiter) {
 	ui.hover = false
 }
 
@@ -164,9 +164,9 @@ func (ui *UIText) UpdateCollider() {
 	if b != nil {
 		h := float64(ui.height) * float64(ui.GameObject().Transform().WorldScale().Y)
 		w := float64(ui.width) * float64(ui.GameObject().Transform().WorldScale().X)
-		if Float(h) != b.Height || Float(w) != b.Width {
-			b.Width = Float(w)
-			b.Height = Float(h)
+		if vect.Float(h) != b.Height || vect.Float(w) != b.Width {
+			b.Width = vect.Float(w)
+			b.Height = vect.Float(h)
 			b.UpdatePoly()
 		}
 	}
@@ -174,11 +174,11 @@ func (ui *UIText) UpdateCollider() {
 	//}
 }
 
-func (ui *UIText) Align() AlignType {
+func (ui *UIText) Align() Engine.AlignType {
 	return ui.align
 }
 
-func (ui *UIText) SetAlign(align AlignType) {
+func (ui *UIText) SetAlign(align Engine.AlignType) {
 	ui.align = align
 }
 
@@ -187,19 +187,19 @@ func (ui *UIText) Draw() {
 		return
 	}
 
-	v := Align(ui.align)
+	v := Engine.Align(ui.align)
 	v.X *= ui.width
 	v.Y *= ui.height
 
-	TextureMaterial.Begin(ui.GameObject())
+	Engine.TextureMaterial.Begin(ui.GameObject())
 
-	vert := TextureMaterial.Verts
-	uv := TextureMaterial.UV
-	mp := TextureMaterial.ProjMatrix
-	mv := TextureMaterial.ViewMatrix
-	mm := TextureMaterial.ModelMatrix
-	tx := TextureMaterial.Texture
-	color := TextureMaterial.AddColor
+	vert := Engine.TextureMaterial.Verts
+	uv := Engine.TextureMaterial.UV
+	mp := Engine.TextureMaterial.ProjMatrix
+	mv := Engine.TextureMaterial.ViewMatrix
+	mm := Engine.TextureMaterial.ModelMatrix
+	tx := Engine.TextureMaterial.Texture
+	color := Engine.TextureMaterial.AddColor
 
 	vert.EnableArray()
 	uv.EnableArray()
@@ -209,11 +209,11 @@ func (ui *UIText) Draw() {
 	vert.AttribPointerPtr(3, gl.FLOAT, false, 0, 0)
 	uv.AttribPointerPtr(2, gl.FLOAT, false, 0, ui.texcoordsIndex)
 
-	camera := GetScene().SceneBase().Camera
+	camera := Engine.GetScene().SceneBase().Camera
 
 	view := camera.Transform().Matrix()
 	view = view.Invert()
-	model := NewIdentity()
+	model := Engine.NewIdentity()
 	model.Translate(v.X, v.Y, 0)
 	model.Mul(ui.GameObject().Transform().Matrix())
 
