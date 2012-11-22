@@ -13,10 +13,8 @@ import (
 	"image/color"
 )
 
-
-var ShadowShaderProgram  gl.Program
+var ShadowShaderProgram gl.Program
 var ShadowCalcProgram gl.Program
-
 
 const vertexShadowShader = `
 #version 130
@@ -37,7 +35,6 @@ void main(void)
 }
 `
 
-
 const fragmentShadowShader = `
 #version 130
 precision highp float; // needed only for version 1.30
@@ -57,9 +54,6 @@ void main(void)
 }
 `
 
-
-
-
 const vertexShadowShader2 = `
 #version 130
 
@@ -78,7 +72,6 @@ void main(void)
 	UV = vertexUV;
 }
 `
-
 
 const fragmentShadowShader2 = `
 #version 130
@@ -135,130 +128,120 @@ void main(void)
 	}
 }
 `
-	
-	
-	
-	//	Width  = 1024
-	//	Height = 768
-	
-	func loadShadowShader() {
-	
-		program := gl.CreateProgram()
-		vrt := gl.CreateShader(gl.VERTEX_SHADER)
-		frg := gl.CreateShader(gl.FRAGMENT_SHADER)
-		
-		vrt.Source(vertexShadowShader)
-		frg.Source(fragmentShadowShader)
-		
-		vrt.Compile()
-		if vrt.Get(gl.COMPILE_STATUS) != 1 {
-			println(vrt.GetInfoLog())
-		}
-		frg.Compile()
-		if frg.Get(gl.COMPILE_STATUS) != 1 {
-			println(frg.GetInfoLog())
-		}
-		
-		program.AttachShader(vrt)
-		program.AttachShader(frg)
-		
-	
-		program.BindAttribLocation(0, "vertexPos")
-		program.BindAttribLocation(1, "vertexUV")
-		
-		
-		program.Link()
-		program.Use()
-		 
-		ShadowShaderProgram = program 
+
+//	Width  = 1024
+//	Height = 768
+
+func loadShadowShader() {
+
+	program := gl.CreateProgram()
+	vrt := gl.CreateShader(gl.VERTEX_SHADER)
+	frg := gl.CreateShader(gl.FRAGMENT_SHADER)
+
+	vrt.Source(vertexShadowShader)
+	frg.Source(fragmentShadowShader)
+
+	vrt.Compile()
+	if vrt.Get(gl.COMPILE_STATUS) != 1 {
+		println(vrt.GetInfoLog())
 	}
-	
-	func loadShadowCalc() {
-	
-		program := gl.CreateProgram()
-		vrt := gl.CreateShader(gl.VERTEX_SHADER)
-		frg := gl.CreateShader(gl.FRAGMENT_SHADER)
-		
-		vrt.Source(vertexShadowShader2)
-		frg.Source(fragmentShadowShader2)
-		
-		vrt.Compile()
-		if vrt.Get(gl.COMPILE_STATUS) != 1 {
-			println(vrt.GetInfoLog())
-		}
-		frg.Compile()
-		if frg.Get(gl.COMPILE_STATUS) != 1 {
-			println(frg.GetInfoLog())
-		}
-		
-		program.AttachShader(vrt)
-		program.AttachShader(frg)
-		
-	
-		program.BindAttribLocation(0, "vertexPos")
-		program.BindAttribLocation(1, "vertexUV")
-		
-		
-		program.Link()
-		program.Use()
-		 
-		ShadowCalcProgram = program 
+	frg.Compile()
+	if frg.Get(gl.COMPILE_STATUS) != 1 {
+		println(frg.GetInfoLog())
 	}
-	
-	
-	type ShadowShader struct {
-		BaseComponent
-		Texture 	*Texture
-		FrameBuffer gl.Framebuffer
-		Camera *Camera
-		Sprite *Sprite
+
+	program.AttachShader(vrt)
+	program.AttachShader(frg)
+
+	program.BindAttribLocation(0, "vertexPos")
+	program.BindAttribLocation(1, "vertexUV")
+
+	program.Link()
+	program.Use()
+
+	ShadowShaderProgram = program
+}
+
+func loadShadowCalc() {
+
+	program := gl.CreateProgram()
+	vrt := gl.CreateShader(gl.VERTEX_SHADER)
+	frg := gl.CreateShader(gl.FRAGMENT_SHADER)
+
+	vrt.Source(vertexShadowShader2)
+	frg.Source(fragmentShadowShader2)
+
+	vrt.Compile()
+	if vrt.Get(gl.COMPILE_STATUS) != 1 {
+		println(vrt.GetInfoLog())
 	}
-	
-	func NewShadowShader(c *Camera) *ShadowShader {
-	
-		return &ShadowShader{BaseComponent: NewComponent(), Camera:c}
+	frg.Compile()
+	if frg.Get(gl.COMPILE_STATUS) != 1 {
+		println(frg.GetInfoLog())
 	}
-	
-	func (s *ShadowShader) Start() {
-		loadShadowShader()
-		loadShadowCalc()
-		
-		frameBuffer := gl.GenFramebuffer()
-		texture := NewTextureEmpty(Width, Height, color.RGBAModel)
-		
-		s.Texture = texture
-		s.FrameBuffer = frameBuffer
-	}
-	
-	func (s *ShadowShader) Draw() {
-		return
-		
-		s.FrameBuffer.Bind()
-		gl.ClearColor(255, 255, 255, 255)
-		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-		gl.FramebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D, s.Texture.GLTexture(), 0)
-		//gl.DrawBuffers(gl.COLOR_ATTACHMENT0) 
-		
-		t := TextureShader
-		TextureShader = ShadowShaderProgram
-		s.Camera.Render()
-		TextureShader = t
-		
-	
-		
-		s.FrameBuffer.Unbind()
-		
-		//s.FrameBuffer.Bind()
-	
-		//gl.FramebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D, s.Texture.GLTexture(), 0)
-		
-		t = TextureShader
-		TextureShader = ShadowCalcProgram
-		sp := NewSprite(s.Texture)
-		sp.DrawScreen()
-		TextureShader = t
-		//s.FrameBuffer.Unbind()
-		
-		//s.Sprite.Texture = s.Texture
-	}
-	
+
+	program.AttachShader(vrt)
+	program.AttachShader(frg)
+
+	program.BindAttribLocation(0, "vertexPos")
+	program.BindAttribLocation(1, "vertexUV")
+
+	program.Link()
+	program.Use()
+
+	ShadowCalcProgram = program
+}
+
+type ShadowShader struct {
+	BaseComponent
+	Texture     *Texture
+	FrameBuffer gl.Framebuffer
+	Camera      *Camera
+	Sprite      *Sprite
+}
+
+func NewShadowShader(c *Camera) *ShadowShader {
+
+	return &ShadowShader{BaseComponent: NewComponent(), Camera: c}
+}
+
+func (s *ShadowShader) Start() {
+	loadShadowShader()
+	loadShadowCalc()
+
+	frameBuffer := gl.GenFramebuffer()
+	texture := NewTextureEmpty(Width, Height, color.RGBAModel)
+
+	s.Texture = texture
+	s.FrameBuffer = frameBuffer
+}
+
+func (s *ShadowShader) Draw() {
+	return
+
+	s.FrameBuffer.Bind()
+	gl.ClearColor(255, 255, 255, 255)
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.FramebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, s.Texture.GLTexture(), 0)
+	//gl.DrawBuffers(gl.COLOR_ATTACHMENT0) 
+
+	t := TextureShader
+	TextureShader = ShadowShaderProgram
+	s.Camera.Render()
+	TextureShader = t
+
+	s.FrameBuffer.Unbind()
+
+	//s.FrameBuffer.Bind()
+
+	//gl.FramebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D, s.Texture.GLTexture(), 0)
+
+	t = TextureShader
+	TextureShader = ShadowCalcProgram
+	sp := NewSprite(s.Texture)
+	sp.DrawScreen()
+	TextureShader = t
+	//s.FrameBuffer.Unbind()
+
+	//s.Sprite.Texture = s.Texture
+}

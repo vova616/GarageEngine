@@ -84,16 +84,14 @@ func LoadTextures() {
 
 	atlas.BuildAtlas()
 	atlas.BuildMipmaps()
-	atlas.SetFiltering(Engine.MinFilter, Engine.MipMapLinearNearest)
-	atlas.SetFiltering(Engine.MagFilter, Engine.Nearest)
+	atlas.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
 	atlas.Texture.SetReadOnly()
 
 	var e error
 	boxt, e = Engine.LoadTexture("./data/SpaceCookies/wall.png")
 
 	boxt.BuildMipmaps()
-	boxt.SetFiltering(Engine.MinFilter, Engine.MipMapLinearNearest)
-	boxt.SetFiltering(Engine.MagFilter, Engine.Nearest)
+	boxt.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
 
 	backgroung, e = Engine.LoadTexture("./data/SpaceCookies/background.png")
 	CheckError(e)
@@ -101,20 +99,17 @@ func LoadTextures() {
 	CheckError(e)
 
 	cir.BuildMipmaps()
-	cir.SetFiltering(Engine.MinFilter, Engine.MipMapLinearNearest)
-	cir.SetFiltering(Engine.MagFilter, Engine.Nearest)
+	cir.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
 
 	CheckError(atlasSpace.LoadGroup("./data/SpaceCookies/Space/"))
 	atlasSpace.BuildAtlas()
 	atlasSpace.BuildMipmaps()
-	atlasSpace.SetFiltering(Engine.MinFilter, Engine.MipMapLinearNearest)
-	atlasSpace.SetFiltering(Engine.MagFilter, Engine.Nearest)
+	atlasSpace.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
 	atlasSpace.Texture.SetReadOnly()
 
 	CheckError(atlasPowerUp.LoadGroupSheet("./data/SpaceCookies/powerups.png", 61, 61, 3*4))
 	atlasPowerUp.BuildAtlas()
-	atlasPowerUp.SetFiltering(Engine.MinFilter, Engine.Linear)
-	atlasPowerUp.SetFiltering(Engine.MagFilter, Engine.Linear)
+	atlasPowerUp.SetFiltering(Engine.Linear, Engine.Linear)
 }
 
 func init() {
@@ -151,7 +146,7 @@ func (s *GameScene) Load() {
 	cam := Engine.NewGameObject("Camera")
 	cam.AddComponent(s.Camera)
 
-	cam.Transform().SetScalef(1, 1, 1)
+	cam.Transform().SetScalef(1, 1)
 
 	gui := Engine.NewGameObject("GUI")
 
@@ -178,8 +173,8 @@ func (s *GameScene) Load() {
 		txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
 	})
 
-	FPSDrawer.Transform().SetPositionf(60, float32(Engine.Height)-20, 1)
-	FPSDrawer.Transform().SetScalef(20, 20, 1)
+	FPSDrawer.Transform().SetPositionf(60, float32(Engine.Height)-20)
+	FPSDrawer.Transform().SetScalef(20, 20)
 
 	//SPACCCEEEEE
 	Engine.Space.Gravity.Y = 0
@@ -187,25 +182,25 @@ func (s *GameScene) Load() {
 
 	Health := Engine.NewGameObject("HP")
 	Health.Transform().SetParent2(cam)
-	Health.Transform().SetPositionf(150, 50, 1)
+	Health.Transform().SetPositionf(150, 50)
 
 	HealthGUI := Engine.NewGameObject("HPGUI")
 	HealthGUI.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, HPGUI_A)))
 	HealthGUI.Transform().SetParent2(Health)
-	HealthGUI.Transform().SetScalef(50, 50, 1)
+	HealthGUI.Transform().SetScalef(50, 50)
 
 	HealthBar := Engine.NewGameObject("HealthBar")
 	HealthBar.Transform().SetParent2(Health)
-	HealthBar.Transform().SetPositionf(-82, 0, 1)
-	HealthBar.Transform().SetScalef(100, 50, 1)
+	HealthBar.Transform().SetPositionf(-82, 0)
+	HealthBar.Transform().SetScalef(100, 50)
 
 	uvHP := Engine.IndexUV(atlas, HP_A)
 
 	HealthBarGUI := Engine.NewGameObject("HealthBarGUI")
 	HealthBarGUI.Transform().SetParent2(HealthBar)
 	HealthBarGUI.AddComponent(Engine.NewSprite2(atlas.Texture, uvHP))
-	HealthBarGUI.Transform().SetScalef(0.52, 1, 1)
-	HealthBarGUI.Transform().SetPositionf((uvHP.Ratio/2)*HealthBarGUI.Transform().Scale().X, 0, 1)
+	HealthBarGUI.Transform().SetScalef(0.52, 1)
+	HealthBarGUI.Transform().SetPositionf((uvHP.Ratio/2)*HealthBarGUI.Transform().Scale().X, 0)
 
 	JetFire := Engine.NewGameObject("Jet")
 	JetFire.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, Jet_A)))
@@ -215,8 +210,8 @@ func (s *GameScene) Load() {
 	ship.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, SpaceShip_A)))
 	PlayerShip = ship.AddComponent(NewShipController()).(*ShipController)
 	ship.Transform().SetParent2(Layer2)
-	ship.Transform().SetPositionf(400, 200, 1)
-	ship.Transform().SetScalef(100, 100, 1)
+	ship.Transform().SetPositionf(400, 200)
+	ship.Transform().SetScalef(100, 100)
 	ship.AddComponent(NewDestoyable(1000, 1))
 	PlayerShip.HPBar = HealthBar
 	PlayerShip.JetFire = JetFire
@@ -225,16 +220,16 @@ func (s *GameScene) Load() {
 	Explosion = Engine.NewGameObject("Explosion")
 	Explosion.AddComponent(Engine.NewSprite3(atlas.Texture, uvs))
 	Explosion.Sprite.BindAnimations(ind)
-	Explosion.Sprite.AnimationSpeed = 20
+	Explosion.Sprite.AnimationSpeed = 25
 	Explosion.Sprite.AnimationEndCallback = func(sprite *Engine.Sprite) {
 		sprite.GameObject().Destroy()
 	}
-	Explosion.Transform().SetScalef(30, 30, 1)
+	Explosion.Transform().SetScalef(30, 30)
 
 	missle := Engine.NewGameObject("Missle")
 	missle.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, Missle_A)))
 	missle.AddComponent(Engine.NewPhysics(false, 10, 10))
-	missle.Transform().SetScalef(20, 20, 1)
+	missle.Transform().SetScalef(20, 20)
 	missle.AddComponent(NewDamageDealer(50))
 
 	m := NewMissle(30000)
@@ -250,8 +245,8 @@ func (s *GameScene) Load() {
 	cookie.AddComponent(NewDestoyable(100, 2))
 	cookie.AddComponent(NewDamageDealer(20))
 	cookie.AddComponent(NewEnemeyAI(Player, Enemey_Cookie))
-	cookie.Transform().SetScalef(50, 50, 1)
-	cookie.Transform().SetPositionf(400, 400, 1)
+	cookie.Transform().SetScalef(50, 50)
+	cookie.Transform().SetPositionf(400, 400)
 	cookie.AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
 	cookie.Tag = CookieTag
 
@@ -261,7 +256,7 @@ func (s *GameScene) Load() {
 	defender.AddComponent(ds)
 	defender.AddComponent(Engine.NewSprite(boxt))
 	defender.Tag = CookieTag
-	defender.Transform().SetScalef(50, 50, 1)
+	defender.Transform().SetScalef(50, 50)
 
 	phx := defender.AddComponent(Engine.NewPhysics(false, 50, 50)).(*Engine.Physics)
 	phx.Shape.SetFriction(0.5)
@@ -274,15 +269,15 @@ func (s *GameScene) Load() {
 	QueenCookie.AddComponent(NewDamageDealer(200))
 	QueenCookie.AddComponent(NewEnemeyAI(Player, Enemey_Boss))
 	QueenCookie.Transform().SetParent2(Layer2)
-	QueenCookie.Transform().SetScalef(300, 300, 1)
-	QueenCookie.Transform().SetPositionf(999999, 999999, 1)
+	QueenCookie.Transform().SetScalef(300, 300)
+	QueenCookie.Transform().SetPositionf(999999, 999999)
 	QueenCookie.AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
 	QueenCookie.Tag = CookieTag
 
 	staticCookie := Engine.NewGameObject("Cookie")
 	staticCookie.AddComponent(Engine.NewSprite(cir))
-	staticCookie.Transform().SetScalef(400, 400, 1)
-	staticCookie.Transform().SetPositionf(400, 400, 1)
+	staticCookie.Transform().SetScalef(400, 400)
+	staticCookie.Transform().SetPositionf(400, 400)
 	staticCookie.AddComponent(NewDestoyable(float32(Engine.Inf), 2))
 	staticCookie.AddComponent(Engine.NewPhysics2(true, chipmunk.NewCircle(vect.Vect{0, 0}, 200)))
 
@@ -297,8 +292,8 @@ func (s *GameScene) Load() {
 	Background.Sprite.BindAnimations(ind)
 	Background.Sprite.SetAnimation("s")
 	Background.Sprite.AnimationSpeed = 0
-	Background.Transform().SetScalef(50, 50, 1)
-	Background.Transform().SetPositionf(400, 400, 1)
+	Background.Transform().SetScalef(50, 50)
+	Background.Transform().SetPositionf(400, 400)
 
 	uvs, ind = Engine.AnimatedGroupUVs(atlasPowerUp, "powerups")
 	PowerUpGO = Engine.NewGameObject("Background")
@@ -311,16 +306,16 @@ func (s *GameScene) Load() {
 	PowerUpGO.Sprite.AnimationSpeed = 0
 	index := (rand.Int() % 6) + 6
 	PowerUpGO.Sprite.SetAnimationIndex(int(index))
-	PowerUpGO.Transform().SetScalef(61, 61, 1)
-	PowerUpGO.Transform().SetPositionf(0, 0, 1)
+	PowerUpGO.Transform().SetScalef(61, 61)
+	PowerUpGO.Transform().SetPositionf(0, 0)
 
 	background := Engine.NewGameObject("Background")
 	background.AddComponent(Engine.NewSprite(backgroung))
 	background.AddComponent(NewBackground(background.Sprite))
 	background.Sprite.Render = false
 	//background.Transform().SetScalef(float32(backgroung.Height()), float32(backgroung.Height()), 1)
-	background.Transform().SetScalef(800, 800, 1)
-	background.Transform().SetPositionf(0, 0, 0)
+	background.Transform().SetScalef(800, 800)
+	background.Transform().SetPositionf(0, 0)
 
 	for i := 0; i < 300; i++ {
 		c := Background.Clone()
@@ -332,10 +327,10 @@ func (s *GameScene) Load() {
 
 		Background.Sprite.SetAnimationIndex(int(index))
 
-		c.Transform().SetRotationf(0, 0, rand.Float32()*360)
+		c.Transform().SetRotationf(rand.Float32() * 360)
 
 		c.Transform().SetPosition(p)
-		c.Transform().SetScalef(size, size, 1)
+		c.Transform().SetScalef(size, size)
 	}
 
 	for i := 0; i < 600; i++ {
@@ -351,7 +346,7 @@ func (s *GameScene) Load() {
 		}
 
 		c.Transform().SetPosition(p)
-		c.Transform().SetScalef(size, size, 1)
+		c.Transform().SetScalef(size, size)
 	}
 
 	Wall = Engine.NewGameObject("Wall")
@@ -362,28 +357,28 @@ func (s *GameScene) Load() {
 		c.Transform().SetParent2(Wall)
 		p := Engine.Vector{float32(i) * 400, -200, 1}
 		c.Transform().SetPosition(p)
-		c.Transform().SetScalef(400, 400, 1)
+		c.Transform().SetScalef(400, 400)
 	}
 	for i := 0; i < (4000/400)+2; i++ {
 		c := staticCookie.Clone()
 		c.Transform().SetParent2(Wall)
 		p := Engine.Vector{float32(i) * 400, 4200, 1}
 		c.Transform().SetPosition(p)
-		c.Transform().SetScalef(400, 400, 1)
+		c.Transform().SetScalef(400, 400)
 	}
 	for i := 0; i < (4000/400)+2; i++ {
 		c := staticCookie.Clone()
 		c.Transform().SetParent2(Wall)
 		p := Engine.Vector{-200, float32(i) * 400, 1}
 		c.Transform().SetPosition(p)
-		c.Transform().SetScalef(400, 400, 1)
+		c.Transform().SetScalef(400, 400)
 	}
 	for i := 0; i < (4000/400)+2; i++ {
 		c := staticCookie.Clone()
 		c.Transform().SetParent2(Wall)
 		p := Engine.Vector{4200, float32(i) * 400, 1}
 		c.Transform().SetPosition(p)
-		c.Transform().SetScalef(400, 400, 1)
+		c.Transform().SetScalef(400, 400)
 	}
 
 	s.AddGameObject(cam)

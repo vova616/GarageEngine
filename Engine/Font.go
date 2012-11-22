@@ -145,8 +145,7 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 		texture.SetReadOnly()
 	}
 
-	texture.SetFiltering(MinFilter, Linear)
-	texture.SetFiltering(MagFilter, Linear)
+	texture.SetFiltering(Linear, Linear)
 
 	return &Font{texture, LetterArray, firstRune, lastRune, size, dpi}, nil
 

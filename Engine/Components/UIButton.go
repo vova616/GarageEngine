@@ -1,9 +1,10 @@
 package Components
 
 import (
-	//"gl"
-	//. "github.com/vova616/GarageEngine/Engine"
+//"gl"
+//. "github.com/vova616/GarageEngine/Engine"
 )
+
 /*
 type UIText struct {
 	*BaseComponent

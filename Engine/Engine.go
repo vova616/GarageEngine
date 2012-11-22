@@ -55,7 +55,7 @@ var (
 	Space     *chipmunk.Space = nil
 	deltaTime float32
 	fixedTime float32
-	stepTime  = float32(1) / float32(62)
+	stepTime  = float32(1) / float32(60)
 
 	EnablePhysics = true
 	Debug         = true

@@ -14,15 +14,12 @@ import (
 	"unsafe"
 )
 
-type FilterType int
 type Filter int
 
 type WrapType int
 type Wrap int
 
 const (
-	MinFilter            = FilterType(gl.TEXTURE_MIN_FILTER)
-	MagFilter            = FilterType(gl.TEXTURE_MAG_FILTER)
 	Nearest              = Filter(gl.NEAREST)
 	Linear               = Filter(gl.LINEAR)
 	MipMapLinearNearest  = Filter(gl.LINEAR_MIPMAP_NEAREST)
@@ -322,8 +319,7 @@ func NewTexture2(data interface{}, width int, height int, target gl.GLenum, inte
 
 	t.SetWraping(WrapS, ClampToEdge)
 	t.SetWraping(WrapT, ClampToEdge)
-	t.SetFiltering(MinFilter, Nearest)
-	t.SetFiltering(MagFilter, Nearest)
+	t.SetFiltering(Nearest, Nearest)
 
 	ansi := []float32{0}
 	gl.GetFloatv(gl.MAX_TEXTURE_MAX_ANISOTROPY_EXT, ansi)
@@ -351,8 +347,7 @@ func NewTextureEmpty(width int, height int, model color.Model) *Texture {
 
 	t.SetWraping(WrapS, ClampToEdge)
 	t.SetWraping(WrapT, ClampToEdge)
-	t.SetFiltering(MinFilter, Nearest)
-	t.SetFiltering(MagFilter, Nearest)
+	t.SetFiltering(Nearest, Nearest)
 
 	ResourceManager.Add(t)
 
@@ -377,9 +372,10 @@ func (t *Texture) Paramf(filter int, value float32) {
 	gl.TexParameterf(t.target, gl.GLenum(filter), value)
 }
 
-func (t *Texture) SetFiltering(filterType FilterType, filter Filter) {
+func (t *Texture) SetFiltering(minFilter Filter, magFilter Filter) {
 	t.Bind()
-	gl.TexParameteri(t.target, gl.GLenum(filterType), int(filter))
+	gl.TexParameteri(t.target, gl.TEXTURE_MAG_FILTER, int(magFilter))
+	gl.TexParameteri(t.target, gl.TEXTURE_MIN_FILTER, int(minFilter))
 }
 
 func (t *Texture) SetWraping(wrapType WrapType, wrap Wrap) {

@@ -50,7 +50,7 @@ func (s *GameScene) Load() {
 	cam.AddComponent(s.Camera)
 	cam.AddComponent(NewCameraCtl())
 
-	cam.Transform().SetScalef(1, 1, 1)
+	cam.Transform().SetScalef(1, 1)
 
 	gui := Engine.NewGameObject("GUI")
 
@@ -74,8 +74,8 @@ func (s *GameScene) Load() {
 		txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
 	})
 	FPSDrawer.Transform().SetParent2(cam)
-	FPSDrawer.Transform().SetPositionf(60, float32(Engine.Height)-20, 1)
-	FPSDrawer.Transform().SetScalef(20, 20, 1)
+	FPSDrawer.Transform().SetPositionf(60, float32(Engine.Height)-20)
+	FPSDrawer.Transform().SetScalef(20, 20)
 
 	//SPACCCEEEEE
 	Engine.Space.Gravity.Y = -300
@@ -95,6 +95,9 @@ func (s *GameScene) Load() {
 
 	atlas.BuildAtlas()
 
+	atlas.BuildMipmaps()
+	atlas.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
+
 	uvsFire, indFire := Engine.AnimatedGroupUVs(atlas, "fire")
 	_ = uvsFire
 	_ = indFire
@@ -103,24 +106,35 @@ func (s *GameScene) Load() {
 	s2 := clone2.AddComponent(Engine.NewSprite3(atlas.Texture, uvsFire)).(*Engine.Sprite)
 	s2.BindAnimations(indFire)
 	s2.AnimationSpeed = 6
-	clone2.Transform().SetPositionf(775, 300, 1)
-	clone2.Transform().SetScalef(58, 58, 1)
+	clone2.Transform().SetPositionf(775, 300)
+	clone2.Transform().SetScalef(58, 58)
 	clone2.Transform().SetParent2(Layer1)
 
 	f := clone2.Clone()
-	f.Transform().SetPositionf(25, 300, 1)
+	f.Transform().SetPositionf(25, 300)
 	f.Transform().SetParent2(Layer1)
 
 	box, _ = Engine.LoadTexture("./data/rect.png")
 	cir, _ = Engine.LoadTexture("./data/circle.png")
+	cir.BuildMipmaps()
+	cir.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
+
+	ball := Engine.NewGameObject("Ball")
+	ball.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, 222)))
+	ball.Transform().SetScalef(30, 30)
+	ball.AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15)))
+	ball.Physics.Body.SetMass(10)
+	ball.Physics.Body.SetMoment(ball.Physics.Shape.Moment(10))
+	ball.Physics.Shape.SetFriction(0.8)
+	ball.Physics.Shape.SetElasticity(0.8)
 
 	for i := 0; i < 0; i++ {
 		sprite3 := Engine.NewGameObject("Sprite" + fmt.Sprint(i))
 		sprite3.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, 333)))
 		sprite3.Transform().SetParent2(Layer2)
-		sprite3.Transform().SetRotation(Engine.NewVector3(0, 0, 180))
-		sprite3.Transform().SetPosition(Engine.NewVector2(160, 120+float32(i*31)))
-		sprite3.Transform().SetScale(Engine.NewVector2(30, 30))
+		sprite3.Transform().SetRotationf(180)
+		sprite3.Transform().SetPositionf(160, 120+float32(i*31))
+		sprite3.Transform().SetScalef(30, 30)
 
 		phx := sprite3.AddComponent(Engine.NewPhysics(false, 30, 30)).(*Engine.Physics)
 		phx.Shape.SetFriction(1)
@@ -128,40 +142,29 @@ func (s *GameScene) Load() {
 		phx.Body.SetMass(1)
 	}
 
-	for i := 0; i < 2000; i++ {
-		sprite3 := Engine.NewGameObject("Sprite" + fmt.Sprint(i))
-		sprite3.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, 222)))
+	for i := 0; i < 100; i++ {
+		sprite3 := ball.Clone()
 		sprite3.Transform().SetParent2(Layer2)
-		//i*31 - 220
-		//+(float32(i%4))*25
-		//+float32(i*30)
-		sprite3.Transform().SetPosition(Engine.NewVector2(200+float32(i%4)*25, float32(i*30)+120))
-		sprite3.Transform().SetScale(Engine.NewVector2(30, 30))
-		phx := sprite3.AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15))).(*Engine.Physics)
-		phx.Body.SetMass(10)
-		phx.Body.SetMoment(phx.Shape.ShapeClass.Moment(10))
-
-		phx.Shape.SetFriction(0.8)
-		phx.Shape.SetElasticity(0.8)
+		sprite3.Transform().SetPositionf(200+float32(i%4)*25, float32(i*30)+120)
 	}
 
 	floor := Engine.NewGameObject("Floor")
 	floor.AddComponent(Engine.NewSprite(box))
-	phx := floor.AddComponent(Engine.NewPhysics(true, 1000000, 100)).(*Engine.Physics)
+	floor.AddComponent(Engine.NewPhysics(true, 1000000, 100))
 	floor.Transform().SetParent2(Layer2)
-	floor.Transform().SetPosition(Engine.NewVector2(100, -20))
-	floor.Transform().SetScale(Engine.NewVector2(10000, 100))
-	phx.Shape.SetFriction(1)
-	phx.Shape.SetElasticity(1)
+	floor.Transform().SetPositionf(100, -20)
+	floor.Transform().SetScalef(10000, 100)
+	floor.Physics.Shape.SetFriction(1)
+	floor.Physics.Shape.SetElasticity(1)
 
 	floor2 := floor.Clone()
 	floor2.Transform().SetParent2(Layer2)
-	floor2.Transform().SetPosition(Engine.NewVector2(800, -20))
-	floor2.Transform().SetRotationf(0, 0, 90)
+	floor2.Transform().SetPositionf(800, -20)
+	floor2.Transform().SetRotationf(90)
 
 	floor3 := floor2.Clone()
 	floor3.Transform().SetParent2(Layer2)
-	floor3.Transform().SetPosition(Engine.NewVector2(0, -20))
+	floor3.Transform().SetPositionf(0, -20)
 
 	uvs2, ind := Engine.AnimatedGroupUVs(atlas, "stand", "walk")
 	_ = uvs2
@@ -177,8 +180,8 @@ func (s *GameScene) Load() {
 	ph := sprite4.AddComponent(Engine.NewPhysics(false, 100, 100)).(*Engine.Physics)
 	player.Fire = clone2
 	sprite4.Transform().SetParent2(Layer1)
-	sprite4.Transform().SetPositionf(900, 100, 0)
-	sprite4.Transform().SetScalef(100, 100, 0)
+	sprite4.Transform().SetPositionf(900, 100)
+	sprite4.Transform().SetScalef(100, 100)
 	ph.Body.SetMass(100)
 	ph.Body.IgnoreGravity = false
 	ph.Body.SetMoment(Engine.Inf)

@@ -47,7 +47,7 @@ func (m *ResizeScript) Update() {
 		sy := (rand.Float32() * m.MaxY) + m.MinY
 		sx = m.MinX
 		sy = m.MinY
-		m.Transform().SetScalef(sx, sy, 1)
+		m.Transform().SetScalef(sx, sy)
 		m.State = 1
 	} else if m.State == 1 {
 		deltaX := m.MaxX - m.MinX

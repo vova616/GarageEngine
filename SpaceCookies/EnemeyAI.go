@@ -125,7 +125,7 @@ func (ai *EnemeyAI) Start() {
 		//c.Tag = CookieTag
 		c.Transform().SetParent2(GameSceneGeneral.Layer2)
 		size := 50 + rand.Float32()*100
-		c.Transform().SetScalef(size, size, 1)
+		c.Transform().SetScalef(size, size)
 
 		s := ai.Transform().WorldScale()
 		s = s.Add(c.Transform().WorldScale())
@@ -143,7 +143,7 @@ func (ai *EnemeyAI) Start() {
 			return Engine.Close
 		}
 
-		ai.Transform().SetPositionf(1500, 1500, 1)
+		ai.Transform().SetPositionf(1500, 1500)
 
 		return Engine.Continue
 	}
@@ -222,7 +222,7 @@ func (sp *EnemeyAI) OnDie(byTimer bool) {
 		n.Transform().SetScale(s.Mul2((rand.Float32() * 3) + size))
 		n.AddComponent(Engine.NewPhysics(false, 1, 1))
 
-		n.Transform().SetRotationf(0, 0, rand.Float32()*360)
+		n.Transform().SetRotationf(rand.Float32() * 360)
 		rot := n.Transform().Rotation2D()
 		n.Physics.Body.SetVelocity(-rot.X*15, -rot.Y*15)
 

@@ -162,8 +162,8 @@ func (t *Transform) SetPosition(vect Vector) {
 	t.position = vect
 }
 
-func (t *Transform) SetPositionf(x, y, z float32) {
-	t.SetPosition(NewVector3(x, y, z))
+func (t *Transform) SetPositionf(x, y float32) {
+	t.SetPosition(NewVector3(x, y, 1))
 }
 
 func (t *Transform) SetRotation(vect Vector) {
@@ -174,8 +174,8 @@ func (t *Transform) SetRotation(vect Vector) {
 	t.rotation = vect
 }
 
-func (t *Transform) SetRotationf(x, y, z float32) {
-	t.SetRotation(NewVector3(x, y, z))
+func (t *Transform) SetRotationf(z float32) {
+	t.SetRotation(NewVector3(0, 0, z))
 }
 
 func (t *Transform) SetScale(vect Vector) {
@@ -186,8 +186,8 @@ func (t *Transform) SetScale(vect Vector) {
 	t.scale = vect
 }
 
-func (t *Transform) SetScalef(x, y, z float32) {
-	t.SetScale(NewVector3(x, y, z))
+func (t *Transform) SetScalef(x, y float32) {
+	t.SetScale(NewVector3(x, y, 1))
 }
 
 func (t *Transform) WorldPosition() Vector {
@@ -223,8 +223,8 @@ func (t *Transform) SetWorldPosition(vect Vector) {
 	}
 }
 
-func (t *Transform) SetWorldPositionf(x, y, z float32) {
-	t.SetWorldPosition(NewVector3(x, y, z))
+func (t *Transform) SetWorldPositionf(x, y float32) {
+	t.SetWorldPosition(NewVector3(x, y, 1))
 }
 
 func (t *Transform) SetWorldRotation(vect Vector) {
@@ -238,8 +238,8 @@ func (t *Transform) SetWorldRotation(vect Vector) {
 	t.SetRotation(vect.Sub(p))
 }
 
-func (t *Transform) SetWorldRotationf(x, y, z float32) {
-	t.SetWorldRotation(NewVector3(x, y, z))
+func (t *Transform) SetWorldRotationf(z float32) {
+	t.SetWorldRotation(NewVector3(0, 0, z))
 }
 
 func (t *Transform) SetWorldScale(vect Vector) {
@@ -253,8 +253,8 @@ func (t *Transform) SetWorldScale(vect Vector) {
 	t.SetScale(p.Div(t.scale))
 }
 
-func (t *Transform) SetWorldScalef(x, y, z float32) {
-	t.SetWorldScale(NewVector3(x, y, z))
+func (t *Transform) SetWorldScalef(x, y float32) {
+	t.SetWorldScale(NewVector3(x, y, 1))
 }
 
 func (t *Transform) Parent() *Transform {
@@ -283,8 +283,8 @@ func (t *Transform) Translate(v Vector) {
 	t.SetPosition(a.Add(v))
 }
 
-func (t *Transform) Translatef(x, y, z float32) {
-	t.Translate(NewVector3(x, y, z))
+func (t *Transform) Translatef(x, y float32) {
+	t.Translate(NewVector3(x, y, 1))
 }
 
 func (t *Transform) SetParent(parent *Transform) {
