@@ -18,16 +18,16 @@ func (sp *CameraController) Update() {
 	t := sp.GameObject().Transform()
 
 	if Input.KeyDown('A') {
-		t.Translatef(-10, 0, 0)
+		t.Translatef(-10, 0)
 	}
 	if Input.KeyDown('D') {
-		t.Translatef(10, 0, 0)
+		t.Translatef(10, 0)
 	}
 	if Input.KeyDown('S') {
-		t.Translatef(0, -10, 0)
+		t.Translatef(0, -10)
 	}
 	if Input.KeyDown('W') {
-		t.Translatef(0, 10, 0)
+		t.Translatef(0, 10)
 	}
 	if Input.KeyDown('E') {
 		s := t.Scale()

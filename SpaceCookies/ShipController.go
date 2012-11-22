@@ -78,7 +78,7 @@ func (sp *ShipController) Start() {
 
 				jf := sp.JetFire.Clone()
 				jf.Transform().SetParent2(jfp)
-				jf.Transform().SetPositionf(0, -((uvJet.Ratio)/2)*jf.Transform().Scale().Y, 0)
+				jf.Transform().SetPositionf(0, -((uvJet.Ratio)/2)*jf.Transform().Scale().Y)
 
 				//	jf.Transform().SetWorldScalef(10, 10, 1)
 
@@ -107,7 +107,7 @@ func (sp *ShipController) OnDie(byTimer bool) {
 		n.Transform().SetScale(s.Mul2(rand.Float32() * 8))
 		n.AddComponent(Engine.NewPhysics(false, 1, 1))
 
-		n.Transform().SetRotationf(0, 0, rand.Float32()*360)
+		n.Transform().SetRotationf(rand.Float32() * 360)
 		rot := n.Transform().Rotation2D()
 		n.Physics.Body.SetVelocity(-rot.X*100, -rot.Y*100)
 
@@ -211,7 +211,7 @@ func (sp *ShipController) Update() {
 		v = v.Sub(sp.Transform().WorldPosition())
 		v.Normalize()
 		angle := float32(math.Atan2(float64(v.Y), float64(v.X))) * Engine.DegreeConst
-		sp.Transform().SetRotationf(0, 0, float32(int(angle-90)))
+		sp.Transform().SetRotationf(float32(int(angle - 90)))
 
 		if Input.KeyDown('D') || Input.KeyDown('E') {
 			ph.Body.SetAngularVelocity(0)
@@ -228,12 +228,12 @@ func (sp *ShipController) Update() {
 		if Input.KeyDown('D') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
-			sp.Transform().SetRotationf(0, 0, r.Z-rotSpeed*Engine.DeltaTime())
+			sp.Transform().SetRotationf(r.Z - rotSpeed*Engine.DeltaTime())
 		}
 		if Input.KeyDown('A') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
-			sp.Transform().SetRotationf(0, 0, r.Z+rotSpeed*Engine.DeltaTime())
+			sp.Transform().SetRotationf(r.Z + rotSpeed*Engine.DeltaTime())
 		}
 
 		if Input.KeyDown('E') {
@@ -265,6 +265,6 @@ func (sp *ShipController) Update() {
 
 func (sp *ShipController) LateUpdate() {
 	if GameSceneGeneral.SceneData.Camera.GameObject() != nil {
-		GameSceneGeneral.SceneData.Camera.Transform().SetPositionf(sp.Transform().Position().X-float32(Engine.Width/2), sp.Transform().Position().Y-float32(Engine.Height/2), 0)
+		GameSceneGeneral.SceneData.Camera.Transform().SetPositionf(sp.Transform().Position().X-float32(Engine.Width/2), sp.Transform().Position().Y-float32(Engine.Height/2))
 	}
 }

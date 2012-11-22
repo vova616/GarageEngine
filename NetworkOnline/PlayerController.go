@@ -75,20 +75,18 @@ func (sp *PlayerController) Shoot() {
 		nfire.Physics.Body.IgnoreGravity = true
 		nfire.Physics.Body.SetMass(200)
 		s := sp.Transform().Rotation()
-		s2 := nfire.Transform().Rotation()
-		s2.Y = s.Y
-		if s2.Y == 180 {
-			s2.Z = 90
-			nfire.Transform().Translatef(-20, 0, 0)
+		if s.Y == 180 {
+			nfire.Transform().SetRotationf(90)
+			nfire.Transform().Translatef(-20, 0)
 			nfire.Physics.Body.SetVelocity(-550, 0)
 		} else {
-			s2.Z = -90
-			nfire.Transform().Translatef(20, 0, 0)
+			nfire.Transform().SetRotationf(90)
+			nfire.Transform().Translatef(20, 0)
 			nfire.Physics.Body.SetVelocity(550, 0)
 		}
 		nfire.Physics.Shape.Group = 1
 		nfire.Physics.Body.SetMoment(Engine.Inf)
-		nfire.Transform().SetRotation(s2)
+
 	}
 }
 
@@ -153,14 +151,12 @@ func (sp *PlayerController) Update() {
 
 	for i := 0; i < len(sp.Fires); i++ {
 		fire := sp.Fires[i]
-		if fire.Transform().Rotation().Z <= -80 && fire.Physics.Body.Velocity().X <= 1 {
-			//fire.Destory()
-			//HACK
-			fire.Transform().SetWorldPosition(Engine.NewVector3(-10000, -1000, -1000))
+		if fire.Transform().Rotation().Z <= -80 && fire.Physics.Body.Velocity().X >= -1 {
+			fire.Destroy()
 			sp.Fires = append(sp.Fires[:i], sp.Fires[i+1:]...)
 			i--
-		} else if fire.Transform().Rotation().Z >= 80 && fire.Physics.Body.Velocity().X >= -1 {
-			fire.Transform().SetWorldPosition(Engine.NewVector3(-10000, -1000, -1000))
+		} else if fire.Transform().Rotation().Z >= 80 && fire.Physics.Body.Velocity().X <= 1 {
+			fire.Destroy()
 			sp.Fires = append(sp.Fires[:i], sp.Fires[i+1:]...)
 			i--
 		}

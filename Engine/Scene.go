@@ -3,18 +3,18 @@ package Engine
 //import "log"
 
 type SceneData struct {
-	name	string
+	name        string
 	gameObjects []*GameObject
-	Camera *Camera
+	Camera      *Camera
 }
 
 type Scene interface {
 	New() Scene
 	Load()
 	SceneBase() *SceneData
-} 
+}
 
-func NewScene(name string) *SceneData{
+func NewScene(name string) *SceneData {
 	return &SceneData{name: name, gameObjects: make([]*GameObject, 0)}
 }
 
@@ -31,11 +31,10 @@ func (s *SceneData) AddGameObject(g *GameObject) {
 }
 
 func (s *SceneData) RemoveGameObject(g *GameObject) {
-	for i,c := range s.gameObjects {
+	for i, c := range s.gameObjects {
 		if g == c {
 			s.gameObjects = append(s.gameObjects[:i], s.gameObjects[i+1:]...)
 			break
 		}
 	}
 }
-

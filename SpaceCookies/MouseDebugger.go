@@ -28,7 +28,7 @@ func (m *MouseDebugger) Update() {
 			c.Transform().SetParent2(GameSceneGeneral.Layer2)
 			size := 25 + rand.Float32()*100
 			c.Transform().SetPosition(mousePosition)
-			c.Transform().SetScalef(size, size, 1)
+			c.Transform().SetScalef(size, size)
 		}
 	}
 	if Input.MouseDown(Input.MouseRight) {
@@ -44,7 +44,7 @@ func (m *MouseDebugger) Update() {
 		*/
 		b.Transform().SetParent2(GameSceneGeneral.Layer2)
 		b.Transform().SetWorldPosition(mousePosition)
-		b.Transform().SetScalef(50, 50, 1)
+		b.Transform().SetScalef(50, 50)
 
 	}
 

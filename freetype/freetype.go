@@ -11,9 +11,8 @@ package freetype
 import (
 	"errors"
 	"image"
-	"image/draw" 
+	"image/draw"
 
-	
 	"github.com/vova616/GarageEngine/freetype/raster"
 	"github.com/vova616/GarageEngine/freetype/truetype"
 )
