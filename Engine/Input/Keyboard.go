@@ -1,10 +1,5 @@
 package Input
 
-import (
-	"github.com/jteeuwen/glfw"
-	//"log"
-)
-
 var (
 	keyState   = make(map[int]int8)
 	mouseState = make(map[int]int8)
@@ -12,13 +7,13 @@ var (
 
 func OnKey(key, state int) {
 	switch key {
-	case glfw.KeyEsc:
+	case KeyEsc:
 		//running = false
 	}
 	switch state {
-	case glfw.KeyRelease:
+	case Key_Release:
 		keyState[key] &= 2
-	case glfw.KeyPress:
+	case Key_Press:
 		if keyState[key] == 0 {
 			keyState[key] = 3
 		} else {

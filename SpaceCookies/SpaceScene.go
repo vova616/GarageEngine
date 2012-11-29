@@ -259,6 +259,8 @@ func (s *GameScene) Load() {
 	defender.Transform().SetScalef(50, 50)
 
 	phx := defender.AddComponent(Engine.NewPhysics(false, 50, 50)).(*Engine.Physics)
+	phx.Body.SetMass(2.5)
+	phx.Body.SetMoment(phx.Shape.Moment(2.5))
 	phx.Shape.SetFriction(0.5)
 	//phx.Shape.Group = 2
 	phx.Shape.SetElasticity(0.5)
