@@ -17,6 +17,17 @@ var (
 	MinusOne = Vector{-1, -1, -1}
 )
 
+func Round(val float32, places int) float32 {
+	if places < 0 {
+		panic("places should be >= 0")
+	}
+
+	factor := float32(math.Pow10(places))
+	val = val * factor
+	tmp := float32(int(val))
+	return tmp / factor
+}
+
 type Vector struct {
 	X, Y, Z float32
 }
@@ -89,18 +100,22 @@ func (v *Vector) fixAngle() {
 	}
 }
 
-func (v *Vector) Length() float32 {
+func (v Vector) Length() float32 {
 	return float32(math.Sqrt(float64(v.X*v.X + v.Y*v.Y)))
 }
 
-func (v *Vector) Normalize() {
+func Lerp(from, to Vector, t float32) Vector {
+	return NewVector2(from.X+((to.X-from.X)*t), from.Y+((to.Y-from.Y)*t))
+}
+
+func (v Vector) Normalize() {
 	l := v.Length()
 	v.X /= l
 	v.Y /= l
 	v.Z /= l
 }
 
-func (v *Vector) Normalized() Vector {
+func (v Vector) Normalized() Vector {
 	l := v.Length()
 	if l == 0 {
 		return NewVector3(0, 0, 0)

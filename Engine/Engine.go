@@ -31,6 +31,7 @@ func (arbiter *Arbiter) GameObjectB() *GameObject {
 }
 
 func init() {
+	Input.MousePosition = glfw.MousePos
 	fmt.Print()
 }
 
@@ -348,6 +349,9 @@ func Run() {
 		fmt.Println("##################")
 		fmt.Println()
 	}
+
+	now = time.Now()
+	deltaTime = float32(now.Sub(before).Nanoseconds()/int64(time.Millisecond)) / 1000
 }
 
 func Iter(objs []*GameObject, f func(*GameObject)) {

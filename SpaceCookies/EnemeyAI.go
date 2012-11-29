@@ -66,7 +66,7 @@ func (ai *EnemeyAI) Start() {
 			rnd = -rnd
 		}
 
-		ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*50000, (dir.Y+rnd)*50000)
+		ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*(200*rand.Float32()+50), (dir.Y+rnd)*(200*rand.Float32()+50))
 		return Engine.Continue
 	}
 
@@ -89,7 +89,7 @@ func (ai *EnemeyAI) Start() {
 					rnd = -rnd
 				}
 
-				ai.GameObject().Physics.Body.AddForce((-dir.X+rnd)*20000, (-dir.Y+rnd)*20000)
+				ai.GameObject().Physics.Body.AddForce((-dir.X+rnd)*50, (-dir.Y+rnd)*50)
 			} else {
 				dir := targetPos.Sub(myPos)
 				dir.Normalize()
@@ -99,7 +99,7 @@ func (ai *EnemeyAI) Start() {
 					rnd = -rnd
 				}
 
-				ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*50000, (dir.Y+rnd)*50000)
+				ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*200, (dir.Y+rnd)*200)
 			}
 		}
 
@@ -133,7 +133,7 @@ func (ai *EnemeyAI) Start() {
 		p := myPos.Add(dir.Mul(s))
 
 		c.Transform().SetPosition(p)
-		c.GameObject().Physics.Body.AddForce((dir.X+rnd)*25000, (dir.Y+rnd)*25000)
+		c.GameObject().Physics.Body.AddForce((dir.X+rnd)*250, (dir.Y+rnd)*250)
 
 		return Engine.Continue
 	}

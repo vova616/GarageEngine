@@ -6,9 +6,9 @@ import (
 	//"github.com/jteeuwen/glfw"
 	"github.com/vova616/GarageEngine/Engine/Input"
 	//"log"
+	//"fmt"
 	"github.com/vova616/chipmunk"
 	"github.com/vova616/chipmunk/vect"
-	//"fmt"
 	"math"
 	"math/rand"
 	"time"
@@ -211,7 +211,10 @@ func (sp *ShipController) Update() {
 		v = v.Sub(sp.Transform().WorldPosition())
 		v.Normalize()
 		angle := float32(math.Atan2(float64(v.Y), float64(v.X))) * Engine.DegreeConst
-		sp.Transform().SetRotationf(float32(int(angle - 90)))
+		sp.Transform().SetRotationf(float32(int((angle - 90))))
+
+		ph.Body.SetAngularVelocity(0)
+		ph.Body.SetTorque(0)
 
 		if Input.KeyDown('D') || Input.KeyDown('E') {
 			ph.Body.SetAngularVelocity(0)
@@ -265,6 +268,9 @@ func (sp *ShipController) Update() {
 
 func (sp *ShipController) LateUpdate() {
 	if GameSceneGeneral.SceneData.Camera.GameObject() != nil {
-		GameSceneGeneral.SceneData.Camera.Transform().SetPositionf(sp.Transform().Position().X-float32(Engine.Width/2), sp.Transform().Position().Y-float32(Engine.Height/2))
+		myPos := Engine.Vector{sp.Transform().Position().X - float32(Engine.Width/2), sp.Transform().Position().Y - float32(Engine.Height/2), 0}
+		camPos := GameSceneGeneral.SceneData.Camera.Transform().Position()
+		myPos = Engine.Lerp(camPos, myPos, Engine.DeltaTime()*3)
+		GameSceneGeneral.SceneData.Camera.Transform().SetPosition(myPos)
 	}
 }
