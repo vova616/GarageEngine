@@ -224,7 +224,7 @@ func Run() {
 		timer.StartCustom("Physics time")
 		if EnablePhysics {
 			timer.StartCustom("Physics step time")
-			for fixedTime > stepTime {
+			for fixedTime >= stepTime {
 				timer.StartCustom("FixedUpdate routines")
 				Iter(arr, fixedUdpateGameObject)
 				fixedUpdateDelta = timer.StopCustom("FixedUpdate routines")
@@ -273,6 +273,7 @@ func Run() {
 					//println("Nope!")
 					stepTime = float32(1) / float32(60)
 				}
+
 				//}
 
 				//time.Sleep(time.Millisecond * 20)
