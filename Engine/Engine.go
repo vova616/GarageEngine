@@ -59,7 +59,7 @@ var (
 	stepTime  = float32(1) / float32(60)
 
 	EnablePhysics = true
-	Debug         = true
+	Debug         = false
 	InternalFPS   = float32(100)
 
 	BehaviorTicks = 5

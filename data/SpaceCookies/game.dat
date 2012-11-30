@@ -90,5 +90,7 @@
         "MissleLevel": 0
     },
     "PowerUpChance": 2,
-    "PowerUpRepairChance": 5
+    "PowerUpRepairChance": 5,
+    "ShipHP": 1000,
+    "Debug": false
 }
