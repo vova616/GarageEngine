@@ -17,7 +17,7 @@ var (
 	MinusOne = Vector{-1, -1, -1}
 )
 
-func Round(val float32, places int) float32 {
+func Roundf(val float32, places int) float32 {
 	if places < 0 {
 		panic("places should be >= 0")
 	}
@@ -26,6 +26,19 @@ func Round(val float32, places int) float32 {
 	val = val * factor
 	tmp := float32(int(val))
 	return tmp / factor
+}
+
+func Lerpf(from, to float32, t float32) float32 {
+	return from + ((to - from) * t)
+}
+
+func LerpAngle(from, to float32, t float32) float32 {
+	if to-from > 180 {
+		from += 360
+	} else if from-to > 180 {
+		to += 360
+	}
+	return from + ((to - from) * t)
 }
 
 type Vector struct {
@@ -152,16 +165,18 @@ func (t *Transform) Rotation() Vector {
 	return t.rotation
 }
 
-func (t *Transform) Rotation2D() Vector {
-	angle := (t.rotation.Z) * RadianConst
+func (t *Transform) Angle() float32 {
+	return t.rotation.Z
+}
+
+func (t *Transform) Direction() Vector {
+	angle := t.Angle() * RadianConst
 	return NewVector2(float32(math.Cos(float64(angle))), float32(math.Sin(float64(angle))))
 }
 
-func (t *Transform) Direction2D(up Vector) Vector {
+func (t *Transform) DirectionTransform(up Vector) Vector {
 	angle := float32(RadianConst)
-
-	angle *= (t.rotation.Z + float32(math.Atan2(float64(up.Y), float64(up.X)))*float32(DegreeConst))
-
+	angle *= (t.Angle() + float32(math.Atan2(float64(up.Y), float64(up.X)))*float32(DegreeConst))
 	return NewVector2(float32(math.Cos(float64(angle))), float32(math.Sin(float64(angle))))
 }
 
@@ -182,9 +197,6 @@ func (t *Transform) SetPositionf(x, y float32) {
 }
 
 func (t *Transform) SetRotation(vect Vector) {
-	if t.rotation == vect {
-		return
-	}
 	t.updatedMatrix = false
 	t.rotation = vect
 }
@@ -194,9 +206,6 @@ func (t *Transform) SetRotationf(z float32) {
 }
 
 func (t *Transform) SetScale(vect Vector) {
-	if t.scale == vect {
-		return
-	}
 	t.updatedMatrix = false
 	t.scale = vect
 }

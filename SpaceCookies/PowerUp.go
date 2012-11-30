@@ -13,6 +13,11 @@ type PowerUp struct {
 	Type Power
 }
 
+var (
+	PowerUpChance       = 2
+	PowerUpRepairChance = 5
+)
+
 const (
 	Speed  = Power(2)
 	Damage = Power(1)
@@ -26,7 +31,7 @@ func NewPowerUp(typ Power) *PowerUp {
 
 func CreatePowerUp(position Engine.Vector) {
 	chance := rand.Int() % 100
-	if chance <= 2 {
+	if chance <= PowerUpChance {
 		c := PowerUpGO.Clone()
 		c.Transform().SetParent2(GameSceneGeneral.Layer2)
 		c.Transform().SetPosition(position)
@@ -42,7 +47,7 @@ func CreatePowerUp(position Engine.Vector) {
 		c.Sprite.SetAnimationIndex(int(index))
 
 		c.AddComponent(NewPowerUp(Power(index - 5)))
-	} else if chance <= 5 {
+	} else if chance <= PowerUpRepairChance {
 		c := PowerUpGO.Clone()
 		c.Transform().SetParent2(GameSceneGeneral.Layer2)
 		c.Transform().SetPosition(position)

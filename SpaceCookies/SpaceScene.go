@@ -15,7 +15,9 @@ import (
 	"github.com/vova616/chipmunk/vect"
 	//"image"
 	//"image/color"
+	"encoding/json"
 	"math/rand"
+	"os"
 )
 
 type GameScene struct {
@@ -100,6 +102,9 @@ func LoadTextures() {
 
 	cir.BuildMipmaps()
 	cir.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
+
+	backgroung.BuildMipmaps()
+	backgroung.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
 
 	CheckError(atlasSpace.LoadGroup("./data/SpaceCookies/Space/"))
 	atlasSpace.BuildAtlas()
@@ -215,6 +220,34 @@ func (s *GameScene) Load() {
 	ship.AddComponent(NewDestoyable(1000, 1))
 	PlayerShip.HPBar = HealthBar
 	PlayerShip.JetFire = JetFire
+
+	settings := struct {
+		Ship                *ShipController
+		PowerUpChance       *int
+		PowerUpRepairChance *int
+	}{
+		PlayerShip,
+		&PowerUpChance,
+		&PowerUpRepairChance,
+	}
+
+	f, e := os.Open("./data/SpaceCookies/game.dat")
+	if e != nil {
+		f, e = os.Create("./data/SpaceCookies/game.dat")
+		if e != nil {
+			fmt.Println(e)
+		}
+		defer f.Close()
+		encoder := json.NewEncoder(f)
+		encoder.Encode(settings)
+	} else {
+		defer f.Close()
+	}
+	decoder := json.NewDecoder(f)
+	e = decoder.Decode(&settings)
+	if e != nil {
+		fmt.Println(e)
+	}
 
 	uvs, ind := Engine.AnimatedGroupUVs(atlas, "Explosion")
 	Explosion = Engine.NewGameObject("Explosion")

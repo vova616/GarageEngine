@@ -15,24 +15,24 @@ import (
 )
 
 type ShipController struct {
-	Engine.BaseComponent
-	Speed            float32
-	RotationSpeed    float32
-	Missle           *Missle
-	MisslesPosition  []Engine.Vector
-	MisslesDirection [][]Engine.Vector
-	MissleLevel      int
-	MaxMissleLevel   int
-	lastShoot        time.Time
-	Destoyable       *Destoyable
-	HPBar            *Engine.GameObject
+	Engine.BaseComponent `json:"-"`
+	Speed                float32
+	RotationSpeed        float32
+	Missle               *Missle `json:"-"`
+	MisslesPosition      []Engine.Vector
+	MisslesDirection     [][]Engine.Vector
+	MissleLevel          int
+	MaxMissleLevel       int                `json:"-"`
+	lastShoot            time.Time          `json:"-"`
+	Destoyable           *Destoyable        `json:"-"`
+	HPBar                *Engine.GameObject `json:"-"`
 
-	UseMouse bool
+	UseMouse bool `json:"-"`
 
-	JetFire         *Engine.GameObject
-	JetFireParent   *Engine.GameObject
-	JetFirePool     []*ResizeScript
-	JetFirePosition []Engine.Vector
+	JetFire         *Engine.GameObject `json:"-"`
+	JetFireParent   *Engine.GameObject `json:"-"`
+	JetFirePool     []*ResizeScript    `json:"-"`
+	JetFirePosition []Engine.Vector    `json:"-"`
 }
 
 func NewShipController() *ShipController {
@@ -86,6 +86,9 @@ func (sp *ShipController) Start() {
 			}
 		}
 	}
+
+	myPos := Engine.Vector{sp.Transform().Position().X - float32(Engine.Width/2), sp.Transform().Position().Y - float32(Engine.Height/2), 0}
+	GameSceneGeneral.SceneData.Camera.Transform().SetPosition(myPos)
 	//sp.Physics.Shape.Friction = 0.5
 }
 
@@ -108,7 +111,7 @@ func (sp *ShipController) OnDie(byTimer bool) {
 		n.AddComponent(Engine.NewPhysics(false, 1, 1))
 
 		n.Transform().SetRotationf(rand.Float32() * 360)
-		rot := n.Transform().Rotation2D()
+		rot := n.Transform().Direction()
 		n.Physics.Body.SetVelocity(-rot.X*100, -rot.Y*100)
 
 		n.Physics.Body.SetMass(1)
@@ -125,7 +128,7 @@ func (sp *ShipController) Shoot() {
 		//scale := sp.Transform().Scale()
 		for i := 0; i < len(sp.MisslesDirection[sp.MissleLevel]); i++ {
 			pos := sp.MisslesPosition[i]
-			s := sp.Transform().Direction2D(sp.MisslesDirection[sp.MissleLevel][i])
+			s := sp.Transform().DirectionTransform(sp.MisslesDirection[sp.MissleLevel][i])
 			//s = s.Mul(sp.MisslesDirection[i])
 
 			p := sp.Transform().WorldPosition()
@@ -145,21 +148,22 @@ func (sp *ShipController) Shoot() {
 			nfire.Tag = MissleTag
 
 			v := sp.GameObject().Physics.Body.Velocity()
+			angle := float32(math.Atan2(float64(s.X), float64(s.Y))) * Engine.DegreeConst
 
 			nfire.Physics.Body.SetVelocity(float32(v.X), float32(v.Y))
 			nfire.Physics.Body.AddForce(s.X*3000, s.Y*3000)
 
 			nfire.Physics.Shape.Group = 1
 			nfire.Physics.Body.SetMoment(Engine.Inf)
-			nfire.Transform().SetRotation(sp.Transform().Rotation())
+			nfire.Transform().SetRotationf(180 - angle)
 		}
 	}
 }
 
 func (sp *ShipController) Update() {
 
-	r2 := sp.Transform().Direction2D(Engine.Up)
-	r3 := sp.Transform().Direction2D(Engine.Left)
+	r2 := sp.Transform().DirectionTransform(Engine.Up)
+	r3 := sp.Transform().DirectionTransform(Engine.Left)
 	ph := sp.GameObject().Physics
 	rx, ry := r2.X*Engine.DeltaTime(), r2.Y*Engine.DeltaTime()
 	rsx, rsy := r3.X*Engine.DeltaTime(), r3.Y*Engine.DeltaTime()
@@ -176,6 +180,84 @@ func (sp *ShipController) Update() {
 		ph.Body.AddForce(-sp.Speed*rx, -sp.Speed*ry)
 		jet = true
 		back = true
+	}
+
+	rotSpeed := sp.RotationSpeed
+	if Input.KeyDown(Input.KeyLshift) {
+		rotSpeed = 100
+	}
+
+	if sp.UseMouse {
+		v := Engine.GetScene().SceneBase().Camera.MouseWorldPosition()
+		v = v.Sub(sp.Transform().WorldPosition())
+		v.Normalize()
+		angle := float32(math.Atan2(float64(v.Y), float64(v.X))) * Engine.DegreeConst
+
+		angle = Engine.LerpAngle(sp.Transform().Rotation().Z, float32(int((angle - 90))), Engine.DeltaTime()*rotSpeed/50)
+		sp.Transform().SetRotationf(angle)
+
+		ph.Body.SetAngularVelocity(0)
+		ph.Body.SetTorque(0)
+
+		if Input.KeyDown('D') || Input.KeyDown('E') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			ph.Body.AddForce(-sp.Speed*rsx, -sp.Speed*rsy)
+			jet = true
+			back = true
+		}
+		if Input.KeyDown('A') || Input.KeyDown('Q') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			ph.Body.AddForce(sp.Speed*rsx, sp.Speed*rsy)
+			jet = true
+			back = true
+		}
+	} else {
+		r := sp.Transform().Rotation()
+		if Input.KeyDown('D') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			sp.Transform().SetRotationf(r.Z - rotSpeed*Engine.DeltaTime())
+			jet = true
+			back = true
+		}
+		if Input.KeyDown('A') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			sp.Transform().SetRotationf(r.Z + rotSpeed*Engine.DeltaTime())
+			jet = true
+			back = true
+		}
+
+		if Input.KeyDown('E') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			ph.Body.AddForce(-sp.Speed*rsx, -sp.Speed*rsy)
+			jet = true
+			back = true
+		}
+		if Input.KeyDown('Q') {
+			ph.Body.SetAngularVelocity(0)
+			ph.Body.SetTorque(0)
+			ph.Body.AddForce(sp.Speed*rsx, sp.Speed*rsy)
+			jet = true
+			back = true
+		}
+	}
+
+	if Input.MouseDown(Input.MouseLeft) {
+		if time.Now().After(sp.lastShoot) {
+			sp.Shoot()
+			sp.lastShoot = time.Now().Add(time.Millisecond * 200)
+		}
+	}
+
+	if Input.KeyPress('P') {
+		Engine.EnablePhysics = !Engine.EnablePhysics
+	}
+	if Input.KeyPress('T') {
+		sp.UseMouse = !sp.UseMouse
 	}
 
 	if jet {
@@ -199,70 +281,6 @@ func (sp *ShipController) Update() {
 		}
 	} else {
 		sp.JetFireParent.SetActiveRecursive(false)
-	}
-
-	rotSpeed := sp.RotationSpeed
-	if Input.KeyDown(Input.KeyLshift) {
-		rotSpeed = 100
-	}
-
-	if sp.UseMouse {
-		v := Engine.GetScene().SceneBase().Camera.MouseWorldPosition()
-		v = v.Sub(sp.Transform().WorldPosition())
-		v.Normalize()
-		angle := float32(math.Atan2(float64(v.Y), float64(v.X))) * Engine.DegreeConst
-		sp.Transform().SetRotationf(float32(int((angle - 90))))
-
-		ph.Body.SetAngularVelocity(0)
-		ph.Body.SetTorque(0)
-
-		if Input.KeyDown('D') || Input.KeyDown('E') {
-			ph.Body.SetAngularVelocity(0)
-			ph.Body.SetTorque(0)
-			ph.Body.AddForce(-sp.Speed*rsx, -sp.Speed*rsy)
-		}
-		if Input.KeyDown('A') || Input.KeyDown('Q') {
-			ph.Body.SetAngularVelocity(0)
-			ph.Body.SetTorque(0)
-			ph.Body.AddForce(sp.Speed*rsx, sp.Speed*rsy)
-		}
-	} else {
-		r := sp.Transform().Rotation()
-		if Input.KeyDown('D') {
-			ph.Body.SetAngularVelocity(0)
-			ph.Body.SetTorque(0)
-			sp.Transform().SetRotationf(r.Z - rotSpeed*Engine.DeltaTime())
-		}
-		if Input.KeyDown('A') {
-			ph.Body.SetAngularVelocity(0)
-			ph.Body.SetTorque(0)
-			sp.Transform().SetRotationf(r.Z + rotSpeed*Engine.DeltaTime())
-		}
-
-		if Input.KeyDown('E') {
-			ph.Body.SetAngularVelocity(0)
-			ph.Body.SetTorque(0)
-			ph.Body.AddForce(-sp.Speed*rsx, -sp.Speed*rsy)
-		}
-		if Input.KeyDown('Q') {
-			ph.Body.SetAngularVelocity(0)
-			ph.Body.SetTorque(0)
-			ph.Body.AddForce(sp.Speed*rsx, sp.Speed*rsy)
-		}
-	}
-
-	if Input.MouseDown(Input.MouseLeft) {
-		if time.Now().After(sp.lastShoot) {
-			sp.Shoot()
-			sp.lastShoot = time.Now().Add(time.Millisecond * 200)
-		}
-	}
-
-	if Input.KeyPress('P') {
-		Engine.EnablePhysics = !Engine.EnablePhysics
-	}
-	if Input.KeyPress('T') {
-		sp.UseMouse = !sp.UseMouse
 	}
 }
 

@@ -42,7 +42,7 @@ func (ms *Missle) OnDie(byTimer bool) {
 			n.Transform().SetScale(s.Mul2(rand.Float32() + 0.5))
 			n.AddComponent(Engine.NewPhysics(false, 1, 1))
 			n.Transform().SetRotationf(rand.Float32() * 360)
-			rot := n.Transform().Rotation2D()
+			rot := n.Transform().Direction()
 			n.Physics.Body.SetVelocity(-rot.X*10, -rot.Y*10)
 
 			n.Physics.Body.SetMass(1)

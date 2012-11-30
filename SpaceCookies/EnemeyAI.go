@@ -66,7 +66,7 @@ func (ai *EnemeyAI) Start() {
 			rnd = -rnd
 		}
 
-		ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*(200*rand.Float32()+50), (dir.Y+rnd)*(200*rand.Float32()+50))
+		ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*(100*rand.Float32()+50), (dir.Y+rnd)*(100*rand.Float32()+50))
 		return Engine.Continue
 	}
 
@@ -99,7 +99,7 @@ func (ai *EnemeyAI) Start() {
 					rnd = -rnd
 				}
 
-				ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*200, (dir.Y+rnd)*200)
+				ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*100, (dir.Y+rnd)*100)
 			}
 		}
 
@@ -133,7 +133,7 @@ func (ai *EnemeyAI) Start() {
 		p := myPos.Add(dir.Mul(s))
 
 		c.Transform().SetPosition(p)
-		c.GameObject().Physics.Body.AddForce((dir.X+rnd)*250, (dir.Y+rnd)*250)
+		c.GameObject().Physics.Body.AddForce((dir.X+rnd)*200, (dir.Y+rnd)*200)
 
 		return Engine.Continue
 	}
@@ -223,7 +223,7 @@ func (sp *EnemeyAI) OnDie(byTimer bool) {
 		n.AddComponent(Engine.NewPhysics(false, 1, 1))
 
 		n.Transform().SetRotationf(rand.Float32() * 360)
-		rot := n.Transform().Rotation2D()
+		rot := n.Transform().Direction()
 		n.Physics.Body.SetVelocity(-rot.X*15, -rot.Y*15)
 
 		n.Physics.Body.SetMass(1)
