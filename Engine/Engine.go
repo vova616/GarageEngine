@@ -161,7 +161,10 @@ func StartEngine() {
 	println("Opengl Initialized!")
 
 	TextureMaterial = NewBasicMaterial(vertexShader, fragmentShader)
-	TextureMaterial.Load()
+	err = TextureMaterial.Load()
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func MainLoop() bool {
@@ -579,7 +582,7 @@ func initGL() (err error) {
 	gl.Enable(gl.BLEND)
 	gl.DepthMask(true)
 
-	loadShader()
+	//loadShader()
 
 	return
 }
