@@ -217,7 +217,7 @@ func (s *GameScene) Load() {
 	ship.Transform().SetParent2(Layer2)
 	ship.Transform().SetPositionf(400, 200)
 	ship.Transform().SetScalef(100, 100)
-	ship.AddComponent(NewDestoyable(1000, 1))
+	shipHP := float32(1000)
 	PlayerShip.HPBar = HealthBar
 	PlayerShip.JetFire = JetFire
 
@@ -225,10 +225,14 @@ func (s *GameScene) Load() {
 		Ship                *ShipController
 		PowerUpChance       *int
 		PowerUpRepairChance *int
+		ShipHP              *float32
+		Debug               *bool
 	}{
 		PlayerShip,
 		&PowerUpChance,
 		&PowerUpRepairChance,
+		&shipHP,
+		&Engine.Debug,
 	}
 
 	f, e := os.Open("./data/SpaceCookies/game.dat")
@@ -248,6 +252,7 @@ func (s *GameScene) Load() {
 	if e != nil {
 		fmt.Println(e)
 	}
+	ship.AddComponent(NewDestoyable(shipHP, 1))
 
 	uvs, ind := Engine.AnimatedGroupUVs(atlas, "Explosion")
 	Explosion = Engine.NewGameObject("Explosion")
