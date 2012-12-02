@@ -79,7 +79,7 @@ func (s *GameScene) Load() {
 
 	//SPACCCEEEEE
 	Engine.Space.Gravity.Y = -300
-	Engine.Space.Iterations = 30
+	Engine.Space.Iterations = 10
 
 	atlas := Engine.NewManagedAtlas(512, 512)
 	e := atlas.LoadGroup("./data/fire")

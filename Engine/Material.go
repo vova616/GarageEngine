@@ -94,8 +94,6 @@ void main(void)
 const fragmentShader = `
 #version 110
 
-precision highp float; // needed only for version 1.30
-
 varying vec2 UV; 
 uniform sampler2D mytexture;
 uniform vec4 bcolor;
