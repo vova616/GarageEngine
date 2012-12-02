@@ -89,6 +89,7 @@ func (sp *ShipController) Start() {
 
 	myPos := Engine.Vector{sp.Transform().Position().X - float32(Engine.Width/2), sp.Transform().Position().Y - float32(Engine.Height/2), 0}
 	GameSceneGeneral.SceneData.Camera.Transform().SetPosition(myPos)
+	sp.MaxMissleLevel = len(sp.MisslesDirection) - 1
 	//sp.Physics.Shape.Friction = 0.5
 }
 

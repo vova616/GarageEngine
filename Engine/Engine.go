@@ -268,7 +268,7 @@ func Run() {
 
 				physicsStepDelta := timer.StopCustom("Physics step time")
 
-				if float32(physicsStepDelta.Nanoseconds()/int64(time.Millisecond))/float32(1000) > stepTime*0.7 {
+				if float32(physicsStepDelta.Nanoseconds()/int64(time.Millisecond))/float32(1000) > stepTime*0.5 {
 					//stepTime *= 2
 					//println("Break!")
 					break
