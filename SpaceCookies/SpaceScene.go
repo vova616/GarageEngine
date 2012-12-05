@@ -188,6 +188,7 @@ func (s *GameScene) Load() {
 
 	txt2 := label.AddComponent(Components.NewUIText(ArialFont2, "Input: ")).(*Components.UIText)
 	txt2.SetFocus(true)
+	txt2.SetWritable(true)
 	txt2.SetAlign(Engine.AlignLeft)
 
 	//SPACCCEEEEE
