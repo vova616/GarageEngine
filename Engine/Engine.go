@@ -235,33 +235,46 @@ func Run() {
 
 				timer.StartCustom("Physics time")
 
-				for _, b := range Space.Bodies {
-					g, ok := b.UserData.(*Physics)
-					if ok && g != nil && g.gameObject != nil {
+				setPosition := func(g *GameObject) {
+					if g.Physics != nil && g.Physics.started() {
 						pos := g.Transform().WorldPosition()
-						b.SetAngle(vect.Float(g.Transform().WorldRotation().Z) * RadianConst)
-						//fmt.Println(g.Transform().WorldRotation().Z, b.Transform.Angle())
-						b.SetPosition(vect.Vect{vect.Float(pos.X), vect.Float(pos.Y)})
+						pAngle := vect.Float(g.Transform().WorldRotation().Z) * RadianConst
+						g.Physics.Body.SetAngle(pAngle)
+						pPos := vect.Vect{vect.Float(pos.X), vect.Float(pos.Y)}
+						g.Physics.Body.SetPosition(pPos)
+						g.Physics.lastPosition = pPos
+						g.Physics.lastAngle = vect.Float(g.Transform().WorldRotation().Z)
 					}
 				}
+				Iter(arr, setPosition)
 
 				Space.Step(vect.Float(stepTime))
-
-				//Space.Step(Float(0.1))
-
 				fixedTime -= stepTime
 
 				updatePosition := func(g *GameObject) {
 					if g.Physics != nil && g.Physics.started() {
 
+						/*
+							When parent changes his position/rotation it changes his children position/rotation too but the physics engine thinks its in different position
+							so we need to check how much it changed and apply to the new position/rotation so we wont fuck up things too much.
+							or I think we need to add any child physics shape to the parent body but I will check that later.
+						*/
+
 						b := g.Physics.Body
-						r := g.Transform().WorldRotation()
-						g.Transform().SetWorldRotation(NewVector3(r.X, r.Y, (float32(b.Angle()) * DegreeConst)))
+						angle := float32(b.Angle()) * DegreeConst
+						lAngle := float32(g.Physics.lastAngle)
+						a := g.Transform().Angle()
+						a += angle - lAngle
+						g.Transform().SetWorldRotationf(a)
+
 						pos := b.Position()
-						g.Transform().SetWorldPosition(NewVector2(float32(pos.X), float32(pos.Y)))
+						lPos := g.Physics.lastPosition
+						objPos := g.Transform().WorldPosition()
+						objPos.X += float32(pos.X - lPos.X)
+						objPos.Y += float32(pos.Y - lPos.Y)
+						g.Transform().SetWorldPosition(objPos)
 
 						//fmt.Println(r.Z, b.Transform.Angle())
-
 					}
 				}
 
