@@ -167,7 +167,7 @@ func (ui *UIText) charCallback(rn rune) {
 func (ui *UIText) Update() {
 	ui.UpdateCollider()
 	if ui.focused && ui.writeable {
-		if Input.KeyPress(Input.KeyBackspace) {
+		if len(ui.text) > 0 && Input.KeyPress(Input.KeyBackspace) {
 			ui.updateText = true
 			ui.text = ui.text[:len(ui.text)-1]
 		}
@@ -206,9 +206,28 @@ func (ui *UIText) UpdateCollider() {
 	if b != nil {
 		h := float64(ui.height) * float64(ui.GameObject().Transform().WorldScale().Y)
 		w := float64(ui.width) * float64(ui.GameObject().Transform().WorldScale().X)
+		update := false
 		if vect.Float(h) != b.Height || vect.Float(w) != b.Width {
 			b.Width = vect.Float(w)
 			b.Height = vect.Float(h)
+			update = true
+		}
+		center := vect.Vect{0, 0}
+		switch ui.align {
+		case Engine.AlignLeft:
+			center = vect.Vect{vect.Float(w / 2), 0}
+		case Engine.AlignCenter:
+			break
+		case Engine.AlignRight:
+			center = vect.Vect{vect.Float(w), 0}
+		}
+
+		if b.Position != center {
+			update = true
+			b.Position = center
+		}
+
+		if update {
 			b.UpdatePoly()
 		}
 	}
@@ -273,7 +292,6 @@ func (ui *UIText) Draw() {
 	ui.Font.Bind()
 	gl.ActiveTexture(gl.TEXTURE0)
 	tx.Uniform1i(0)
-
 	/*
 		if ui.hover {
 			color.Uniform4f(1, 0, 0, 1)
@@ -281,7 +299,6 @@ func (ui *UIText) Draw() {
 			color.Uniform4f(1, 1, 1, 1)
 		}
 	*/
-
 	gl.DrawArrays(gl.QUADS, 0, ui.vertexCount)
 
 	ui.Font.Unbind()
