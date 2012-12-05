@@ -1,44 +1,56 @@
 package Input
 
+type CharCallback func(char rune)
+
 var (
-	keyState   = make(map[int]int8)
-	mouseState = make(map[int]int8)
+	keyState   = make(map[int]byte)
+	mouseState = make(map[int]byte)
+
+	charCallbacks = []CharCallback{}
+)
+
+const (
+	idle       = byte(0)
+	pressed    = byte(1)
+	wasPressed = byte(2)
 )
 
 func OnKey(key, state int) {
-	switch key {
-	case KeyEsc:
-		//running = false
-	}
 	switch state {
 	case Key_Release:
-		keyState[key] &= 2
+		keyState[key] = idle
 	case Key_Press:
-		if keyState[key] == 0 {
-			keyState[key] = 3
-		} else {
-			keyState[key] |= 1
-		}
+		keyState[key] = pressed | wasPressed
 	}
+}
+
+func OnChar(key, state int) {
+	for _, callback := range charCallbacks {
+		callback(rune(key))
+	}
+}
+
+func AddCharCallback(callback CharCallback) {
+	charCallbacks = append(charCallbacks, callback)
 }
 
 func UpdateInput() {
 	for i, v := range keyState {
-		keyState[i] = v & ^2
+		keyState[i] = v & ^wasPressed
 	}
 	for i, v := range mouseState {
-		mouseState[i] = v & ^2
+		mouseState[i] = v & ^wasPressed
 	}
 }
 
 func KeyDown(key int) bool {
-	return keyState[key]&1 != 0
+	return keyState[key]&pressed != 0
 }
 
 func KeyUp(key int) bool {
-	return keyState[key]&1 == 0
+	return keyState[key]&pressed == 0
 }
 
 func KeyPress(key int) bool {
-	return keyState[key]&2 != 0
+	return keyState[key]&wasPressed != 0
 }
