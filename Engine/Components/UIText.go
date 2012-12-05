@@ -45,7 +45,7 @@ func NewUIText(font *Engine.Font, text string) *UIText {
 		text:      text,
 		buffer:    gl.GenBuffer(),
 		align:     Engine.AlignCenter,
-		writeable: true}
+		writeable: false}
 
 	uitext.SetString(text)
 	Input.AddCharCallback(func(rn rune) { uitext.charCallback(rn) })
@@ -153,6 +153,9 @@ func (ui *UIText) Start() {
 func (ui *UIText) SetFocus(b bool) {
 	ui.focused = b
 }
+func (ui *UIText) SetWritable(b bool) {
+	ui.writeable = b
+}
 
 func (ui *UIText) charCallback(rn rune) {
 	if ui.focused && ui.writeable {
@@ -239,6 +242,7 @@ func (ui *UIText) Draw() {
 	mm := Engine.TextureMaterial.ModelMatrix
 	tx := Engine.TextureMaterial.Texture
 	color := Engine.TextureMaterial.AddColor
+	_ = color
 
 	vert.EnableArray()
 	uv.EnableArray()
@@ -270,11 +274,13 @@ func (ui *UIText) Draw() {
 	gl.ActiveTexture(gl.TEXTURE0)
 	tx.Uniform1i(0)
 
-	if ui.hover {
-		color.Uniform4f(1, 0, 0, 1)
-	} else {
-		color.Uniform4f(1, 1, 1, 1)
-	}
+	/*
+		if ui.hover {
+			color.Uniform4f(1, 0, 0, 1)
+		} else {
+			color.Uniform4f(1, 1, 1, 1)
+		}
+	*/
 
 	gl.DrawArrays(gl.QUADS, 0, ui.vertexCount)
 
