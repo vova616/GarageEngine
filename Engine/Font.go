@@ -8,7 +8,7 @@ import (
 	//"github.com/jteeuwen/glfw"
 	//"gl/glu"
 	//"log"
-
+	"fmt"
 	//"bufio"
 	//"image/png"
 	//"os" 
@@ -16,9 +16,7 @@ import (
 
 type Font struct {
 	*Texture
-	lettersArray []*LetterInfo
-	firstRune    rune
-	lastRune     rune
+	lettersArray map[rune]*LetterInfo
 	fontSize     float64
 	dpi          int
 }
@@ -41,8 +39,9 @@ func (t *Font) Index(runei interface{}) image.Rectangle {
 	if !ok {
 		panic("runei is not rune")
 	}
-	if letter >= t.firstRune && letter <= t.lastRune {
-		return t.lettersArray[letter+t.firstRune].Rect
+	l, exists := t.lettersArray[letter]
+	if exists {
+		return l.Rect
 	}
 	return image.Rectangle{}
 }
@@ -52,8 +51,9 @@ func (t *Font) Group(id interface{}) []image.Rectangle {
 }
 
 func (t *Font) LetterInfo(letter rune) *LetterInfo {
-	if letter >= t.firstRune && letter <= t.lastRune {
-		return t.lettersArray[letter+t.firstRune]
+	l, exists := t.lettersArray[letter]
+	if exists {
+		return l
 	}
 	return nil
 }
@@ -111,7 +111,7 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 	c.SetDst(dst)
 	c.SetClip(dstBounds)
 
-	LetterArray := make([]*LetterInfo, len(text))
+	LetterArray := make(map[rune]*LetterInfo)
 
 	pt = freetype.Pt(0, border+int(size))
 
@@ -121,7 +121,11 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 			pt.X = x
 		}
 
-		mask, offset, _ := c.Glyph(font.Index(r), pt)
+		mask, offset, err := c.Glyph(font.Index(r), pt)
+		if err != nil {
+			fmt.Println("Rune generation error:", err)
+			continue
+		}
 		bd := mask.Bounds().Add(offset)
 
 		mp := image.Point{0, 0}
@@ -133,7 +137,7 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 		LeftSideBearing := (float32(adv2/256) + float32(adv2%256/256)) / float32(size)
 		realWidth := (float32(adv/256) + float32(adv%256/256)) / float32(size)
 
-		LetterArray[int(r)-int(firstRune)] = &LetterInfo{bd, (float32(pt.Y/256) - float32(bd.Max.Y)) / float32(size), LeftSideBearing, realWidth, float32(bd.Dx()) / float32(size), float32(bd.Dy()) / float32(size)}
+		LetterArray[r] = &LetterInfo{bd, (float32(pt.Y/256) - float32(bd.Max.Y)) / float32(size), LeftSideBearing, realWidth, float32(bd.Dx()) / float32(size), float32(bd.Dy()) / float32(size)}
 	}
 
 	texture, err := NewTexture(dst, dst.Pix)
@@ -147,6 +151,6 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 
 	texture.SetFiltering(Linear, Linear)
 
-	return &Font{texture, LetterArray, firstRune, lastRune, size, dpi}, nil
+	return &Font{texture, LetterArray, size, dpi}, nil
 
 }

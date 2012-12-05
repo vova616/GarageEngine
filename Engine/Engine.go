@@ -31,7 +31,6 @@ func (arbiter *Arbiter) GameObjectB() *GameObject {
 }
 
 func init() {
-	Input.MousePosition = glfw.MousePos
 	fmt.Print()
 }
 
@@ -153,7 +152,9 @@ func StartEngine() {
 	glfw.SetWindowTitle(Title)
 	glfw.SetWindowSizeCallback(onResize)
 	glfw.SetKeyCallback(Input.OnKey)
+	glfw.SetCharCallback(Input.OnChar)
 	glfw.SetMouseButtonCallback(Input.ButtonPress)
+	Input.MousePosition = glfw.MousePos
 
 	if err = initGL(); err != nil {
 		panic(err)

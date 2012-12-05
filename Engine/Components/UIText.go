@@ -13,7 +13,7 @@ import (
 	//"strconv"
 	//"github.com/jteeuwen/glfw"
 	"github.com/vova616/GarageEngine/Engine"
-	//. "github.com/vova616/GarageEngine/Engine/Input"
+	"github.com/vova616/GarageEngine/Engine/Input"
 	"github.com/vova616/chipmunk/vect"
 )
 
@@ -29,8 +29,10 @@ type UIText struct {
 	height float32
 	align  Engine.AlignType
 
-	hover bool
-	red   bool
+	hover      bool
+	focused    bool
+	writeable  bool
+	updateText bool
 }
 
 func NewUIText(font *Engine.Font, text string) *UIText {
@@ -38,8 +40,15 @@ func NewUIText(font *Engine.Font, text string) *UIText {
 		return nil
 	}
 
-	uitext := &UIText{Engine.NewComponent(), font, text, gl.GenBuffer(), 0, 0, 0, 0, Engine.AlignCenter, false, false}
+	uitext := &UIText{BaseComponent: Engine.NewComponent(),
+		Font:      font,
+		text:      text,
+		buffer:    gl.GenBuffer(),
+		align:     Engine.AlignCenter,
+		writeable: true}
+
 	uitext.SetString(text)
+	Input.AddCharCallback(func(rn rune) { uitext.charCallback(rn) })
 	return uitext
 }
 
@@ -68,7 +77,14 @@ func (ui *UIText) SetString(text string) {
 	texcoordsIndex := lt * 4
 	space := float32(0)
 	height := float32(0)
-	for i, rune := range text {
+
+	index := 0
+	for _, rune := range text {
+		spaceMult := float32(1)
+		if rune == '\t' {
+			rune = ' '
+			spaceMult = float32(index % 4)
+		}
 		atlasImage := ui.Font.LetterInfo(rune)
 
 		if atlasImage == nil {
@@ -82,7 +98,7 @@ func (ui *UIText) SetString(text string) {
 		//xgrid := (-0.5 + (atlasImage.XGrid)) + space
 		ygrid := (0 + atlasImage.YGrid)
 		xgrid := (0 + (atlasImage.XGrid)) + space
-		space += atlasImage.RealWidth
+		space += atlasImage.RealWidth * spaceMult
 
 		if yratio+ygrid > height {
 			height = (yratio) + ygrid
@@ -92,28 +108,29 @@ func (ui *UIText) SetString(text string) {
 
 		uv := Engine.IndexUV(ui.Font, rune)
 
-		data[(i*12)+0] = xgrid
-		data[(i*12)+1] = ygrid
-		data[(i*12)+2] = 1
-		data[(i*12)+3] = (xratio) + xgrid
-		data[(i*12)+4] = ygrid
-		data[(i*12)+5] = 1
-		data[(i*12)+6] = (xratio) + xgrid
-		data[(i*12)+7] = (yratio) + ygrid
-		data[(i*12)+8] = 1
-		data[(i*12)+9] = xgrid
-		data[(i*12)+10] = (yratio) + ygrid
-		data[(i*12)+11] = 1
+		data[(index*12)+0] = xgrid
+		data[(index*12)+1] = ygrid
+		data[(index*12)+2] = 1
+		data[(index*12)+3] = (xratio) + xgrid
+		data[(index*12)+4] = ygrid
+		data[(index*12)+5] = 1
+		data[(index*12)+6] = (xratio) + xgrid
+		data[(index*12)+7] = (yratio) + ygrid
+		data[(index*12)+8] = 1
+		data[(index*12)+9] = xgrid
+		data[(index*12)+10] = (yratio) + ygrid
+		data[(index*12)+11] = 1
 
-		data[lt+(i*8)+0] = uv.U1
-		data[lt+(i*8)+1] = uv.V2
-		data[lt+(i*8)+2] = uv.U2
-		data[lt+(i*8)+3] = uv.V2
+		data[lt+(index*8)+0] = uv.U1
+		data[lt+(index*8)+1] = uv.V2
+		data[lt+(index*8)+2] = uv.U2
+		data[lt+(index*8)+3] = uv.V2
 
-		data[lt+(i*8)+4] = uv.U2
-		data[lt+(i*8)+5] = uv.V1
-		data[lt+(i*8)+6] = uv.U1
-		data[lt+(i*8)+7] = uv.V1
+		data[lt+(index*8)+4] = uv.U2
+		data[lt+(index*8)+5] = uv.V1
+		data[lt+(index*8)+6] = uv.U1
+		data[lt+(index*8)+7] = uv.V1
+		index++
 	}
 
 	ui.width = space
@@ -133,11 +150,33 @@ func (ui *UIText) Start() {
 
 }
 
+func (ui *UIText) SetFocus(b bool) {
+	ui.focused = b
+}
+
+func (ui *UIText) charCallback(rn rune) {
+	if ui.focused && ui.writeable {
+		ui.text += string(rn)
+		ui.updateText = true
+	}
+}
+
 func (ui *UIText) Update() {
 	ui.UpdateCollider()
-	//if MousePress(glfw.MouseLeft) {
-	ui.red = ui.hover
-	//}
+	if ui.focused && ui.writeable {
+		if Input.KeyPress(Input.KeyBackspace) {
+			ui.updateText = true
+			ui.text = ui.text[:len(ui.text)-1]
+		}
+		if Input.KeyPress(Input.KeyTab) {
+			ui.updateText = true
+			ui.text += "\t"
+		}
+	}
+	if ui.updateText {
+		ui.updateText = false
+		ui.SetString(ui.text)
+	}
 }
 
 func (ui *UIText) OnCollisionEnter(arbiter *Engine.Arbiter) bool {
@@ -231,7 +270,7 @@ func (ui *UIText) Draw() {
 	gl.ActiveTexture(gl.TEXTURE0)
 	tx.Uniform1i(0)
 
-	if ui.red {
+	if ui.hover {
 		color.Uniform4f(1, 0, 0, 1)
 	} else {
 		color.Uniform4f(1, 1, 1, 1)

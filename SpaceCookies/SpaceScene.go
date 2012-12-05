@@ -47,6 +47,8 @@ var (
 	atlasSpace   *Engine.ManagedAtlas
 	atlasPowerUp *Engine.ManagedAtlas
 	backgroung   *Engine.Texture
+	ArialFont    *Engine.Font
+	ArialFont2   *Engine.Font
 
 	queenDead = false
 )
@@ -115,6 +117,18 @@ func LoadTextures() {
 	CheckError(atlasPowerUp.LoadGroupSheet("./data/SpaceCookies/powerups.png", 61, 61, 3*4))
 	atlasPowerUp.BuildAtlas()
 	atlasPowerUp.SetFiltering(Engine.Linear, Engine.Linear)
+
+	ArialFont, e = Engine.NewFont("./data/Fonts/arial.ttf", 48)
+	if e != nil {
+		panic(e)
+	}
+	ArialFont.Texture.SetReadOnly()
+
+	ArialFont2, e = Engine.NewFont("./data/Fonts/arial.ttf", 24)
+	if e != nil {
+		panic(e)
+	}
+	ArialFont2.Texture.SetReadOnly()
 }
 
 func init() {
@@ -128,21 +142,6 @@ func (s *GameScene) Load() {
 	queenDead = false
 
 	rand.Seed(time.Now().UnixNano())
-
-	ArialFont, err := Engine.NewFont("./data/Fonts/arial.ttf", 48)
-	if err != nil {
-		panic(err)
-	}
-	ArialFont.Texture.SetReadOnly()
-
-	ArialFont2, err := Engine.NewFont("./data/Fonts/arial.ttf", 24)
-	if err != nil {
-		panic(err)
-	}
-	ArialFont2.Texture.SetReadOnly()
-
-	_ = ArialFont2
-	_ = ArialFont
 
 	GameSceneGeneral = s
 
@@ -177,9 +176,19 @@ func (s *GameScene) Load() {
 	fps.SetAction(func(fps float32) {
 		txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
 	})
+	txt.SetAlign(Engine.AlignLeft)
 
-	FPSDrawer.Transform().SetPositionf(60, float32(Engine.Height)-20)
+	FPSDrawer.Transform().SetPositionf(20, float32(Engine.Height)-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
+
+	label := Engine.NewGameObject("Label")
+	label.Transform().SetParent2(cam)
+	label.Transform().SetPositionf(20, float32(Engine.Height)-40)
+	label.Transform().SetScalef(20, 20)
+
+	txt2 := label.AddComponent(Components.NewUIText(ArialFont2, "Input: ")).(*Components.UIText)
+	txt2.SetFocus(true)
+	txt2.SetAlign(Engine.AlignLeft)
 
 	//SPACCCEEEEE
 	Engine.Space.Gravity.Y = 0

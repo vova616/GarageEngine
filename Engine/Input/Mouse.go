@@ -28,3 +28,5 @@ func MouseUp(key int) bool {
 func MousePress(key int) bool {
 	return mouseState[key]&2 != 0
 }
+
+
