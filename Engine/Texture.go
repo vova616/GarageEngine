@@ -49,34 +49,34 @@ var (
 type AlignType byte
 
 const (
-	AlignLeft   = AlignType(0)
-	AlignCenter = AlignType(1)
-	AlignRight  = AlignType(2)
+	AlignLeft   = AlignType(1)
+	AlignCenter = AlignType(2)
+	AlignRight  = AlignType(4)
 
-	AlignTopLeft   = AlignType(4 | AlignLeft)
-	AlignTopCenter = AlignType(4 | AlignCenter)
-	AlignTopRight  = AlignType(4 | AlignRight)
+	AlignTopLeft   = AlignType(8 | AlignLeft)
+	AlignTopCenter = AlignType(8 | AlignCenter)
+	AlignTopRight  = AlignType(8 | AlignRight)
 
-	AlignBottomLeft   = AlignType(8 | AlignLeft)
-	AlignBottomCenter = AlignType(8 | AlignCenter)
-	AlignBottomRight  = AlignType(8 | AlignRight)
+	AlignBottomLeft   = AlignType(16 | AlignLeft)
+	AlignBottomCenter = AlignType(16 | AlignCenter)
+	AlignBottomRight  = AlignType(16 | AlignRight)
 )
 
 func Align(typ AlignType) Vector {
-	vect := NewVector2(0, -0.5)
+	vect := NewVector2(0, 0)
 	switch {
 	case typ&AlignLeft != 0:
-		vect.X = 0
+		vect.X = 0.5
 	case typ&AlignCenter != 0:
-		vect.X = -0.5
+		vect.X = 0
 	case typ&AlignRight != 0:
-		vect.X = -1
+		vect.X = -0.5
 	}
 	switch {
-	case typ&4 != 0:
-		vect.Y = -1
 	case typ&8 != 0:
-		vect.Y = 0
+		vect.Y = -0.5
+	case typ&16 != 0:
+		vect.Y = 0.5
 	}
 	return vect
 }

@@ -10,6 +10,9 @@ type Physics struct {
 	Body  *chipmunk.Body
 	Box   *chipmunk.BoxShape
 	Shape *chipmunk.Shape
+
+	lastPosition vect.Vect
+	lastAngle    vect.Float
 }
 
 func NewPhysics(static bool, w, h float32) *Physics {
@@ -23,7 +26,7 @@ func NewPhysics(static bool, w, h float32) *Physics {
 		body = chipmunk.NewBody(1, box.Moment(1))
 	}
 
-	p := &Physics{NewComponent(), body, box.GetAsBox(), box}
+	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: box.GetAsBox(), Shape: box}
 	body.UserData = p
 
 	body.AddShape(box)
@@ -38,7 +41,7 @@ func NewPhysics2(static bool, shape *chipmunk.Shape) *Physics {
 		body = chipmunk.NewBody(1, shape.ShapeClass.Moment(1))
 	}
 
-	p := &Physics{NewComponent(), body, shape.GetAsBox(), shape}
+	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: shape.GetAsBox(), Shape: shape}
 	body.UserData = p
 
 	body.AddShape(shape)

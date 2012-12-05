@@ -25,6 +25,8 @@ type UIText struct {
 	vertexCount    int
 	texcoordsIndex int
 
+	tabSize int
+
 	width  float32
 	height float32
 	align  Engine.AlignType
@@ -45,7 +47,8 @@ func NewUIText(font *Engine.Font, text string) *UIText {
 		text:      text,
 		buffer:    gl.GenBuffer(),
 		align:     Engine.AlignCenter,
-		writeable: false}
+		writeable: false,
+		tabSize:   4}
 
 	uitext.SetString(text)
 	Input.AddCharCallback(func(rn rune) { uitext.charCallback(rn) })
@@ -53,7 +56,7 @@ func NewUIText(font *Engine.Font, text string) *UIText {
 }
 
 func (ui *UIText) OnComponentBind(binded *Engine.GameObject) {
-	ph := ui.GameObject().AddComponent(Engine.NewPhysics(false, 1, 1)).(*Engine.Physics)
+	ph := binded.AddComponent(Engine.NewPhysics(false, 1, 1)).(*Engine.Physics)
 	_ = ph
 	ph.Body.IgnoreGravity = true
 	ph.Shape.IsSensor = true
@@ -75,15 +78,16 @@ func (ui *UIText) SetString(text string) {
 
 	vertexCount := 0
 	texcoordsIndex := lt * 4
+
 	space := float32(0)
-	height := float32(0)
+	w, h := ui.GetPixelSize(text)
 
 	index := 0
 	for _, rune := range text {
 		spaceMult := float32(1)
 		if rune == '\t' {
 			rune = ' '
-			spaceMult = float32(index % 4)
+			spaceMult = float32(index % ui.tabSize)
 		}
 		atlasImage := ui.Font.LetterInfo(rune)
 
@@ -96,13 +100,9 @@ func (ui *UIText) SetString(text string) {
 
 		//ygrid := -0.5 + (atlasImage.YGrid)
 		//xgrid := (-0.5 + (atlasImage.XGrid)) + space
-		ygrid := (0 + atlasImage.YGrid)
-		xgrid := (0 + (atlasImage.XGrid)) + space
+		ygrid := -0.5 + atlasImage.YGrid
+		xgrid := -(w / 2) + (atlasImage.XGrid) + space
 		space += atlasImage.RealWidth * spaceMult
-
-		if yratio+ygrid > height {
-			height = (yratio) + ygrid
-		}
 
 		vertexCount += 4
 
@@ -133,13 +133,37 @@ func (ui *UIText) SetString(text string) {
 		index++
 	}
 
-	ui.width = space
-	ui.height = height
+	ui.width = w
+	ui.height = h
 
 	ui.vertexCount = vertexCount
 	ui.texcoordsIndex = texcoordsIndex
 	ui.buffer.Bind(gl.ARRAY_BUFFER)
 	gl.BufferData(gl.ARRAY_BUFFER, len(data)*4, data, gl.STATIC_DRAW)
+}
+
+func (ui *UIText) GetPixelSize(text string) (width float32, height float32) {
+	index := 0
+	for _, rune := range text {
+		spaceMult := float32(1)
+		if rune == '\t' {
+			rune = ' '
+			spaceMult = float32(index % ui.tabSize)
+		}
+		atlasImage := ui.Font.LetterInfo(rune)
+
+		if atlasImage == nil {
+			continue
+		}
+
+		yratio := atlasImage.PlaneHeight
+		width += atlasImage.RealWidth * spaceMult
+
+		if yratio+atlasImage.YGrid > height {
+			height = (yratio) + atlasImage.YGrid
+		}
+	}
+	return
 }
 
 func (ui *UIText) String() string {
@@ -165,6 +189,7 @@ func (ui *UIText) charCallback(rn rune) {
 }
 
 func (ui *UIText) Update() {
+	//log.Println(ui.Transform().Position())
 	ui.UpdateCollider()
 	if ui.focused && ui.writeable {
 		if len(ui.text) > 0 && Input.KeyPress(Input.KeyBackspace) {
@@ -202,29 +227,28 @@ func (ui *UIText) OnMouseExit(arbiter *Engine.Arbiter) {
 
 func (ui *UIText) UpdateCollider() {
 	//if ui.GameObject().Physics.Body.Enabled {
+	//if ui.GameObject().Physics == nil {
+	//	return
+	//}
 	b := ui.GameObject().Physics.Box
 	if b != nil {
-		h := float64(ui.height) * float64(ui.GameObject().Transform().WorldScale().Y)
-		w := float64(ui.width) * float64(ui.GameObject().Transform().WorldScale().X)
+		h := vect.Float(float64(ui.height) * float64(ui.GameObject().Transform().WorldScale().Y))
+		w := vect.Float(float64(ui.width) * float64(ui.GameObject().Transform().WorldScale().X))
 		update := false
-		if vect.Float(h) != b.Height || vect.Float(w) != b.Width {
-			b.Width = vect.Float(w)
-			b.Height = vect.Float(h)
+		if h != b.Height || w != b.Width {
+			b.Width = w
+			b.Height = h
 			update = true
-		}
-		center := vect.Vect{0, 0}
-		switch ui.align {
-		case Engine.AlignLeft:
-			center = vect.Vect{vect.Float(w / 2), 0}
-		case Engine.AlignCenter:
-			break
-		case Engine.AlignRight:
-			center = vect.Vect{vect.Float(w), 0}
 		}
 
-		if b.Position != center {
+		c := Engine.Align(ui.align)
+		center := vect.Vect{vect.Float(c.X), vect.Float(c.Y)}
+		center.X = (center.X * w)
+		center.Y = (center.Y * h)
+
+		if b.Position.X != center.X || b.Position.Y != center.Y {
 			update = true
-			b.Position = center
+			b.Position.X, b.Position.Y = center.X, center.Y
 		}
 
 		if update {
@@ -249,8 +273,8 @@ func (ui *UIText) Draw() {
 	}
 
 	v := Engine.Align(ui.align)
-	v.X *= ui.width
-	v.Y *= ui.height
+	v.X = (v.X * ui.width)
+	v.Y = (v.Y * ui.height)
 
 	Engine.TextureMaterial.Begin(ui.GameObject())
 

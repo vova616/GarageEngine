@@ -166,7 +166,7 @@ func (t *Transform) Rotation() Vector {
 }
 
 func (t *Transform) Angle() float32 {
-	return t.rotation.Z
+	return t.WorldRotation().Z
 }
 
 func (t *Transform) Direction() Vector {
@@ -351,7 +351,6 @@ func (t *Transform) updateMatrix() {
 	mat.Rotate(r.X, 1, 0, 0)
 	mat.Rotate(r.Y, 0, 1, 0)
 	mat.Rotate(r.Z, 0, 0, -1)
-
 	mat.Translate(p.X, p.Y, p.Z)
 
 	if trans.parent != nil {
