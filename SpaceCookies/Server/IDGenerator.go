@@ -2,85 +2,46 @@ package Server
 
 import (
 	"sync"
-	"sync/atomic"
 )
 
+type ID int32
+
 type IDGenerator struct {
-	lastID     int
-	generating int32
-	ids        chan int
-	queuedIDs  []int
-	queueMutex *sync.Mutex
+	lastID ID
+	ids    []ID
+	locker *sync.Mutex
 }
 
 func NewIDGenerator(buffer int) *IDGenerator {
-	id := &IDGenerator{0, 0, make(chan int, buffer), make([]int, 0, 0), &sync.Mutex{}}
-	id.GenIDs()
-	id.GenIDs()
-	return id
+	gen := &IDGenerator{0, make([]ID, 0, buffer), &sync.Mutex{}}
+	gen.locker.Lock()
+	gen.genIDs()
+	gen.locker.Unlock()
+	return gen
 }
 
-func (gen *IDGenerator) GenIDs() {
-	defer atomic.StoreInt32(&gen.generating, 0)
+func (gen *IDGenerator) genIDs() {
 	for i := 0; i < cap(gen.ids)/2; i++ {
-		gen.genFromQueue()
-		select {
-		case gen.ids <- gen.lastID:
-			gen.lastID++
-		default:
-			return
-		}
+		gen.ids = append(gen.ids, gen.lastID)
+		gen.lastID++
 	}
 }
 
-func (gen *IDGenerator) genFromQueue() {
-	if len(gen.queuedIDs) > 0 {
-		gen.queueMutex.Lock()
-		defer gen.queueMutex.Unlock()
-		if len(gen.queuedIDs) > 0 {
-			for len(gen.queuedIDs) > 0 {
-				var id int
-				id, gen.queuedIDs = gen.queuedIDs[len(gen.queuedIDs)-1], gen.queuedIDs[:len(gen.queuedIDs)-1]
-				select {
-				case gen.ids <- id:
-				default:
-					gen.queueMutex.Unlock()
-					return
-				}
-			}
-		}
-	}
-}
+func (gen *IDGenerator) NextID() ID {
+	id := ID(0)
 
-func (gen *IDGenerator) NextID() int {
-	id := 0
-
-	if len(gen.queuedIDs) > 0 {
-		gen.queueMutex.Lock()
-		if len(gen.queuedIDs) > 0 {
-			id, gen.queuedIDs = gen.queuedIDs[len(gen.queuedIDs)-1], gen.queuedIDs[:len(gen.queuedIDs)-1]
-		} else {
-			id = <-gen.ids
-		}
-		gen.queueMutex.Unlock()
-	} else {
-		id = <-gen.ids
-	}
-
+	gen.locker.Lock()
+	id, gen.ids = gen.ids[len(gen.ids)-1], gen.ids[:len(gen.ids)-1]
 	if len(gen.ids) == 0 {
-		if atomic.CompareAndSwapInt32(&gen.generating, 0, 1) {
-			go gen.GenIDs()
-		}
+		gen.genIDs()
 	}
+	gen.locker.Unlock()
+
 	return id
 }
 
-func (gen *IDGenerator) PutID(id int) {
-	select {
-	case gen.ids <- id:
-	default:
-		gen.queueMutex.Lock()
-		gen.queuedIDs = append(gen.queuedIDs, id)
-		gen.queueMutex.Unlock()
-	}
+func (gen *IDGenerator) PutID(id ID) {
+	gen.locker.Lock()
+	gen.ids = append(gen.ids, id)
+	gen.locker.Unlock()
 }

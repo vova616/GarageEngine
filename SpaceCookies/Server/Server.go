@@ -10,7 +10,7 @@ var MainServer *Server
 type Job func()
 type Server struct {
 	Socket  *net.TCPListener
-	Clients map[int]*Client
+	Clients map[ID]*Client
 	Jobs    chan Job
 	IDGen   *IDGenerator
 }
@@ -25,7 +25,7 @@ type Vector struct {
 
 type Client struct {
 	Socket   *net.TCPConn
-	ID       int
+	ID       ID
 	Name     string
 	Position Vector
 	Rotation Vector
@@ -45,7 +45,7 @@ func StartServer() {
 		panic(err)
 	}
 
-	MainServer = &Server{ln, make(map[int]*Client), make(chan Job, 1000), NewIDGenerator(1000000)}
+	MainServer = &Server{ln, make(map[ID]*Client), make(chan Job, 1000), NewIDGenerator(1000000)}
 	go MainServer.Run()
 
 	for {
