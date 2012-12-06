@@ -16,7 +16,9 @@ type Server struct {
 }
 
 func (s *Server) Run() {
-
+	for job := range s.Jobs {
+		job()
+	}
 }
 
 type Vector struct {
@@ -45,7 +47,7 @@ func StartServer() {
 		panic(err)
 	}
 
-	MainServer = &Server{ln, make(map[ID]*Client), make(chan Job, 1000), NewIDGenerator(1000000)}
+	MainServer = &Server{ln, make(map[ID]*Client), make(chan Job, 1000), NewIDGenerator(100000)}
 	go MainServer.Run()
 
 	for {
@@ -54,13 +56,12 @@ func StartServer() {
 			log.Println(err)
 			break
 		}
-
+		id := MainServer.IDGen.NextID()
+		c := &Client{
+			conn, id, "", Vector{}, Vector{},
+		}
 		MainServer.Jobs <- func() {
-			id := MainServer.IDGen.NextID()
-			c := &Client{
-				conn, id, "", Vector{}, Vector{},
-			}
-			MainServer.Clients[id] = c
+			MainServer.Clients[c.ID] = c
 			go c.Run()
 		}
 	}
