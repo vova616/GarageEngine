@@ -107,12 +107,11 @@ func RenderAtlas(a Atlas) {
 
 type ManagedAtlas struct {
 	*Texture
-	memHandle *MemHandle
-	image     *image.RGBA
-	uvs       map[interface{}]image.Rectangle
-	groups    map[interface{}][]interface{}
-	images    map[interface{}]image.Image
-	Tree      *AtlasNode
+	image  *image.RGBA
+	uvs    map[interface{}]image.Rectangle
+	groups map[interface{}][]interface{}
+	images map[interface{}]image.Image
+	Tree   *AtlasNode
 }
 
 type AtlasNode struct {
@@ -126,14 +125,14 @@ func NewAtlasNode(width, height int) *AtlasNode {
 }
 
 func NewManagedAtlas(width, height int) *ManagedAtlas {
-	img, mem := NewRGBA(image.Rect(0, 0, width, height))
-	return &ManagedAtlas{
-		image:     img,
-		memHandle: mem,
-		uvs:       make(map[interface{}]image.Rectangle),
-		groups:    make(map[interface{}][]interface{}),
-		images:    make(map[interface{}]image.Image),
-		Tree:      NewAtlasNode(width, height)}
+	m := &ManagedAtlas{
+		image:  image.NewRGBA(image.Rect(0, 0, width, height)),
+		uvs:    make(map[interface{}]image.Rectangle),
+		groups: make(map[interface{}][]interface{}),
+		images: make(map[interface{}]image.Image),
+		Tree:   NewAtlasNode(width, height)}
+	ResourceManager.Add(m)
+	return m
 }
 
 func NewRGBA(r image.Rectangle) (*image.RGBA, *MemHandle) {
@@ -178,6 +177,7 @@ func AtlasFromSheet(path string, width, height, frames int) (atlas *ManagedAtlas
 		groups: make(map[interface{}][]interface{}),
 		images: make(map[interface{}]image.Image),
 		Tree:   NewAtlasNode(img.Bounds().Dx(), img.Bounds().Dy())}
+	ResourceManager.Add(atlas)
 
 	draw.Draw(atlas.image, atlas.image.Bounds(), img, image.Point{0, 0}, draw.Src)
 
@@ -205,7 +205,16 @@ func (atlas *ManagedAtlas) Release() {
 	if atlas.Texture != nil {
 		atlas.Texture.Release()
 	}
-	atlas.memHandle.Release()
+	if atlas.image != nil {
+		if atlas.image.Pix != nil {
+			atlas.image.Pix = nil
+		}
+		atlas.image = nil
+	}
+	atlas.uvs = nil
+	atlas.groups = nil
+	atlas.images = nil
+	atlas.Tree = nil
 }
 
 func (node *AtlasNode) Insert(img image.Image, id interface{}) *AtlasNode {
@@ -519,7 +528,6 @@ func (ma *ManagedAtlas) BuildAtlas() error {
 	}
 
 	ma.Texture = NewRGBATexture(ma.image.Pix, ma.image.Bounds().Dx(), ma.image.Bounds().Dy())
-	ma.memHandle.Release()
 	ma.image.Pix = nil
 	ma.image = nil
 	return nil
