@@ -1,4 +1,4 @@
-package SpaceCookies
+package Game
 
 import (
 	"fmt"

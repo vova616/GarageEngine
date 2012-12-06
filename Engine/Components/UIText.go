@@ -35,6 +35,12 @@ type UIText struct {
 	focused    bool
 	writeable  bool
 	updateText bool
+
+	autoFocus bool //This will go away
+
+	Color Engine.Vector
+
+	onHoverCallback func(bool)
 }
 
 func NewUIText(font *Engine.Font, text string) *UIText {
@@ -48,7 +54,8 @@ func NewUIText(font *Engine.Font, text string) *UIText {
 		buffer:    gl.GenBuffer(),
 		align:     Engine.AlignCenter,
 		writeable: false,
-		tabSize:   4}
+		tabSize:   4,
+		Color:     Engine.Vector{1, 1, 1}}
 
 	uitext.SetString(text)
 	Input.AddCharCallback(func(rn rune) { uitext.charCallback(rn) })
@@ -60,6 +67,18 @@ func (ui *UIText) OnComponentBind(binded *Engine.GameObject) {
 	_ = ph
 	ph.Body.IgnoreGravity = true
 	ph.Shape.IsSensor = true
+}
+
+func (ui *UIText) SetHoverCallBack(callback func(bool)) {
+	ui.onHoverCallback = callback
+}
+
+func (ui *UIText) Width() float32 {
+	return ui.width
+}
+
+func (ui *UIText) Height() float32 {
+	return ui.height
 }
 
 func (ui *UIText) SetString(text string) {
@@ -189,8 +208,9 @@ func (ui *UIText) charCallback(rn rune) {
 }
 
 func (ui *UIText) Update() {
-	//log.Println(ui.Transform().Position())
 	ui.UpdateCollider()
+
+	//Handle Tab & Backspace
 	if ui.focused && ui.writeable {
 		if len(ui.text) > 0 && Input.KeyPress(Input.KeyBackspace) {
 			ui.updateText = true
@@ -205,6 +225,20 @@ func (ui *UIText) Update() {
 		ui.updateText = false
 		ui.SetString(ui.text)
 	}
+
+	/*
+		Just for tests
+	*/
+	if ui.autoFocus {
+		mousePressed := Input.MousePress(Input.Mouse1)
+		if mousePressed {
+			if ui.hover && ui.writeable {
+				ui.focused = true
+			} else {
+				ui.focused = false
+			}
+		}
+	}
 }
 
 func (ui *UIText) OnCollisionEnter(arbiter *Engine.Arbiter) bool {
@@ -218,18 +252,24 @@ func (ui *UIText) OnCollisionExit(arbiter *Engine.Arbiter) {
 
 func (ui *UIText) OnMouseEnter(arbiter *Engine.Arbiter) bool {
 	ui.hover = true
+	if ui.onHoverCallback != nil {
+		ui.onHoverCallback(true)
+	}
 	return true
 }
 
 func (ui *UIText) OnMouseExit(arbiter *Engine.Arbiter) {
 	ui.hover = false
+	if ui.onHoverCallback != nil {
+		ui.onHoverCallback(false)
+	}
 }
 
 func (ui *UIText) UpdateCollider() {
 	//if ui.GameObject().Physics.Body.Enabled {
-	//if ui.GameObject().Physics == nil {
-	//	return
-	//}
+	if ui.GameObject().Physics == nil {
+		return
+	}
 	b := ui.GameObject().Physics.Box
 	if b != nil {
 		h := vect.Float(float64(ui.height) * float64(ui.GameObject().Transform().WorldScale().Y))
@@ -316,13 +356,9 @@ func (ui *UIText) Draw() {
 	ui.Font.Bind()
 	gl.ActiveTexture(gl.TEXTURE0)
 	tx.Uniform1i(0)
-	/*
-		if ui.hover {
-			color.Uniform4f(1, 0, 0, 1)
-		} else {
-			color.Uniform4f(1, 1, 1, 1)
-		}
-	*/
+
+	color.Uniform4f(ui.Color.X, ui.Color.Y, ui.Color.Z, 1)
+
 	gl.DrawArrays(gl.QUADS, 0, ui.vertexCount)
 
 	ui.Font.Unbind()

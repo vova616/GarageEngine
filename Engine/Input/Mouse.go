@@ -7,26 +7,20 @@ var (
 func ButtonPress(btn, state int) {
 	switch state {
 	case Key_Release:
-		mouseState[btn] &= 2
+		mouseState[btn] = idle
 	case Key_Press:
-		if mouseState[btn] == 0 {
-			mouseState[btn] = 3
-		} else {
-			mouseState[btn] |= 1
-		}
+		mouseState[btn] = pressed | wasPressed
 	}
 }
 
 func MouseDown(key int) bool {
-	return mouseState[key]&1 != 0
+	return mouseState[key]&pressed != 0
 }
 
 func MouseUp(key int) bool {
-	return mouseState[key]&1 == 0
+	return mouseState[key]&pressed == 0
 }
 
 func MousePress(key int) bool {
-	return mouseState[key]&2 != 0
+	return mouseState[key]&wasPressed != 0
 }
-
-

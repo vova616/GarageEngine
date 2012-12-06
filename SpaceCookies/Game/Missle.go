@@ -1,4 +1,4 @@
-package SpaceCookies
+package Game
 
 import (
 	"github.com/vova616/GarageEngine/Engine"

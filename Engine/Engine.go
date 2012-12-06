@@ -98,6 +98,8 @@ func LoadScene(scene Scene) {
 		Space = chipmunk.NewSpace()
 	}
 
+	Input.ClearInput()
+
 	sn := scene.New()
 	sn.Load()
 
@@ -134,6 +136,7 @@ func DeltaTime() float32 {
 }
 
 func StartEngine() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	runtime.LockOSThread()
 	println("Enginge started!")
 	var err error
