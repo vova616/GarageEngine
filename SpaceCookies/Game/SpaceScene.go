@@ -440,7 +440,7 @@ func (s *GameScene) Load() {
 	s.AddGameObject(background)
 	//s.AddGameObject(shadowShader)
 
-	fmt.Println("Scene loaded")
+	fmt.Println("GameScene loaded")
 }
 
 func (s *GameScene) SceneBase() *Engine.SceneData {
