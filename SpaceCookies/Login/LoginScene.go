@@ -155,7 +155,7 @@ func (s *LoginScene) Load() {
 	s.AddGameObject(gui)
 	s.AddGameObject(background)
 
-	fmt.Println("Scene loaded")
+	fmt.Println("LoginScene loaded")
 }
 
 func (s *LoginScene) SceneBase() *Engine.SceneData {
