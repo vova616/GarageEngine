@@ -43,6 +43,15 @@ func UpdateInput() {
 	}
 }
 
+func ClearInput() {
+	for i, _ := range keyState {
+		keyState[i] = idle
+	}
+	for i, _ := range mouseState {
+		mouseState[i] = idle
+	}
+}
+
 func KeyDown(key int) bool {
 	return keyState[key]&pressed != 0
 }

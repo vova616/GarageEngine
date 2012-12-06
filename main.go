@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/vova616/GarageEngine/Engine"
 	"github.com/vova616/GarageEngine/NetworkOnline"
-	"github.com/vova616/GarageEngine/SpaceCookies"
+	"github.com/vova616/GarageEngine/SpaceCookies/Game"
+	"github.com/vova616/GarageEngine/SpaceCookies/Login"
+	//"github.com/vova616/GarageEngine/SpaceCookies/Server"
 	//"math"
 	//"github.com/vova616/gl"
 	"os"
@@ -58,9 +60,10 @@ func Start() {
 		Engine.Terminate()
 	}()
 	Engine.StartEngine()
-	_ = SpaceCookies.GameSceneGeneral
+	_ = Game.GameSceneGeneral
 	_ = NetworkOnline.GameSceneGeneral
-	Engine.LoadScene(SpaceCookies.GameSceneGeneral)
+	_ = Login.LoginSceneGeneral
+	Engine.LoadScene(Login.LoginSceneGeneral)
 	for Engine.MainLoop() {
 
 	}
