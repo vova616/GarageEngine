@@ -47,7 +47,8 @@ func StartServer() {
 		panic(err)
 	}
 
-	MainServer = &Server{ln, make(map[ID]*Client), make(chan Job, 1000), NewIDGenerator(100000)}
+	//MainServer.IDGen can be not safe because the only place we use it is when we adding/removing clients from the list and we need to do it safe anyway
+	MainServer = &Server{ln, make(map[ID]*Client), make(chan Job, 1000), NewIDGenerator(100000, false)}
 	go MainServer.Run()
 
 	for {
@@ -56,11 +57,11 @@ func StartServer() {
 			log.Println(err)
 			break
 		}
-		id := MainServer.IDGen.NextID()
-		c := &Client{
-			conn, id, "", Vector{}, Vector{},
-		}
 		MainServer.Jobs <- func() {
+			id := MainServer.IDGen.NextID()
+			c := &Client{
+				conn, id, "", Vector{}, Vector{},
+			}
 			MainServer.Clients[c.ID] = c
 			go c.Run()
 		}
