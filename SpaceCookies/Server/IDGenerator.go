@@ -25,9 +25,11 @@ func NewIDGenerator(buffer int, threadSafe bool) *IDGenerator {
 }
 
 func (gen *IDGenerator) genIDs() {
+	gen.lastID += ID(cap(gen.ids) / 2)
+	id := gen.lastID - 1
 	for i := 0; i < cap(gen.ids)/2; i++ {
-		gen.ids = append(gen.ids, gen.lastID)
-		gen.lastID++
+		gen.ids = append(gen.ids, id)
+		id--
 	}
 }
 

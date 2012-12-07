@@ -82,6 +82,8 @@ func LoadScene(scene Scene) {
 	}
 
 	ResourceManager.Release()
+	coroutines = coroutines[:0]
+	Routines = Routines[:0]
 
 	if Space != nil {
 		for _, g := range mainScene.SceneBase().gameObjects {

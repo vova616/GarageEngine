@@ -10,7 +10,7 @@ func TestGenerator() {
 	size := 100000
 	ch := make(chan ID, size+1)
 
-	generator := NewIDGenerator(size / 2)
+	generator := NewIDGenerator(size/2, true)
 	for i := 0; i < size; i++ {
 		go func() {
 			time.Sleep(time.Millisecond)

@@ -83,13 +83,14 @@ func (s *LoginScene) Load() {
 	background.Transform().SetPositionf(0, 0)
 
 	gui := Engine.NewGameObject("GUI")
+	gui.Transform().SetParent2(cam)
 
 	mouse := Engine.NewGameObject("Mouse")
 	mouse.AddComponent(Engine.NewMouse())
-	mouse.Transform().SetParent2(cam)
+	mouse.Transform().SetParent2(gui)
 
 	FPSDrawer := Engine.NewGameObject("FPS")
-	FPSDrawer.Transform().SetParent2(cam)
+	FPSDrawer.Transform().SetParent2(gui)
 	txt := FPSDrawer.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
 	fps := FPSDrawer.AddComponent(Engine.NewFPS()).(*Engine.FPS)
 	fps.SetAction(func(fps float32) {
@@ -102,7 +103,7 @@ func (s *LoginScene) Load() {
 
 	//
 	tBox := Engine.NewGameObject("TextBox")
-	tBox.Transform().SetParent2(cam)
+	tBox.Transform().SetParent2(gui)
 
 	txt2 := tBox.AddComponent(Components.NewUIText(ArialFont2, "Type your name: ")).(*Components.UIText)
 	txt2.SetFocus(false)
@@ -113,24 +114,39 @@ func (s *LoginScene) Load() {
 	tBox.Transform().SetScalef(20, 20)
 	//
 	input := Engine.NewGameObject("TextBoxInput")
-	input.Transform().SetParent2(cam)
+	input.Transform().SetParent2(gui)
 	p := tBox.Transform().Position()
 	p.X += txt2.Width() * 20
 	input.Transform().SetPosition(p)
 	input.Transform().SetScalef(20, 20)
 
-	txt2 = input.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
-	txt2.SetFocus(true)
-	txt2.SetWritable(true)
-	txt2.SetAlign(Engine.AlignLeft)
+	name := input.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
+	name.SetFocus(true)
+	name.SetWritable(true)
+	name.SetAlign(Engine.AlignLeft)
+	//
+	errLabel := Engine.NewGameObject("TextBoxInput")
+	errLabel.Transform().SetParent2(gui)
+	errLabel.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-100)
+	errLabel.Transform().SetScalef(24, 24)
+
+	errLabelTxt := errLabel.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
+	errLabelTxt.SetFocus(false)
+	errLabelTxt.SetWritable(false)
+	errLabelTxt.SetAlign(Engine.AlignCenter)
+	errLabelTxt.Color = Engine.Vector{1, 1, 1}
 	//
 	login := Engine.NewGameObject("TextBoxInput")
-	login.Transform().SetParent2(cam)
+	login.Transform().SetParent2(gui)
 	login.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-50)
 	login.Transform().SetScalef(24, 24)
 
+	var errChan chan error
 	login.AddComponent(Components.NewUIButton(func() {
-		Engine.LoadScene(Game.GameSceneGeneral)
+		if errChan == nil && Game.MyClient == nil {
+			go Game.Connect(name.String(), &errChan)
+			errLabelTxt.SetString("Connecting...")
+		}
 	}))
 
 	txt2 = login.AddComponent(Components.NewUIText(ArialFont2, "Log in")).(*Components.UIText)
@@ -145,14 +161,33 @@ func (s *LoginScene) Load() {
 		}
 	})
 	txt2.Color = Engine.Vector{0.5, 0, 0}
-	//
+	//	
+
+	Engine.StartCoroutine(func() {
+		for {
+
+			if errChan == nil {
+				Engine.CoYieldSkip()
+				continue
+			}
+			select {
+			case loginErr := <-errChan:
+				if loginErr != nil {
+					errLabelTxt.SetText(loginErr.Error())
+					errChan = nil
+				}
+			default:
+
+			}
+			Engine.CoYieldSkip()
+		}
+	})
 
 	//SPACCCEEEEE
 	Engine.Space.Gravity.Y = 0
 	Engine.Space.Iterations = 1
 
 	s.AddGameObject(cam)
-	s.AddGameObject(gui)
 	s.AddGameObject(background)
 
 	fmt.Println("LoginScene loaded")

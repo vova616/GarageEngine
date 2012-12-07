@@ -81,6 +81,11 @@ func (ui *UIText) Height() float32 {
 	return ui.height
 }
 
+func (ui *UIText) SetText(text string) {
+	ui.text = text
+	ui.updateText = true
+}
+
 func (ui *UIText) SetString(text string) {
 	ui.text = text
 
