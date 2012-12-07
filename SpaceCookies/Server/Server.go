@@ -1,6 +1,7 @@
 package Server
 
 import (
+	"encoding/gob"
 	"log"
 	"net"
 )
@@ -31,10 +32,44 @@ type Client struct {
 	Name     string
 	Position Vector
 	Rotation Vector
+
+	Decoder *gob.Decoder
+	Encoder *gob.Encoder
 }
 
 func (c *Client) Run() {
-	log.Println("Connection in!", c.Socket.LocalAddr(), c.ID)
+	defer c.OnExit()
+	c.Decoder = gob.NewDecoder(c.Socket)
+	c.Encoder = gob.NewEncoder(c.Socket)
+
+	var packet Packet
+	for {
+		e := c.Decoder.Decode(&packet)
+		if e != nil {
+			panic(e)
+		}
+		switch packet.ID() {
+		case ID_Welcome:
+			MainServer.Jobs <- func() { OnWelcomePacket(c, packet) }
+		}
+	}
+}
+
+func (c *Client) Send(p Packet) {
+	e := c.Encoder.Encode(&p)
+	if e != nil {
+		log.Println(e)
+	}
+}
+
+func (c *Client) OnExit() {
+	if x := recover(); x != nil {
+		log.Println(c.Name, "Disconnected. Reason:", x)
+	}
+	MainServer.Jobs <- func() {
+		delete(MainServer.Clients, c.ID)
+		MainServer.IDGen.PutID(c.ID)
+	}
 }
 
 func StartServer() {
@@ -46,7 +81,7 @@ func StartServer() {
 	if err != nil {
 		panic(err)
 	}
-
+	log.Println("Server started!")
 	//MainServer.IDGen can be not safe because the only place we use it is when we adding/removing clients from the list and we need to do it safe anyway
 	MainServer = &Server{ln, make(map[ID]*Client), make(chan Job, 1000), NewIDGenerator(100000, false)}
 	go MainServer.Run()
@@ -60,7 +95,7 @@ func StartServer() {
 		MainServer.Jobs <- func() {
 			id := MainServer.IDGen.NextID()
 			c := &Client{
-				conn, id, "", Vector{}, Vector{},
+				Socket: conn, ID: id,
 			}
 			MainServer.Clients[c.ID] = c
 			go c.Run()

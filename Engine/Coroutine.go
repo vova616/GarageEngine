@@ -20,6 +20,12 @@ const (
 	Restart = Command(32)
 )
 
+var (
+	coroutines        []*Coroutine = make([]*Coroutine, 0, 100)
+	current           *Coroutine
+	runningCoroutines bool = false
+)
+
 type Coroutine struct {
 	in       chan Command
 	out      chan Command
@@ -42,12 +48,6 @@ func (gr *Coroutine) WaitForCommand() {
 		panic("")
 	}
 }
-
-var (
-	coroutines        []*Coroutine = make([]*Coroutine, 0, 100)
-	current           *Coroutine
-	runningCoroutines bool = false
-)
 
 func StartCoroutine(fnc func()) *Coroutine {
 	gr := &Coroutine{make(chan Command), make(chan Command), Running, nil}

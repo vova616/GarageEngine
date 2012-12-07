@@ -63,6 +63,7 @@ func Start() {
 	_ = Game.GameSceneGeneral
 	_ = NetworkOnline.GameSceneGeneral
 	_ = Login.LoginSceneGeneral
+
 	Engine.LoadScene(Login.LoginSceneGeneral)
 	for Engine.MainLoop() {
 
