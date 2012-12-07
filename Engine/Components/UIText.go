@@ -15,6 +15,7 @@ import (
 	"github.com/vova616/GarageEngine/Engine"
 	"github.com/vova616/GarageEngine/Engine/Input"
 	"github.com/vova616/chipmunk/vect"
+	//"runtime"
 )
 
 type UIText struct {
@@ -57,7 +58,7 @@ func NewUIText(font *Engine.Font, text string) *UIText {
 		tabSize:   4,
 		Color:     Engine.Vector{1, 1, 1}}
 
-	uitext.SetString(text)
+	uitext.setString(text)
 	Input.AddCharCallback(func(rn rune) { uitext.charCallback(rn) })
 	return uitext
 }
@@ -81,12 +82,12 @@ func (ui *UIText) Height() float32 {
 	return ui.height
 }
 
-func (ui *UIText) SetText(text string) {
+func (ui *UIText) SetString(text string) {
 	ui.text = text
 	ui.updateText = true
 }
 
-func (ui *UIText) SetString(text string) {
+func (ui *UIText) setString(text string) {
 	ui.text = text
 
 	if text == "" {
@@ -180,12 +181,13 @@ func (ui *UIText) GetPixelSize(text string) (width float32, height float32) {
 			continue
 		}
 
-		yratio := atlasImage.PlaneHeight
+		//yratio := atlasImage.PlaneHeight
 		width += atlasImage.RealWidth * spaceMult
 
-		if yratio+atlasImage.YGrid > height {
-			height = (yratio) + atlasImage.YGrid
-		}
+		//if yratio+atlasImage.YGrid > height {
+		//	height = (yratio) + atlasImage.YGrid
+		//}
+		height = 1
 	}
 	return
 }
@@ -226,10 +228,6 @@ func (ui *UIText) Update() {
 			ui.text += "\t"
 		}
 	}
-	if ui.updateText {
-		ui.updateText = false
-		ui.SetString(ui.text)
-	}
 
 	/*
 		Just for tests
@@ -243,6 +241,13 @@ func (ui *UIText) Update() {
 				ui.focused = false
 			}
 		}
+	}
+}
+
+func (ui *UIText) LateUpdate() {
+	if ui.updateText {
+		ui.updateText = false
+		ui.setString(ui.text)
 	}
 }
 

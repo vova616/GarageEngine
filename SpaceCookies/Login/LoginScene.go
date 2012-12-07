@@ -173,7 +173,7 @@ func (s *LoginScene) Load() {
 			select {
 			case loginErr := <-errChan:
 				if loginErr != nil {
-					errLabelTxt.SetText(loginErr.Error())
+					errLabelTxt.SetString(loginErr.Error())
 					errChan = nil
 				}
 			default:
