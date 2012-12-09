@@ -50,6 +50,10 @@ func (t *Font) Group(id interface{}) []image.Rectangle {
 	panic("font does not have groups")
 }
 
+func (t *Font) CheckText(s string) {
+
+}
+
 func (t *Font) LetterInfo(letter rune) *LetterInfo {
 	l, exists := t.lettersArray[letter]
 	if exists {
@@ -101,6 +105,9 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 			pt.X = x
 		}
 		mask, offset, _ := c.Glyph(font.Index(r), pt)
+		if mask == nil {
+			continue
+		}
 		bd := mask.Bounds().Add(offset)
 		pt.X = c.PointToFix32(float64(bd.Max.X) + float64(border))
 	}

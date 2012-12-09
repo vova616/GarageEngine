@@ -9,11 +9,12 @@ import (
 type UIButton struct {
 	Engine.BaseComponent
 	onPressCallback func()
+	onHoverCallback func(bool)
 	mouseOn         bool
 }
 
-func NewUIButton(callback func()) *UIButton {
-	return &UIButton{Engine.NewComponent(), callback, false}
+func NewUIButton(ClickCallback func(), HoverCallback func(bool)) *UIButton {
+	return &UIButton{Engine.NewComponent(), ClickCallback, HoverCallback, false}
 }
 
 func (btn *UIButton) Update() {
@@ -26,9 +27,15 @@ func (btn *UIButton) Update() {
 
 func (btn *UIButton) OnMouseEnter(arbiter *Engine.Arbiter) bool {
 	btn.mouseOn = true
+	if btn.onHoverCallback != nil {
+		btn.onHoverCallback(true)
+	}
 	return true
 }
 
 func (btn *UIButton) OnMouseExit(arbiter *Engine.Arbiter) {
 	btn.mouseOn = false
+	if btn.onHoverCallback != nil {
+		btn.onHoverCallback(false)
+	}
 }

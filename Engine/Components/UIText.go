@@ -32,7 +32,6 @@ type UIText struct {
 	height float32
 	align  Engine.AlignType
 
-	hover      bool
 	focused    bool
 	writeable  bool
 	updateText bool
@@ -40,8 +39,6 @@ type UIText struct {
 	autoFocus bool //This will go away
 
 	Color Engine.Vector
-
-	onHoverCallback func(bool)
 }
 
 func NewUIText(font *Engine.Font, text string) *UIText {
@@ -68,10 +65,6 @@ func (ui *UIText) OnComponentBind(binded *Engine.GameObject) {
 	_ = ph
 	ph.Body.IgnoreGravity = true
 	ph.Shape.IsSensor = true
-}
-
-func (ui *UIText) SetHoverCallBack(callback func(bool)) {
-	ui.onHoverCallback = callback
 }
 
 func (ui *UIText) Width() float32 {
@@ -125,7 +118,7 @@ func (ui *UIText) setString(text string) {
 
 		//ygrid := -0.5 + (atlasImage.YGrid)
 		//xgrid := (-0.5 + (atlasImage.XGrid)) + space
-		ygrid := -0.5 + atlasImage.YGrid
+		ygrid := -(h / 2) + (atlasImage.YGrid)
 		xgrid := -(w / 2) + (atlasImage.XGrid) + space
 		space += atlasImage.RealWidth * spaceMult
 
@@ -180,13 +173,21 @@ func (ui *UIText) GetPixelSize(text string) (width float32, height float32) {
 		if atlasImage == nil {
 			continue
 		}
-
-		//yratio := atlasImage.PlaneHeight
 		width += atlasImage.RealWidth * spaceMult
+		/*
+			yratio := atlasImage.PlaneHeight
+			ygrid := atlasImage.YGrid
+			if yratio < 0 {
+				yratio = -yratio
+			}
+			if ygrid < 0 {
+				ygrid = -ygrid
+			}
 
-		//if yratio+atlasImage.YGrid > height {
-		//	height = (yratio) + atlasImage.YGrid
-		//}
+			if yratio+ygrid > height {
+				height = yratio + ygrid
+			}
+		*/
 		height = 1
 	}
 	return
@@ -228,50 +229,12 @@ func (ui *UIText) Update() {
 			ui.text += "\t"
 		}
 	}
-
-	/*
-		Just for tests
-	*/
-	if ui.autoFocus {
-		mousePressed := Input.MousePress(Input.Mouse1)
-		if mousePressed {
-			if ui.hover && ui.writeable {
-				ui.focused = true
-			} else {
-				ui.focused = false
-			}
-		}
-	}
 }
 
 func (ui *UIText) LateUpdate() {
 	if ui.updateText {
 		ui.updateText = false
 		ui.setString(ui.text)
-	}
-}
-
-func (ui *UIText) OnCollisionEnter(arbiter *Engine.Arbiter) bool {
-
-	return true
-}
-
-func (ui *UIText) OnCollisionExit(arbiter *Engine.Arbiter) {
-
-}
-
-func (ui *UIText) OnMouseEnter(arbiter *Engine.Arbiter) bool {
-	ui.hover = true
-	if ui.onHoverCallback != nil {
-		ui.onHoverCallback(true)
-	}
-	return true
-}
-
-func (ui *UIText) OnMouseExit(arbiter *Engine.Arbiter) {
-	ui.hover = false
-	if ui.onHoverCallback != nil {
-		ui.onHoverCallback(false)
 	}
 }
 

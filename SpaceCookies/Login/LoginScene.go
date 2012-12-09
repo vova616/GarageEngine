@@ -19,6 +19,7 @@ import (
 	//"encoding/json"
 	"math/rand"
 	//"os"
+	//"fmt"
 )
 
 type LoginScene struct {
@@ -29,6 +30,7 @@ var (
 	LoginSceneGeneral *LoginScene
 
 	backgroundTexture *Engine.Texture
+	button            *Engine.Texture
 	ArialFont         *Engine.Font
 	ArialFont2        *Engine.Font
 )
@@ -52,6 +54,9 @@ func LoadTextures() {
 	ArialFont2.Texture.SetReadOnly()
 
 	backgroundTexture, e = Engine.LoadTexture("./data/SpaceCookies/background.png")
+	CheckError(e)
+
+	button, e = Engine.LoadTexture("./data/SpaceCookies/button.png")
 	CheckError(e)
 }
 
@@ -136,31 +141,39 @@ func (s *LoginScene) Load() {
 	errLabelTxt.SetAlign(Engine.AlignCenter)
 	errLabelTxt.Color = Engine.Vector{1, 1, 1}
 	//
-	login := Engine.NewGameObject("TextBoxInput")
-	login.Transform().SetParent2(gui)
-	login.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-50)
-	login.Transform().SetScalef(24, 24)
+	LoginButton := Engine.NewGameObject("LoginButton")
+	LoginButton.Transform().SetParent2(cam)
+	LoginButton.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-50)
+	LoginButton.AddComponent(Engine.NewSprite(button))
+	LoginButton.AddComponent(Engine.NewPhysics(false, 1, 1))
+	LoginButton.Physics.Shape.IsSensor = true
+	LoginButton.Transform().SetScalef(50, 50)
+	LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
+
+	loginText := Engine.NewGameObject("LoginButtonText")
+	loginText.Transform().SetParent2(LoginButton)
+	loginText.Transform().SetWorldScalef(24, 24)
+	loginText.Transform().SetPositionf(0, 0.1)
 
 	var errChan chan error
-	login.AddComponent(Components.NewUIButton(func() {
+	LoginButton.AddComponent(Components.NewUIButton(func() {
 		if errChan == nil && Game.MyClient == nil {
 			go Game.Connect(name.String(), &errChan)
 			errLabelTxt.SetString("Connecting...")
 		}
+	}, func(enter bool) {
+		if enter {
+			LoginButton.Sprite.Color = Engine.Vector{0.4, 0.4, 0.4}
+		} else {
+			LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
+		}
 	}))
 
-	txt2 = login.AddComponent(Components.NewUIText(ArialFont2, "Log in")).(*Components.UIText)
+	txt2 = loginText.AddComponent(Components.NewUIText(ArialFont2, "Log in")).(*Components.UIText)
 	txt2.SetFocus(false)
 	txt2.SetWritable(false)
 	txt2.SetAlign(Engine.AlignCenter)
-	txt2.SetHoverCallBack(func(enter bool) {
-		if enter {
-			txt2.Color = Engine.Vector{1, 0, 0}
-		} else {
-			txt2.Color = Engine.Vector{0.5, 0, 0}
-		}
-	})
-	txt2.Color = Engine.Vector{0.5, 0, 0}
+	txt2.Color = Engine.Vector{1, 1, 1}
 	//	
 
 	Engine.StartCoroutine(func() {
