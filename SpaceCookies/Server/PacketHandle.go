@@ -8,11 +8,11 @@ func OnWelcomePacket(c *Client, p Packet) {
 
 	if strings.ToLower(welcomePacket.Name) == "admin" {
 		c.Send(NewLoginError("YOU NO ADMIN!#."))
-		log.Println("YOU NO ADMIN!#", c.Socket.LocalAddr(), c.ID)
+		log.Println("YOU NO ADMIN!#", c.Socket.RemoteAddr(), c.ID)
 		return
 	} else if len(welcomePacket.Name) == 0 {
 		c.Send(NewLoginError("Empty name, try again."))
-		log.Println("Empty name", c.Socket.LocalAddr(), c.ID)
+		log.Println("Empty name", c.Socket.RemoteAddr(), c.ID)
 		return
 	}
 
@@ -26,10 +26,10 @@ func OnWelcomePacket(c *Client, p Packet) {
 
 	if nameExists {
 		c.Send(NewLoginError("YOU SHALL NOT PASS (this name is already taken)."))
-		log.Println("YOU SHALL NOT PASS", c.Socket.LocalAddr(), c.ID)
+		log.Println("YOU SHALL NOT PASS", c.Socket.RemoteAddr(), c.ID)
 	} else {
 		c.Name = welcomePacket.Name
-		log.Println("Connection in!", c.Socket.LocalAddr(), c.ID, c.Name)
+		log.Println("Connection in!", c.Socket.RemoteAddr(), c.ID, c.Name)
 		c.Send(NewEnterGame())
 	}
 }

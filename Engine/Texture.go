@@ -74,9 +74,9 @@ func Align(typ AlignType) Vector {
 	}
 	switch {
 	case typ&8 != 0:
-		vect.Y = -0.5
-	case typ&16 != 0:
 		vect.Y = 0.5
+	case typ&16 != 0:
+		vect.Y = -0.5
 	}
 	return vect
 }

@@ -274,7 +274,7 @@ func (t *Transform) SetWorldScale(vect Vector) {
 		p = t.parent.WorldScale()
 	}
 
-	t.SetScale(p.Div(t.scale))
+	t.SetScale(vect.Div(p))
 }
 
 func (t *Transform) SetWorldScalef(x, y float32) {

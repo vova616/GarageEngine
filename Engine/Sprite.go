@@ -32,6 +32,7 @@ type Sprite struct {
 
 	Border     bool
 	BorderSize float32
+	Color      Vector
 }
 
 func NewSprite(tex *Texture) *Sprite {
@@ -51,7 +52,9 @@ func NewSprite3(tex *Texture, uv AnimatedUV) *Sprite {
 		AnimationSpeed: 1,
 		endAnimation:   len(uv),
 		UVs:            uv,
-		Render:         true}
+		Render:         true,
+		Color:          Vector{1, 1, 1},
+	}
 	sp.CreateVBO(uv...)
 
 	return sp
@@ -251,7 +254,7 @@ func (sp *Sprite) Draw() {
 		tx.Uniform1i(0)
 
 		//ac.Uniform4f(1, 1, 1, 0) 
-		ac.Uniform4f(1, 1, 1, 1)
+		ac.Uniform4f(sp.Color.X, sp.Color.Y, sp.Color.Z, 1)
 
 		if sp.Border {
 			mc.Uniform4f(1, 1, 1, 0)

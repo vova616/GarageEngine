@@ -27,7 +27,8 @@ type Client struct {
 	Encoder *gob.Encoder
 	Decoder *gob.Decoder
 
-	Jobs chan func()
+	Jobs         chan func()
+	Disconnected bool
 }
 
 func Connect(name string, errChan *chan error) {
@@ -54,39 +55,51 @@ func Connect(name string, errChan *chan error) {
 	LoginErrChan = *errChan
 }
 
+func (c *Client) DoJobs() {
+	for job := range c.Jobs {
+		job()
+	}
+}
+
 func (c *Client) Run() {
-	defer c.OnExit()
+	defer c.OnPanic()
+	go c.DoJobs()
 	err := MyClient.SendName()
 	if err != nil {
 		panic(err)
 	}
 
-	var packet Server.Packet
 	for {
+		var packet Server.Packet
 		e := c.Decoder.Decode(&packet)
 		if e != nil {
 			panic(e)
 		}
-		switch packet.ID() {
-		case Server.ID_EnterGame:
-			Engine.LoadScene(GameSceneGeneral)
-			break
-		case Server.ID_LoginError:
-			error := packet.(Server.LoginError)
-			LoginErrChan <- fmt.Errorf(error.Error)
-			panic(error)
-			break
-		}
+		p := packet
+		c.Jobs <- func() { c.HandlePacket(p) }
 	}
 }
 
-func (c *Client) OnExit() {
-	if x := recover(); x != nil {
-		log.Println(c.Name, "Disconnected. Reason:", x)
+func (c *Client) HandlePacket(packet Server.Packet) {
+	defer c.OnPanic()
+	switch packet.ID() {
+	case Server.ID_EnterGame:
+		Engine.LoadScene(GameSceneGeneral)
+	case Server.ID_LoginError:
+		error := packet.(Server.LoginError)
+		LoginErrChan <- fmt.Errorf(error.Error)
+		panic(error)
 	}
-	c.Socket.Close()
-	if MyClient == c {
-		MyClient = nil
+}
+
+func (c *Client) OnPanic() {
+	if x := recover(); x != nil && !c.Disconnected {
+		log.Println(c.Name, "Disconnected. Reason:", x)
+		c.Disconnected = true
+		c.Socket.Close()
+		if MyClient == c {
+			MyClient = nil
+		}
 	}
 }
 
