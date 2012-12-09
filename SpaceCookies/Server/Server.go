@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"log"
 	"net"
+	"sync/atomic"
 )
 
 var MainServer *Server
@@ -35,23 +36,29 @@ type Client struct {
 
 	Decoder *gob.Decoder
 	Encoder *gob.Encoder
+
+	Disconnected int32
 }
 
 func (c *Client) Run() {
-	defer c.OnExit()
+	defer c.OnPanic()
 	c.Decoder = gob.NewDecoder(c.Socket)
 	c.Encoder = gob.NewEncoder(c.Socket)
 
-	var packet Packet
 	for {
+		var packet Packet
 		e := c.Decoder.Decode(&packet)
 		if e != nil {
 			panic(e)
 		}
-		switch packet.ID() {
-		case ID_Welcome:
-			MainServer.Jobs <- func() { OnWelcomePacket(c, packet) }
-		}
+		MainServer.Jobs <- func() { c.HandlePacket(packet) }
+	}
+}
+
+func (c *Client) HandlePacket(p Packet) {
+	switch p.ID() {
+	case ID_Welcome:
+		OnWelcomePacket(c, p)
 	}
 }
 
@@ -62,13 +69,15 @@ func (c *Client) Send(p Packet) {
 	}
 }
 
-func (c *Client) OnExit() {
+func (c *Client) OnPanic() {
 	if x := recover(); x != nil {
-		log.Println(c.Name, "Disconnected. Reason:", x)
-	}
-	MainServer.Jobs <- func() {
-		delete(MainServer.Clients, c.ID)
-		MainServer.IDGen.PutID(c.ID)
+		if atomic.CompareAndSwapInt32(&c.Disconnected, 0, 1) {
+			log.Println(c.Name, "Disconnected. Reason:", x)
+			MainServer.Jobs <- func() {
+				delete(MainServer.Clients, c.ID)
+				MainServer.IDGen.PutID(c.ID)
+			}
+		}
 	}
 }
 
