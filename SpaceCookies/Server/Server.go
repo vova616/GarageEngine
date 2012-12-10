@@ -23,16 +23,12 @@ func (s *Server) Run() {
 	}
 }
 
-type Vector struct {
-	X, Y, Z float32
-}
-
 type Client struct {
 	Socket   *net.TCPConn
 	ID       ID
 	Name     string
-	Position Vector
-	Rotation Vector
+	X, Y     float32
+	Rotation float32
 
 	Decoder *gob.Decoder
 	Encoder *gob.Encoder
@@ -59,6 +55,8 @@ func (c *Client) HandlePacket(p Packet) {
 	switch p.ID() {
 	case ID_Welcome:
 		OnWelcomePacket(c, p)
+	case ID_PlayerMove:
+		OnPlayerMove(c, p)
 	}
 }
 

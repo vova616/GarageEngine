@@ -20,15 +20,21 @@ const ServerIP = "game.vovchik.org:123"
 const ServerLocalIP = "localhost:123"
 
 type Client struct {
+	Engine.BaseComponent
 	Socket *net.TCPConn
 	Name   string
+	ID     Server.ID
 	Ship   *ShipController
 
 	Encoder *gob.Encoder
 	Decoder *gob.Decoder
 
 	Jobs         chan func()
+	GameJobs     chan func()
 	Disconnected bool
+
+	lastTransformUpdate        time.Time
+	lastX, lastY, lastRotation float32
 }
 
 func Connect(name string, errChan *chan error) {
@@ -50,9 +56,36 @@ func Connect(name string, errChan *chan error) {
 		}
 	}
 	tcpCon := con.(*net.TCPConn)
-	MyClient = &Client{Socket: tcpCon, Name: name, Encoder: gob.NewEncoder(tcpCon), Decoder: gob.NewDecoder(tcpCon), Jobs: make(chan func(), 1000)}
+	MyClient = &Client{BaseComponent: Engine.NewComponent(), Socket: tcpCon, Name: name, Encoder: gob.NewEncoder(tcpCon), Decoder: gob.NewDecoder(tcpCon), Jobs: make(chan func(), 1000), GameJobs: make(chan func(), 1000)}
 	go MyClient.Run()
 	LoginErrChan = *errChan
+}
+
+func (c *Client) Update() {
+	select {
+	case job := <-c.GameJobs:
+		job()
+	default:
+
+	}
+}
+
+func (c *Client) Send(p Server.Packet) {
+	c.Encoder.Encode(&p)
+}
+
+func (c *Client) LateUpdate() {
+	if time.Since(c.lastTransformUpdate) > time.Second/10 {
+		c.lastTransformUpdate = time.Now()
+		p := c.Transform().WorldPosition()
+		r := c.Transform().Angle()
+		if c.lastX != p.X || c.lastY != p.Y || c.lastRotation != r {
+			c.Jobs <- func() {
+				c.Send(Server.NewPlayerMove(Server.NewPlayerTransform(c.ID, p.X, p.Y, r)))
+			}
+			c.lastX, c.lastY, c.lastRotation = p.X, p.Y, r
+		}
+	}
 }
 
 func (c *Client) DoJobs() {
@@ -83,12 +116,34 @@ func (c *Client) Run() {
 func (c *Client) HandlePacket(packet Server.Packet) {
 	defer c.OnPanic()
 	switch packet.ID() {
+	case Server.ID_SpawnPlayer:
+		spawnPlayer := packet.(Server.SpawnPlayer)
+		c.GameJobs <- func() {
+			if spawnPlayer.PlayerInfo.PlayerID == c.ID {
+				SpawnMainPlayer(spawnPlayer)
+			} else {
+				SpawnPlayer(spawnPlayer)
+			}
+		}
 	case Server.ID_EnterGame:
+		enterGame := packet.(Server.EnterGame)
+		c.ID = enterGame.PlayerID
+		c.Name = enterGame.Name
 		Engine.LoadScene(GameSceneGeneral)
 	case Server.ID_LoginError:
 		error := packet.(Server.LoginError)
 		LoginErrChan <- fmt.Errorf(error.Error)
 		panic(error)
+	case Server.ID_PlayerTransform:
+		trans := packet.(Server.PlayerTransform)
+		c.GameJobs <- func() {
+			p, exist := Players[trans.PlayerID]
+			if !exist {
+				println("player does not exists")
+			}
+			p.Transform().SetPositionf(trans.X, trans.Y)
+			p.Transform().SetRotationf(trans.Rotation)
+		}
 	}
 }
 
