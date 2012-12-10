@@ -10,6 +10,12 @@ const (
 	ID_Welcome    = PacketID(iota)
 	ID_EnterGame  = PacketID(iota)
 	ID_LoginError = PacketID(iota)
+
+	ID_SpawnPlayer     = PacketID(iota)
+	ID_PlayerInfo      = PacketID(iota)
+	ID_PlayerTransform = PacketID(iota)
+	ID_RemovePlayer    = PacketID(iota)
+	ID_PlayerMove      = PacketID(iota)
 )
 
 type Packet interface {
@@ -20,6 +26,12 @@ func init() {
 	gob.Register(Welcome{})
 	gob.Register(EnterGame{})
 	gob.Register(LoginError{})
+
+	gob.Register(SpawnPlayer{})
+	gob.Register(PlayerInfo{})
+	gob.Register(PlayerTransform{})
+	gob.Register(RemovePlayer{})
+	gob.Register(PlayerMove{})
 }
 
 type Welcome struct {
@@ -35,14 +47,16 @@ func NewWelcome(name string) Packet {
 }
 
 type EnterGame struct {
+	PlayerID ID
+	Name     string
 }
 
 func (e EnterGame) ID() PacketID {
 	return ID_EnterGame
 }
 
-func NewEnterGame() Packet {
-	return EnterGame{}
+func NewEnterGame(id ID, name string) Packet {
+	return EnterGame{id, name}
 }
 
 type LoginError struct {
@@ -55,4 +69,68 @@ func (e LoginError) ID() PacketID {
 
 func NewLoginError(error string) Packet {
 	return LoginError{error}
+}
+
+type SpawnPlayer struct {
+	PlayerTransform
+	PlayerInfo
+}
+
+func (s SpawnPlayer) ID() PacketID {
+	return ID_SpawnPlayer
+}
+
+func NewSpawnPlayer(playerTransform PlayerTransform, playerInfo PlayerInfo) Packet {
+	return SpawnPlayer{playerTransform, playerInfo}
+}
+
+type PlayerTransform struct {
+	PlayerID ID
+	X, Y     float32
+	Rotation float32
+}
+
+func (s PlayerTransform) ID() PacketID {
+	return ID_PlayerTransform
+}
+
+func NewPlayerTransform(playerID ID, X, Y, Rotation float32) PlayerTransform {
+	return PlayerTransform{playerID, X, Y, Rotation}
+}
+
+type PlayerInfo struct {
+	PlayerID ID
+	Name     string
+}
+
+func (s PlayerInfo) ID() PacketID {
+	return ID_PlayerInfo
+}
+
+func NewPlayerInfo(playerID ID, name string) PlayerInfo {
+	return PlayerInfo{playerID, name}
+}
+
+type RemovePlayer struct {
+	PlayerID ID
+}
+
+func (s RemovePlayer) ID() PacketID {
+	return ID_RemovePlayer
+}
+
+func NewRemovePlayer(playerID ID) Packet {
+	return RemovePlayer{playerID}
+}
+
+type PlayerMove struct {
+	PlayerTransform
+}
+
+func (s PlayerMove) ID() PacketID {
+	return ID_PlayerMove
+}
+
+func NewPlayerMove(transfrom PlayerTransform) Packet {
+	return PlayerMove{transfrom}
 }

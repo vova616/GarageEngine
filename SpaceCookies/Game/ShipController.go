@@ -36,7 +36,6 @@ type ShipController struct {
 }
 
 func NewShipController() *ShipController {
-
 	misslesDirection := [][]Engine.Vector{{{0, 1, 0}, {0, 1, 0}},
 		{{-0.2, 1, 0}, {0.2, 1, 0}, {0, 1, 0}},
 		{{-0.2, 1, 0}, {0.2, 1, 0}, {0, 1, 0}, {-0.2, 1, 0}, {0.2, 1, 0}}}
@@ -48,6 +47,7 @@ func NewShipController() *ShipController {
 }
 
 func (sp *ShipController) OnComponentBind(binded *Engine.GameObject) {
+
 	sp.GameObject().AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15)))
 }
 

@@ -30,6 +30,29 @@ func OnWelcomePacket(c *Client, p Packet) {
 	} else {
 		c.Name = welcomePacket.Name
 		log.Println("Connection in!", c.Socket.RemoteAddr(), c.ID, c.Name)
-		c.Send(NewEnterGame())
+		PlayerEnterGame(c)
+	}
+}
+
+func OnPlayerMove(c *Client, p Packet) {
+	movePlayer := p.(PlayerMove)
+
+	c.X, c.Y, c.Rotation = movePlayer.X, movePlayer.Y, movePlayer.Rotation
+
+	for _, client := range MainServer.Clients {
+		if c != client {
+			client.Send(NewPlayerTransform(c.ID, c.X, c.Y, c.Rotation))
+		}
+	}
+}
+
+func PlayerEnterGame(c *Client) {
+	c.X, c.Y = 400, 200
+	c.Send(NewEnterGame(c.ID, c.Name))
+	for id, client := range MainServer.Clients {
+		c.Send(NewSpawnPlayer(NewPlayerTransform(id, client.X, client.Y, client.Rotation), NewPlayerInfo(id, client.Name)))
+		if c != client {
+			client.Send(NewSpawnPlayer(NewPlayerTransform(c.ID, c.X, c.Y, c.Rotation), NewPlayerInfo(c.ID, c.Name)))
+		}
 	}
 }
