@@ -52,6 +52,7 @@ func (c *Client) Run() {
 }
 
 func (c *Client) HandlePacket(p Packet) {
+	defer c.OnPanic()
 	switch p.ID() {
 	case ID_Welcome:
 		OnWelcomePacket(c, p)
@@ -61,9 +62,11 @@ func (c *Client) HandlePacket(p Packet) {
 }
 
 func (c *Client) Send(p Packet) {
-	e := c.Encoder.Encode(&p)
-	if e != nil {
-		log.Println(e)
+	if atomic.LoadInt32(&c.Disconnected) == 0 {
+		e := c.Encoder.Encode(&p)
+		if e != nil {
+			panic(e)
+		}
 	}
 }
 

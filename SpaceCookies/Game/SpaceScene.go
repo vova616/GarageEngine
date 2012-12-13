@@ -541,17 +541,17 @@ func (s *GameScene) Load() {
 
 	FPSDrawer.Transform().SetPositionf(20, float32(Engine.Height)-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
+	/*
+		label := Engine.NewGameObject("Label")
+		label.Transform().SetParent2(cam)
+		label.Transform().SetPositionf(20, float32(Engine.Height)-40)
+		label.Transform().SetScalef(20, 20)
 
-	label := Engine.NewGameObject("Label")
-	label.Transform().SetParent2(cam)
-	label.Transform().SetPositionf(20, float32(Engine.Height)-40)
-	label.Transform().SetScalef(20, 20)
-
-	txt2 := label.AddComponent(Components.NewUIText(ArialFont2, "Input: ")).(*Components.UIText)
-	txt2.SetFocus(true)
-	txt2.SetWritable(true)
-	txt2.SetAlign(Engine.AlignLeft)
-
+		txt2 := label.AddComponent(Components.NewUIText(ArialFont2, "Input: ")).(*Components.UIText)
+		txt2.SetFocus(true)
+		txt2.SetWritable(true)
+		txt2.SetAlign(Engine.AlignLeft)
+	*/
 	//SPACCCEEEEE
 	Engine.Space.Gravity.Y = 0
 	Engine.Space.Iterations = 10
@@ -715,23 +715,23 @@ func (s *GameScene) Load() {
 		c.Transform().SetPosition(p)
 		c.Transform().SetScalef(size, size)
 	}
-	/*
-		for i := 0; i < 600; i++ {
-			c := cookie.Clone()
-			//c.Tag = CookieTag
-			c.Transform().SetParent2(Layer2)
-			size := 40 + rand.Float32()*100
-			p := Engine.Vector{(rand.Float32() * 4000), (rand.Float32() * 4000), 1}
 
-			if p.X < 1100 && p.Y < 800 {
-				p.X += 1100
-				p.Y += 800
-			}
+	for i := 0; i < 600; i++ {
+		c := cookie.Clone()
+		//c.Tag = CookieTag
+		c.Transform().SetParent2(Layer2)
+		size := 40 + rand.Float32()*100
+		p := Engine.Vector{(rand.Float32() * 4000), (rand.Float32() * 4000), 1}
 
-			c.Transform().SetPosition(p)
-			c.Transform().SetScalef(size, size)
+		if p.X < 1100 && p.Y < 800 {
+			p.X += 1100
+			p.Y += 800
 		}
-	*/
+
+		c.Transform().SetPosition(p)
+		c.Transform().SetScalef(size, size)
+	}
+
 	Wall = Engine.NewGameObject("Wall")
 	Wall.Transform().SetParent2(Layer2)
 

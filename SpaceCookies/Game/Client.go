@@ -16,7 +16,7 @@ var (
 	LoginErrChan chan error
 )
 
-const ServerIP = "game.vovchik.org:123"
+const ServerIP = "localhost:123"
 const ServerLocalIP = "localhost:123"
 
 type Client struct {
@@ -62,30 +62,36 @@ func Connect(name string, errChan *chan error) {
 }
 
 func (c *Client) Update() {
-	select {
-	case job := <-c.GameJobs:
-		job()
-	default:
-
+	b := true
+	for b {
+		select {
+		case job := <-c.GameJobs:
+			job()
+		default:
+			b = false
+		}
 	}
 }
 
 func (c *Client) Send(p Server.Packet) {
+	if c.Disconnected {
+		return
+	}
 	c.Encoder.Encode(&p)
 }
 
 func (c *Client) LateUpdate() {
-	if time.Since(c.lastTransformUpdate) > time.Second/10 {
-		c.lastTransformUpdate = time.Now()
-		p := c.Transform().WorldPosition()
-		r := c.Transform().Angle()
-		if c.lastX != p.X || c.lastY != p.Y || c.lastRotation != r {
-			c.Jobs <- func() {
-				c.Send(Server.NewPlayerMove(Server.NewPlayerTransform(c.ID, p.X, p.Y, r)))
-			}
-			c.lastX, c.lastY, c.lastRotation = p.X, p.Y, r
+	//if time.Since(c.lastTransformUpdate) > time.Second/60 {
+	//	c.lastTransformUpdate = time.Now()
+	p := c.Transform().WorldPosition()
+	r := c.Transform().Angle()
+	if c.lastX != p.X || c.lastY != p.Y || c.lastRotation != r {
+		c.Jobs <- func() {
+			c.Send(Server.NewPlayerMove(Server.NewPlayerTransform(c.ID, p.X, p.Y, r)))
 		}
+		c.lastX, c.lastY, c.lastRotation = p.X, p.Y, r
 	}
+	//}
 }
 
 func (c *Client) DoJobs() {
@@ -108,8 +114,7 @@ func (c *Client) Run() {
 		if e != nil {
 			panic(e)
 		}
-		p := packet
-		c.Jobs <- func() { c.HandlePacket(p) }
+		c.Jobs <- func() { c.HandlePacket(packet) }
 	}
 }
 
@@ -140,6 +145,7 @@ func (c *Client) HandlePacket(packet Server.Packet) {
 			p, exist := Players[trans.PlayerID]
 			if !exist {
 				println("player does not exists")
+				return
 			}
 			p.Transform().SetPositionf(trans.X, trans.Y)
 			p.Transform().SetRotationf(trans.Rotation)

@@ -55,7 +55,11 @@ var (
 	Space     *chipmunk.Space = nil
 	deltaTime float32
 	fixedTime float32
-	stepTime  = float32(1) / float32(60)
+
+	steps    = float32(1)
+	stepTime = float32(1) / float32(60) / steps
+
+	lastTime time.Time = time.Now()
 
 	EnablePhysics = true
 	Debug         = false
@@ -171,6 +175,8 @@ func StartEngine() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	lastTime = time.Now()
 }
 
 func MainLoop() bool {
@@ -194,11 +200,13 @@ func MainLoop() bool {
 }
 
 func Run() {
-	before := time.Now()
-
 	gl.ClearColor(0, 0, 0, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.LoadIdentity()
+
+	deltaTime = float32(float64(time.Since(lastTime).Nanoseconds()) / float64(time.Second))
+	lastTime = time.Now()
+	before := time.Now()
 
 	timer := NewTimer()
 	timer.Start()
@@ -262,7 +270,6 @@ func Run() {
 						/*
 							When parent changes his position/rotation it changes his children position/rotation too but the physics engine thinks its in different position
 							so we need to check how much it changed and apply to the new position/rotation so we wont fuck up things too much.
-							or I think we need to add any child physics shape to the parent body but I will check that later.
 						*/
 
 						b := g.Physics.Body
@@ -287,13 +294,13 @@ func Run() {
 
 				physicsStepDelta := timer.StopCustom("Physics step time")
 
-				if float32(physicsStepDelta.Nanoseconds()/int64(time.Millisecond))/float32(1000) > stepTime*0.5 {
+				if float32(float64(physicsStepDelta.Nanoseconds())/float64(time.Second)) > stepTime*0.5 {
 					//stepTime *= 2
-					//println("Break!")
+
 					break
 				} else {
 					//println("Nope!")
-					stepTime = float32(1) / float32(60)
+					//stepTime = float32(1) / float32(60)
 				}
 
 				//}
@@ -334,7 +341,6 @@ func Run() {
 
 	now := time.Now()
 	deltaDur := now.Sub(before)
-	deltaTime = float32(now.Sub(before).Nanoseconds()/int64(time.Millisecond)) / 1000
 
 	if Debug {
 		fmt.Println()
@@ -372,9 +378,6 @@ func Run() {
 		fmt.Println("##################")
 		fmt.Println()
 	}
-
-	now = time.Now()
-	deltaTime = float32(now.Sub(before).Nanoseconds()/int64(time.Millisecond)) / 1000
 }
 
 func Iter(objs []*GameObject, f func(*GameObject)) {

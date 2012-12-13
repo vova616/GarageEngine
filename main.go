@@ -7,7 +7,7 @@ import (
 	"github.com/vova616/GarageEngine/NetworkOnline"
 	"github.com/vova616/GarageEngine/SpaceCookies/Game"
 	"github.com/vova616/GarageEngine/SpaceCookies/Login"
-	//"github.com/vova616/GarageEngine/SpaceCookies/Server"
+	"github.com/vova616/GarageEngine/SpaceCookies/Server"
 	//"math"
 	//"github.com/vova616/gl"
 	"os"
@@ -63,6 +63,11 @@ func Start() {
 	_ = Game.GameSceneGeneral
 	_ = NetworkOnline.GameSceneGeneral
 	_ = Login.LoginSceneGeneral
+
+	/*
+		Running local server.
+	*/
+	go Server.StartServer()
 
 	Engine.LoadScene(Login.LoginSceneGeneral)
 	for Engine.MainLoop() {
