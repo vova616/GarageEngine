@@ -1,28 +1,28 @@
 ## Install:
 Windows:
 To avoid installing mingw and downloading libraries in windows I have added the .a files.
-
-go get github.com/vova616/GarageEngine
-go get github.com/vova616/chipmunk
-go get github.com/vova616/gl 
-go get github.com/jteeuwen/glfw
-(just to make sure you got all the sources, ignore all the erroes)
+<br/>
+go get github.com/vova616/GarageEngine<br/>
+go get github.com/vova616/chipmunk<br/>
+go get github.com/vova616/gl <br/>
+go get github.com/jteeuwen/glfw<br/>
+(just to make sure you got all the sources, ignore all the erroes)<br/>
 
 go to GarageEngine source folder and copy the pkg folder to your golang folder. (override)
 now you can try to compile GarageEngine.
 
 Other:
-You need to download glfw/gl/glew libraries.
-sudo apt-get install binutils-gold freeglut3 freeglut3-dev libglew1.5 libglew1.5-dev libglfw-dev
+You need to download glfw/gl/glew libraries.<br/>
+sudo apt-get install binutils-gold freeglut3 freeglut3-dev libglew1.5 libglew1.5-dev libglfw-dev<br/>
 go get github.com/vova616/GarageEngine
 
 ## Dependencies
-github.com/vova616/gl 
-github.com/vova616/chipmunk
+github.com/vova616/gl<br/>
+github.com/vova616/chipmunk<br/>
 github.com/jteeuwen/glfw
 
 ## Coroutines(they might be deprecated):
-The useage is same as unity coroutines.
+The useage is same as unity coroutines.<br/>
 Use Behaviour Trees, its better and faster.
 
 ## Behaviour Trees:
