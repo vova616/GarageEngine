@@ -12,21 +12,28 @@ go to GarageEngine source folder and copy the pkg folder to your golang folder. 
 now you can try to compile GarageEngine.
 
 Other:
+You need to download glfw/gl/glew libraries.
+sudo apt-get install binutils-gold freeglut3 freeglut3-dev libglew1.5 libglew1.5-dev libglfw-dev
 go get github.com/vova616/GarageEngine
 
-you need to download glew and glfw libs.
-for glfw look here github.com/jteeuwen/glfw.
-for gl just google glew and download them.
+## Dependencies
+github.com/vova616/gl 
+github.com/vova616/chipmunk
+github.com/jteeuwen/glfw
 
-
-## Coroutines:
+## Coroutines(they might be deprecated):
 The useage is same as unity coroutines.
+Use Behaviour Trees, its better and faster.
+
+## Behaviour Trees:
+Example in SpaceCookies/Game/EnemeyAI.go
+
 
 ## Videos:
 http://www.youtube.com/watch?v=iMMbf6SRb9Q
 http://www.youtube.com/watch?v=BMRlY9dFVLg
 
-## Example:
+## Coroutines Example:
 	func (sp *PlayerController) Start() {
 		as := StartCoroutine(func() { sp.AutoShoot() })
 		
