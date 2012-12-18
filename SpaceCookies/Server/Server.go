@@ -85,11 +85,13 @@ func (c *Client) OnPanic() {
 func StartServer() {
 	addr, err := net.ResolveTCPAddr("tcp", "0.0.0.0:123")
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return
 	}
 	ln, err := net.ListenTCP("tcp", addr)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return
 	}
 	log.Println("Server started!")
 	//MainServer.IDGen can be not safe because the only place we use it is when we adding/removing clients from the list and we need to do it safe anyway
