@@ -30,7 +30,7 @@ Example in SpaceCookies/Game/EnemeyAI.go
 
 
 ## Videos:
-http://www.youtube.com/watch?v=iMMbf6SRb9Q
+http://www.youtube.com/watch?v=iMMbf6SRb9Q<br/>
 http://www.youtube.com/watch?v=BMRlY9dFVLg
 
 ## Coroutines Example:
