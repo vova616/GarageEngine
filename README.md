@@ -13,7 +13,7 @@ now you can try to compile GarageEngine.
 
 Other:
 You need to download glfw/gl/glew libraries.<br/>
-sudo apt-get install binutils-gold freeglut3 freeglut3-dev libglew1.5 libglew1.5-dev libglfw-dev<br/>
+sudo apt-get install binutils-gold freeglut3 freeglut3-dev libglew1.8 libglew1.8-dev libglfw-dev libxrandr2 libxrandr-dev <br/>
 go get github.com/vova616/GarageEngine
 
 ## Dependencies
@@ -28,6 +28,8 @@ Use Behaviour Trees, its better and faster.
 ## Behaviour Trees:
 Example in SpaceCookies/Game/EnemeyAI.go
 
+## SpaceCookies
+Mini game to test the engine, it will host server on port 123 then you connect to it.
 
 ## Videos:
 http://www.youtube.com/watch?v=iMMbf6SRb9Q<br/>
