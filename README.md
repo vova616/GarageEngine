@@ -30,6 +30,7 @@ Example in SpaceCookies/Game/EnemeyAI.go
 
 ## SpaceCookies
 Mini game to test the engine, it will host server on port 123 then you connect to it.
+Make sure your executable file is in the same folder with the data folder.
 
 ## Videos:
 http://www.youtube.com/watch?v=iMMbf6SRb9Q<br/>
