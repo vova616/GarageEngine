@@ -2,7 +2,7 @@ package Engine
 
 import (
 	"fmt"
-	"github.com/vova616/gl"
+	//"github.com/go-gl/gl"
 )
 
 type ID interface{}
@@ -16,11 +16,19 @@ var (
 )
 
 type MemHandle struct {
-	*gl.MemHandle
+	Buff []byte
 }
 
 func Allocate(size int) *MemHandle {
-	return &MemHandle{gl.Allocate(size)}
+	return &MemHandle{make([]byte, size)}
+}
+
+func (m *MemHandle) Release() {
+	m.Buff = nil
+}
+
+func (m *MemHandle) Bytes() []byte {
+	return m.Buff
 }
 
 type Resources struct {

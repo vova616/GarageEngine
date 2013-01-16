@@ -3,7 +3,7 @@ package NetworkOnline
 import (
 	"github.com/vova616/GarageEngine/Engine"
 	//"Engine/Components"
-	"github.com/jteeuwen/glfw"
+	"github.com/go-gl/glfw"
 	"github.com/vova616/GarageEngine/Engine/Input"
 	//"log"
 	"github.com/vova616/chipmunk"

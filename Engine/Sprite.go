@@ -1,13 +1,14 @@
 package Engine
 
 import (
-	"github.com/vova616/gl"
+	"github.com/go-gl/gl"
 	//"gl/glu"
 	//"log"
 	//"image/png"
 	//"image"
 	//"os"
 	//"fmt"
+
 	"github.com/vova616/chipmunk/vect"
 	//"glfw"
 )
@@ -238,16 +239,16 @@ func (sp *Sprite) Draw() {
 
 		sp.buffer.Bind(gl.ARRAY_BUFFER)
 
-		vert.AttribPointerPtr(3, gl.FLOAT, false, 0, int(sp.animation)*12*4)
-		uv.AttribPointerPtr(2, gl.FLOAT, false, 0, sp.texcoordsIndex+(int(sp.animation)*8*4))
+		vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(int(sp.animation)*12*4))
+		uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(sp.texcoordsIndex+(int(sp.animation)*8*4)))
 
 		view := camera.Transform().Matrix()
 		view = view.Invert()
 		model := sp.GameObject().Transform().Matrix()
 
-		mv.Uniform4fv([]float32(view[:]))
-		mp.Uniform4fv([]float32(camera.Projection[:]))
-		mm.Uniform4fv([]float32(model[:]))
+		mv.UniformMatrix4fv(false, view)
+		mp.UniformMatrix4fv(false, *camera.Projection)
+		mm.UniformMatrix4fv(false, model)
 
 		sp.Bind()
 		gl.ActiveTexture(gl.TEXTURE0)
@@ -266,7 +267,7 @@ func (sp *Sprite) Draw() {
 			sp.Transform().SetScale(scalex)
 			model = sp.GameObject().Transform().Matrix()
 
-			mm.Uniform4fv([]float32(model[:]))
+			mm.UniformMatrix4fv(false, model)
 			sp.Transform().SetScale(scale)
 		}
 
@@ -305,19 +306,18 @@ func (sp *Sprite) DrawScreen() {
 
 		sp.buffer.Bind(gl.ARRAY_BUFFER)
 
-		vert.AttribPointerPtr(3, gl.FLOAT, false, 0, int(sp.animation)*12*4)
-		uv.AttribPointerPtr(2, gl.FLOAT, false, 0, sp.texcoordsIndex+(int(sp.animation)*8*4))
+		vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(int(sp.animation)*12*4))
+		uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(sp.texcoordsIndex+(int(sp.animation)*8*4)))
 
-		proj := NewIdentity()
-		proj = camera.Projection
-		view := NewIdentity()
-		model := NewIdentity()
+		proj := camera.Projection
+		view := Identity()
+		model := Identity()
 		model.Scale(scale.X, scale.Y, 1)
 		model.Translate((float32(Width)/2)+pos.X, (float32(Height)/2)+pos.Y, 1)
 
-		mv.Uniform4fv([]float32(view[:]))
-		mp.Uniform4fv([]float32(proj[:]))
-		mm.Uniform4fv([]float32(model[:]))
+		mv.UniformMatrix4fv(false, view)
+		mp.UniformMatrix4fv(false, *proj)
+		mm.UniformMatrix4fv(false, model)
 
 		sp.Bind()
 		gl.ActiveTexture(gl.TEXTURE0)
@@ -334,9 +334,9 @@ func (sp *Sprite) DrawScreen() {
 			scale := sp.Transform().Scale()
 			scalex := scale.Mul2(1 - (sp.BorderSize / 100))
 			sp.Transform().SetScale(scalex)
-			*model = sp.GameObject().Transform().Matrix()
+			model = sp.GameObject().Transform().Matrix()
 
-			mm.Uniform4fv([]float32(model[:]))
+			mm.UniformMatrix4fv(false, model)
 			sp.Transform().SetScale(scale)
 		}
 

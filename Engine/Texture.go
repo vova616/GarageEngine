@@ -2,7 +2,7 @@ package Engine
 
 import (
 	"errors"
-	"github.com/vova616/gl"
+	"github.com/go-gl/gl"
 	"image"
 	"image/color"
 	"image/gif"
@@ -321,9 +321,9 @@ func NewTexture2(data interface{}, width int, height int, target gl.GLenum, inte
 	t.SetWraping(WrapT, ClampToEdge)
 	t.SetFiltering(Nearest, Nearest)
 
-	ansi := []float32{0}
-	gl.GetFloatv(gl.MAX_TEXTURE_MAX_ANISOTROPY_EXT, ansi)
-	gl.TexParameterf(target, gl.TEXTURE_MAX_ANISOTROPY_EXT, ansi[0])
+	//ansi := []float32{0}
+	//gl.GetFloatv(gl.MAX_TEXTURE_MAX_ANISOTROPY_EXT, ansi)
+	//gl.TexParameterf(target, gl.TEXTURE_MAX_ANISOTROPY_EXT, ansi[0])
 
 	t.PreloadRender() //Forcing texture to go to VRAM and prevent shuttering
 	t.data = nil
@@ -406,7 +406,8 @@ func (t *Texture) ReadTextureFromGPU() []byte {
 	gl.BufferData(gl.PIXEL_UNPACK_BUFFER, t.Width()*t.Height()*t.PixelSize(), 0, gl.STREAM_DRAW)
 	//gl.GetTexImage(t.target, 0, t.format, buffer)
 	b.Bind(gl.PIXEL_UNPACK_BUFFER)
-	gl.TexSubImage2DPtr(t.target, 0, 0, 0, t.Width(), t.Height(), t.format, t.typ, unsafe.Pointer(uintptr(0)))
+
+	gl.TexSubImage2D(t.target, 0, 0, 0, t.Width(), t.Height(), t.format, t.typ, unsafe.Pointer(uintptr(0)))
 	b.Bind(gl.PIXEL_UNPACK_BUFFER)
 
 	l := t.Width() * t.Height() * t.PixelSize()
@@ -426,8 +427,9 @@ func (t *Texture) ReadTextureFromGPU() []byte {
 }
 
 func (t *Texture) SetData(data interface{}) {
-	t.Bind()
-	gl.TexSubImage2D(t.target, 0, 0, 0, t.width, t.height, t.format, data)
+	panic("not implemented")
+	//t.Bind()
+	//gl.TexSubImage2D(t.target, 0, 0, 0, t.width, t.height, t.format, data)
 }
 
 func (t *Texture) SetReadOnly() {

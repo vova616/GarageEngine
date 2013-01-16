@@ -2,7 +2,7 @@ package Engine
 
 import (
 	"fmt"
-	"github.com/vova616/gl"
+	"github.com/go-gl/gl"
 )
 
 type Material interface {
@@ -29,8 +29,8 @@ func (b *BasicMaterial) Load() error {
 	vrt := gl.CreateShader(gl.VERTEX_SHADER)
 	frg := gl.CreateShader(gl.FRAGMENT_SHADER)
 
-	vrt.Source(vertexShader)
-	frg.Source(fragmentShader)
+	vrt.Source(b.vertexShader)
+	frg.Source(b.fragmentShader)
 
 	vrt.Compile()
 	if vrt.Get(gl.COMPILE_STATUS) != 1 {
@@ -71,7 +71,9 @@ func (b *BasicMaterial) End(gobj *GameObject) {
 var TextureShader gl.Program
 var TextureMaterial *BasicMaterial
 
-const vertexShader = `
+var SDFMaterial *BasicMaterial
+
+const spriteVertexShader = `
 #version 110
 
 uniform mat4 MProj;
@@ -91,7 +93,7 @@ void main(void)
 }
 `
 
-const fragmentShader = `
+const spriteFragmentShader = `
 #version 110
 
 varying vec2 UV; 
@@ -113,5 +115,99 @@ void main(void)
 	//tcolor = mix(tcolor, t, tcolor.a);
 
 	gl_FragColor = tcolor;
+}
+`
+
+const sdfVertexShader = `
+#version 110
+
+uniform mat4 MProj;
+uniform mat4 MView;
+uniform mat4 MModel;
+
+attribute  vec3 vertexPos;
+attribute  vec2 vertexUV; 
+varying vec2 UV;
+
+
+ 
+void main(void)
+{
+	gl_Position = MProj * MView * MModel * vec4(vertexPos, 1.0);
+	UV = vertexUV;
+}
+`
+
+//Note: This shader needs to get better and get outline/shadow/glow support
+const sdfFragmentShader = `
+#version 110
+
+varying vec2 UV; 
+uniform sampler2D mytexture;
+uniform vec4 bcolor;
+uniform vec4 addcolor;
+	
+void main(void)
+{ 
+  	// retrieve distance from texture
+	float sdf = texture2D( mytexture, UV).a;
+
+	float smoothness = 32.0;
+	float gamma = 2.2;
+
+	vec4 basecolor = addcolor;
+
+	
+	bool outline = false;
+	float outline_min = 0.4;
+	float outline_min1 = 0.5;
+	float outline_max = 0.4;
+	float outline_max1 = 0.6;
+	vec4 outline_color = vec4(1,0,0,1);
+
+	bool softEdges = true;
+	float softEdgeMin = 0.4;
+	float softEdgeMax = 0.6;
+
+	
+
+	if (outline && sdf >= outline_min && sdf <= outline_max1 ) {
+		float ofactor = 1.0;
+		if (sdf <= outline_min1) {
+			 ofactor = smoothstep(outline_min, outline_min1, sdf);
+		} else {
+			 ofactor = smoothstep(outline_max1, outline_max, sdf);
+		}
+		//lerp
+		basecolor = addcolor + (outline_color - addcolor) * ofactor;
+	}
+	/*
+	if (softEdges) {
+		basecolor.a *= smoothstep(softEdgeMin, softEdgeMax, sdf);
+	} else {
+		if (sdf >= 0.5) {
+			basecolor.a = 1.0;
+		} else {
+			basecolor.a = 0.0;
+		}
+	}	
+	gl_FragColor = basecolor;
+	*/
+	
+
+
+	// perform adaptive anti-aliasing of the edges\n
+	float w = clamp( smoothness * (abs(dFdx(UV.x)) + abs(dFdy(UV.y))), 0.0, 0.5);
+	float a = smoothstep(0.5-w, 0.5+w, sdf);
+
+	a *= basecolor.a;
+
+	// gamma correction for linear attenuation
+	a = pow(a, 1.0/gamma);
+
+
+	gl_FragColor.rgb = basecolor.rgb;
+	gl_FragColor.a = a;
+
 }
 `

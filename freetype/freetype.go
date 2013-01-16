@@ -87,6 +87,10 @@ func (c *Context) FUnitToFix32(x int) raster.Fix32 {
 	return raster.Fix32((x*c.scale + 128) >> 8)
 }
 
+func (c *Context) GlyphBuf() *truetype.GlyphBuf {
+	return c.glyphBuf
+}
+
 // FUnitToPixelRD converts the given number of FUnits into pixel units,
 // rounding down.
 func (c *Context) FUnitToPixelRD(x int) int {
@@ -209,6 +213,28 @@ func (c *Context) Glyph(glyph truetype.Index, p raster.Point) (*image.Alpha, ima
 	}
 	c.cache[t] = cacheEntry{true, glyph, mask, offset}
 	return mask, offset.Add(image.Point{ix, iy}), nil
+}
+
+func (c *Context) Glyph2(glyph truetype.Index, p raster.Point) (*image.Alpha, image.Point, error) {
+	// Split p.X and p.Y into their integer and fractional parts.
+	fx := p.X & 0xff
+	fy := p.Y & 0xff
+	// Calculate the index t into the cache array.
+	tg := int(glyph) % nGlyphs
+	tx := int(fx) / (256 / nXFractions)
+	ty := int(fy) / (256 / nYFractions)
+	t := ((tg*nXFractions)+tx)*nYFractions + ty
+	// Check for a cache hit.
+	if c.cache[t].valid && c.cache[t].glyph == glyph {
+		return c.cache[t].mask, c.cache[t].offset, nil
+	}
+	// Rasterize the glyph and put the result into the cache.
+	mask, offset, err := c.rasterize(glyph, fx, fy)
+	if err != nil {
+		return nil, image.ZP, err
+	}
+	c.cache[t] = cacheEntry{true, glyph, mask, offset}
+	return mask, offset, nil
 }
 
 // DrawString draws s at p and returns p advanced by the text extent. The text

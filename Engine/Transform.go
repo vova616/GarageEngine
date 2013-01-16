@@ -5,6 +5,10 @@ import (
 	"math"
 )
 
+type Vector struct {
+	X, Y, Z float32
+}
+
 var (
 	Zero     = Vector{0, 0, 0}
 	Up       = Vector{0, 1, 0}
@@ -39,10 +43,6 @@ func LerpAngle(from, to float32, t float32) float32 {
 		to += 360
 	}
 	return from + ((to - from) * t)
-}
-
-type Vector struct {
-	X, Y, Z float32
 }
 
 func (v *Vector) String() string {
@@ -113,7 +113,7 @@ func (v *Vector) fixAngle() {
 	}
 }
 
-func (v Vector) Length() float32 {
+func (v *Vector) Length() float32 {
 	return float32(math.Sqrt(float64(v.X*v.X + v.Y*v.Y)))
 }
 
@@ -121,14 +121,14 @@ func Lerp(from, to Vector, t float32) Vector {
 	return NewVector2(from.X+((to.X-from.X)*t), from.Y+((to.Y-from.Y)*t))
 }
 
-func (v Vector) Normalize() {
+func (v *Vector) Normalize() {
 	l := v.Length()
 	v.X /= l
 	v.Y /= l
 	v.Z /= l
 }
 
-func (v Vector) Normalized() Vector {
+func (v *Vector) Normalized() Vector {
 	l := v.Length()
 	if l == 0 {
 		return NewVector3(0, 0, 0)

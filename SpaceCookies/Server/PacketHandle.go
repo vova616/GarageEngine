@@ -34,6 +34,10 @@ func OnWelcomePacket(c *Client, p Packet) {
 	}
 }
 
+func OnPlayerRespawn(c *Client, p Packet) {
+	PlayerEnterGame(c)
+}
+
 func OnPlayerMove(c *Client, p Packet) {
 	movePlayer := p.(PlayerMove)
 
