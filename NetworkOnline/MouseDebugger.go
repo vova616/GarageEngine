@@ -4,7 +4,7 @@ import (
 	"github.com/vova616/GarageEngine/Engine"
 	"github.com/vova616/GarageEngine/Engine/Input"
 	//"log" 
-	"github.com/jteeuwen/glfw"
+	"github.com/go-gl/glfw"
 	"github.com/vova616/chipmunk"
 	"github.com/vova616/chipmunk/vect"
 )

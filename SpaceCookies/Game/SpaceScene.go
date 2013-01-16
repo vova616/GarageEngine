@@ -486,18 +486,23 @@ func SpawnMainPlayer(spawnPlayer Server.SpawnPlayer) {
 }
 
 func SpawnPlayer(spawnPlayer Server.SpawnPlayer) {
-	newPlayer := Engine.NewGameObject(spawnPlayer.PlayerInfo.Name)
+	newPlayer, exists := Players[spawnPlayer.PlayerInfo.PlayerID]
+	if !exists {
+		newPlayer = Engine.NewGameObject(spawnPlayer.PlayerInfo.Name)
+	}
 	newPlayer.Transform().SetParent2(GameSceneGeneral.Layer2)
 	newPlayer.Transform().SetWorldPositionf(spawnPlayer.PlayerTransform.X, spawnPlayer.PlayerTransform.Y)
 	newPlayer.Transform().SetWorldRotationf(spawnPlayer.PlayerTransform.Rotation)
 	newPlayer.Transform().SetWorldScalef(100, 100)
 	newPlayer.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, SpaceShip_A)))
 
-	Players[spawnPlayer.PlayerInfo.PlayerID] = newPlayer
+	if !exists {
+		Players[spawnPlayer.PlayerInfo.PlayerID] = newPlayer
+	}
 }
 
 func (s *GameScene) Load() {
-
+	Players = make(map[Server.ID]*Engine.GameObject)
 	LoadTextures()
 
 	queenDead = false

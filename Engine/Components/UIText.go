@@ -1,9 +1,9 @@
 package Components
 
 import (
-	"github.com/vova616/gl"
+	"github.com/go-gl/gl"
 	//"image"
-	//"github.com/jteeuwen/glfw"
+	//"github.com/go-gl/glfw"
 	//"gl/glu"
 	//"log"
 
@@ -11,7 +11,7 @@ import (
 	//"image/png"
 	//"os" 
 	//"strconv"
-	//"github.com/jteeuwen/glfw"
+	//"github.com/go-gl/glfw"
 	"github.com/vova616/GarageEngine/Engine"
 	"github.com/vova616/GarageEngine/Engine/Input"
 	"github.com/vova616/chipmunk/vect"
@@ -289,15 +289,19 @@ func (ui *UIText) Draw() {
 	v.X = (v.X * ui.width)
 	v.Y = (v.Y * ui.height)
 
-	Engine.TextureMaterial.Begin(ui.GameObject())
+	mat := Engine.TextureMaterial
+	if ui.Font.IsSDF() {
+		mat = Engine.SDFMaterial
+	}
+	mat.Begin(ui.GameObject())
 
-	vert := Engine.TextureMaterial.Verts
-	uv := Engine.TextureMaterial.UV
-	mp := Engine.TextureMaterial.ProjMatrix
-	mv := Engine.TextureMaterial.ViewMatrix
-	mm := Engine.TextureMaterial.ModelMatrix
-	tx := Engine.TextureMaterial.Texture
-	color := Engine.TextureMaterial.AddColor
+	vert := mat.Verts
+	uv := mat.UV
+	mp := mat.ProjMatrix
+	mv := mat.ViewMatrix
+	mm := mat.ModelMatrix
+	tx := mat.Texture
+	color := mat.AddColor
 	_ = color
 
 	vert.EnableArray()
@@ -305,8 +309,8 @@ func (ui *UIText) Draw() {
 
 	ui.buffer.Bind(gl.ARRAY_BUFFER)
 
-	vert.AttribPointerPtr(3, gl.FLOAT, false, 0, 0)
-	uv.AttribPointerPtr(2, gl.FLOAT, false, 0, ui.texcoordsIndex)
+	vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
+	uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(ui.texcoordsIndex))
 
 	camera := Engine.GetScene().SceneBase().Camera
 
@@ -322,9 +326,9 @@ func (ui *UIText) Draw() {
 		model := ui.GameObject().Transform().Matrix()
 	*/
 
-	mv.Uniform4fv([]float32(view[:]))
-	mp.Uniform4fv([]float32(camera.Projection[:]))
-	mm.Uniform4fv([]float32(model[:]))
+	mv.UniformMatrix4fv(false, view)
+	mp.UniformMatrix4fv(false, *camera.Projection)
+	mm.UniformMatrix4fv(false, *model)
 
 	ui.Font.Bind()
 	gl.ActiveTexture(gl.TEXTURE0)

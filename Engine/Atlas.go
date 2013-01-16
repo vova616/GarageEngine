@@ -2,7 +2,7 @@ package Engine
 
 import (
 	"errors"
-	"github.com/vova616/gl"
+	"github.com/go-gl/gl"
 	"image"
 	"image/draw"
 	"log"
@@ -135,6 +135,7 @@ func NewManagedAtlas(width, height int) *ManagedAtlas {
 	return m
 }
 
+/*
 func NewRGBA(r image.Rectangle) (*image.RGBA, *MemHandle) {
 	w, h := r.Dx(), r.Dy()
 	memHandle := Allocate(4 * w * h)
@@ -142,7 +143,7 @@ func NewRGBA(r image.Rectangle) (*image.RGBA, *MemHandle) {
 	ResourceManager.Add(memHandle)
 	return &image.RGBA{buf, 4 * w, r}, memHandle
 }
-
+*/
 func AtlasFromSheet(path string, width, height, frames int) (atlas *ManagedAtlas, err error) {
 	file, e := os.Open(path)
 	if e != nil {

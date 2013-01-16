@@ -1,12 +1,12 @@
 package Engine
 
 import (
-	"github.com/vova616/gl"
+	"github.com/go-gl/gl"
 	//"log"
 	"github.com/vova616/GarageEngine/Engine/Input"
 	//"os"
 	"fmt"
-	"github.com/jteeuwen/glfw"
+	"github.com/go-gl/glfw"
 	"github.com/vova616/chipmunk"
 	"github.com/vova616/chipmunk/vect"
 	"math"
@@ -170,8 +170,14 @@ func StartEngine() {
 	}
 	println("Opengl Initialized!")
 
-	TextureMaterial = NewBasicMaterial(vertexShader, fragmentShader)
+	TextureMaterial = NewBasicMaterial(spriteVertexShader, spriteFragmentShader)
 	err = TextureMaterial.Load()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	SDFMaterial = NewBasicMaterial(sdfVertexShader, sdfFragmentShader)
+	err = SDFMaterial.Load()
 	if err != nil {
 		fmt.Println(err)
 	}

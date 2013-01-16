@@ -9,7 +9,7 @@ import (
 	"github.com/vova616/GarageEngine/SpaceCookies/Login"
 	"github.com/vova616/GarageEngine/SpaceCookies/Server"
 	//"math"
-	//"github.com/vova616/gl"
+	//"github.com/go-gl/gl"
 	"os"
 	//"runtime"
 	"runtime/pprof"
@@ -75,4 +75,5 @@ func Start() {
 	}
 }
 
+// 
 // 

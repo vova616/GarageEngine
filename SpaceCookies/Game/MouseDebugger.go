@@ -4,7 +4,7 @@ import (
 	"github.com/vova616/GarageEngine/Engine"
 	"github.com/vova616/GarageEngine/Engine/Input"
 	//"log" 
-	//"github.com/jteeuwen/glfw"
+	//"github.com/go-gl/glfw"
 	//c "github.com/vova616/chipmunk"
 	//. "github.com/vova616/chipmunk/vect"
 	"math/rand"
@@ -49,7 +49,7 @@ func (m *MouseDebugger) Update() {
 	}
 
 	if Input.KeyPress('R') {
-		Engine.LoadScene(GameSceneGeneral)
+		MyClient.SendRespawn()
 	}
 	if queenDead {
 		if Input.KeyPress(Input.KeyF1) {

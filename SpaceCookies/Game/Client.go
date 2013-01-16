@@ -172,3 +172,12 @@ func (c *Client) SendName() error {
 	}
 	return nil
 }
+
+func (c *Client) SendRespawn() error {
+	p := Server.NewPlayerRespawn()
+	e := c.Encoder.Encode(&p)
+	if e != nil {
+		return e
+	}
+	return nil
+}

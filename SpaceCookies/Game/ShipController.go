@@ -3,7 +3,7 @@ package Game
 import (
 	"github.com/vova616/GarageEngine/Engine"
 	//"Engine/Components"
-	//"github.com/jteeuwen/glfw"
+	//"github.com/go-gl/glfw"
 	"github.com/vova616/GarageEngine/Engine/Input"
 	//"log"
 	//"fmt"

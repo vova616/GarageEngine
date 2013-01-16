@@ -16,6 +16,8 @@ const (
 	ID_PlayerTransform = PacketID(iota)
 	ID_RemovePlayer    = PacketID(iota)
 	ID_PlayerMove      = PacketID(iota)
+
+	ID_Respawn = PacketID(iota)
 )
 
 type Packet interface {
@@ -32,6 +34,8 @@ func init() {
 	gob.Register(PlayerTransform{})
 	gob.Register(RemovePlayer{})
 	gob.Register(PlayerMove{})
+
+	gob.Register(PlayerRespawn{})
 }
 
 type Welcome struct {
@@ -133,4 +137,15 @@ func (s PlayerMove) ID() PacketID {
 
 func NewPlayerMove(transfrom PlayerTransform) Packet {
 	return PlayerMove{transfrom}
+}
+
+type PlayerRespawn struct {
+}
+
+func (s PlayerRespawn) ID() PacketID {
+	return ID_Respawn
+}
+
+func NewPlayerRespawn() Packet {
+	return PlayerRespawn{}
 }

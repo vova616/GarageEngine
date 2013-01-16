@@ -58,6 +58,8 @@ func (c *Client) HandlePacket(p Packet) {
 		OnWelcomePacket(c, p)
 	case ID_PlayerMove:
 		OnPlayerMove(c, p)
+	case ID_Respawn:
+		OnPlayerRespawn(c, p)
 	}
 }
 
