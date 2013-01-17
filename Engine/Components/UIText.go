@@ -215,8 +215,25 @@ func (ui *UIText) charCallback(rn rune) {
 	}
 }
 
+//var speed = float32(30)
+
 func (ui *UIText) Update() {
 	ui.UpdateCollider()
+
+	/*
+		s := ui.Transform().Scale()
+
+		if s.X < 20 && speed < 0 {
+			speed = -speed
+		} else if s.X > 200 && speed > 0 {
+			speed = -speed
+		}
+
+		s.X += speed * Engine.DeltaTime()
+		s.Y += speed * Engine.DeltaTime()
+
+		ui.Transform().SetScale(s)
+	*/
 
 	//Handle Tab & Backspace
 	if ui.focused && ui.writeable {
