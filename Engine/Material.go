@@ -152,7 +152,7 @@ void main(void)
   	// retrieve distance from texture
 	float sdf = texture2D( mytexture, UV).a;
 
-	float smoothness = 32.0;
+	float smoothness = 45.0;
 	float gamma = 2.2;
 
 	vec4 basecolor = addcolor;

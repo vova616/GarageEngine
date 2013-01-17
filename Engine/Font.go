@@ -130,7 +130,7 @@ func NewSDFFont2(fontPath string, size float64, dpi int, readonly bool, firstRun
 		}
 
 		bd := mask.Bounds().Add(offset)
-		pt.X = c.PointToFix32(float64(bd.Max.X) + float64(border))
+		pt.X = c.PointToFix32(float64(bd.Max.X) + float64(border) + 8)
 	}
 
 	dst := image.NewRGBA(image.Rect(0, 0, ((int(mx/256))/int(scaler))+2+int(osize), (int(pt.Y/256)/int(scaler))+2+int(osize)))
@@ -157,12 +157,12 @@ func NewSDFFont2(fontPath string, size float64, dpi int, readonly bool, firstRun
 			continue
 		}
 
-		newMask := image.NewAlpha(image.Rect(0, 0, mask.Bounds().Dx()/int(scaler), mask.Bounds().Dy()/int(scaler)))
+		newMask := image.NewAlpha(image.Rect(0, 0, int(2+float64(mask.Bounds().Dx())/(scaler)), int(2+float64(mask.Bounds().Dy())/(scaler))))
 
 		//Note: this is slow we need to find better algorithm	
 		for xx := 0; xx < newMask.Bounds().Dx(); xx++ {
 			for yy := 0; yy < newMask.Bounds().Dy(); yy++ {
-				alpha := FindSDFAlpha(mask, xx*int(scaler)+pRange/2, yy*int(scaler)+pRange/2, pRange)
+				alpha := FindSDFAlpha(mask, xx*int(scaler), yy*int(scaler), pRange)
 
 				newMask.SetAlpha(xx, yy, color.Alpha{uint8(alpha)})
 
@@ -174,7 +174,7 @@ func NewSDFFont2(fontPath string, size float64, dpi int, readonly bool, firstRun
 		}
 		//panic("asd")	
 
-		realoffx := -(float32(offset.Y) + float32(mask.Bounds().Max.Y)) / float32(size)
+		realoffy := -(float32(offset.Y) + float32(mask.Bounds().Max.Y)) / float32(size)
 		planeW := float32(mask.Bounds().Dx()) / float32(size)
 		planeH := float32(mask.Bounds().Dy()) / float32(size)
 		mask = newMask
@@ -198,7 +198,7 @@ func NewSDFFont2(fontPath string, size float64, dpi int, readonly bool, firstRun
 		//   
 		//   ((float32(offset.Y) / float32(scaler)) + float32(mask.Bounds().Max.Y))
 		//   	
-		LetterArray[r] = &LetterInfo{bd, realoffx, LeftSideBearing, realWidth, planeW, planeH}
+		LetterArray[r] = &LetterInfo{bd, realoffy, LeftSideBearing, realWidth, planeW, planeH}
 	}
 
 	texture, err := NewTexture(dst, dst.Pix)
@@ -405,71 +405,84 @@ func FindSDFAlpha(img *image.Alpha, x, y, maxRadius int) int {
 
 	w := img.Bounds().Dx()
 	distance := maxRadius*maxRadius + 1
-	if !(image.Point{x, y}.In(img.Bounds())) {
-		return distance
+	alpha := uint8(0)
+	if (image.Point{x, y}.In(img.Bounds())) {
+		alpha = img.Pix[y*w+x]
 	}
-	alpha := img.Pix[y*w+x]
 
+	a := uint8(0)
 	for radius := 1; (radius <= maxRadius) && (radius*radius < distance); radius++ {
 		for line := -radius; line <= radius; line++ {
 			nx, ny := x+line, y+radius
 			if (image.Point{nx, ny}.In(img.Bounds())) {
-				a := img.Pix[ny*w+nx]
-				//fmt.Println(line, x, ny, a, alpha)
-				if a != alpha {
-					nx = x - nx
-					ny = y - ny
-					d := (nx * nx) + (ny * ny)
-					if d < distance {
-						distance = d
-					}
+				a = img.Pix[ny*w+nx]
+			} else {
+				a = 0
+			}
+			//fmt.Println(line, x, ny, a, alpha)
+			if a != alpha {
+				nx = x - nx
+				ny = y - ny
+				d := (nx * nx) + (ny * ny)
+				if d < distance {
+					distance = d
 				}
 			}
+			//}
 		}
 
 		for line := -radius; line <= radius; line++ {
 			nx, ny := x+line, y-radius
 			if (image.Point{nx, ny}.In(img.Bounds())) {
-				a := img.Pix[ny*w+nx]
-				if a != alpha {
-					nx = x - nx
-					ny = y - ny
-					d := (nx * nx) + (ny * ny)
-					if d < distance {
-						distance = d
-					}
+				a = img.Pix[ny*w+nx]
+			} else {
+				a = 0
+			}
+			if a != alpha {
+				nx = x - nx
+				ny = y - ny
+				d := (nx * nx) + (ny * ny)
+				if d < distance {
+					distance = d
 				}
 			}
+			//}
 		}
 
 		for line := -radius; line < radius; line++ {
 			nx, ny := x+radius, y+line
 			if (image.Point{nx, ny}.In(img.Bounds())) {
-				a := img.Pix[ny*w+nx]
-				if a != alpha {
-					nx = x - nx
-					ny = y - ny
-					d := (nx * nx) + (ny * ny)
-					if d < distance {
-						distance = d
-					}
+				a = img.Pix[ny*w+nx]
+			} else {
+				a = 0
+			}
+			if a != alpha {
+				nx = x - nx
+				ny = y - ny
+				d := (nx * nx) + (ny * ny)
+				if d < distance {
+					distance = d
 				}
 			}
+			//}
 		}
 
 		for line := -radius; line < radius; line++ {
 			nx, ny := x-radius, y+line
 			if (image.Point{nx, ny}.In(img.Bounds())) {
-				a := img.Pix[ny*w+nx]
-				if a != alpha {
-					nx = x - nx
-					ny = y - ny
-					d := (nx * nx) + (ny * ny)
-					if d < distance {
-						distance = d
-					}
+				a = img.Pix[ny*w+nx]
+			} else {
+				a = 0
+			}
+			if a != alpha {
+				nx = x - nx
+				ny = y - ny
+				d := (nx * nx) + (ny * ny)
+				if d < distance {
+					distance = d
 				}
 			}
+			//}
 		}
 	}
 	SDF := float32(math.Sqrt(float64(distance)))

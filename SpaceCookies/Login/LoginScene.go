@@ -45,7 +45,7 @@ func CheckError(err error) bool {
 
 func LoadTextures() {
 	var e error
-	ArialFont, e = Engine.NewFont("./data/Fonts/arial.ttf", 48)
+	ArialFont, e = Engine.NewFont("./data/Fonts/arial.ttf", 24)
 	CheckError(e)
 	ArialFont.Texture.SetReadOnly()
 
@@ -105,6 +105,22 @@ func (s *LoginScene) Load() {
 
 	FPSDrawer.Transform().SetPositionf(20, float32(Engine.Height)-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
+
+	/*
+		{
+			FPSDrawer := Engine.NewGameObject("FPS")
+			FPSDrawer.Transform().SetParent2(gui)
+			txt := FPSDrawer.AddComponent(Components.NewUIText(ArialFont, "")).(*Components.UIText)
+			fps := FPSDrawer.AddComponent(Engine.NewFPS()).(*Engine.FPS)
+			fps.SetAction(func(fps float32) {
+				txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
+			})
+			txt.SetAlign(Engine.AlignLeft)
+
+			FPSDrawer.Transform().SetPositionf(20, float32(Engine.Height)-500)
+			FPSDrawer.Transform().SetScalef(20, 20)
+		}
+	*/
 
 	//
 	tBox := Engine.NewGameObject("TextBox")
