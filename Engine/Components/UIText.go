@@ -113,14 +113,14 @@ func (ui *UIText) setString(text string) {
 			continue
 		}
 
-		yratio := atlasImage.PlaneHeight
-		xratio := atlasImage.PlaneWidth
+		yratio := atlasImage.RelativeHeight
+		xratio := atlasImage.RelativeWidth
 
 		//ygrid := -0.5 + (atlasImage.YGrid)
 		//xgrid := (-0.5 + (atlasImage.XGrid)) + space
-		ygrid := -(h / 2) + (atlasImage.YGrid)
-		xgrid := -(w / 2) + (atlasImage.XGrid) + space
-		space += atlasImage.RealWidth * spaceMult
+		ygrid := -(h / 2) + (atlasImage.YOffset)
+		xgrid := -(w / 2) + (atlasImage.XOffset) + space
+		space += atlasImage.XAdvance * spaceMult
 
 		vertexCount += 4
 
@@ -173,7 +173,7 @@ func (ui *UIText) GetPixelSize(text string) (width float32, height float32) {
 		if atlasImage == nil {
 			continue
 		}
-		width += atlasImage.RealWidth * spaceMult
+		width += atlasImage.RelativeWidth * spaceMult
 		/*
 			yratio := atlasImage.PlaneHeight
 			ygrid := atlasImage.YGrid
