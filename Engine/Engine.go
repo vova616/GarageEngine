@@ -55,6 +55,7 @@ var (
 	Space     *chipmunk.Space = nil
 	deltaTime float32
 	fixedTime float32
+	gameTime  time.Time
 
 	steps    = float32(1)
 	stepTime = float32(1) / float32(60) / steps
@@ -141,6 +142,10 @@ func DeltaTime() float32 {
 	return deltaTime
 }
 
+func GameTime() time.Time {
+	return gameTime
+}
+
 func StartEngine() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	runtime.LockOSThread()
@@ -182,6 +187,7 @@ func StartEngine() {
 		fmt.Println(err)
 	}
 
+	gameTime = time.Time{}
 	lastTime = time.Now()
 }
 
@@ -210,6 +216,7 @@ func Run() {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.LoadIdentity()
 
+	gameTime = gameTime.Add(time.Since(lastTime))
 	deltaTime = float32(float64(time.Since(lastTime).Nanoseconds()) / float64(time.Second))
 	lastTime = time.Now()
 	before := time.Now()
