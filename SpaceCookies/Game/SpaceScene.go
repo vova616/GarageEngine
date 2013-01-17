@@ -228,6 +228,7 @@ func (s *GameScene) OldLoad() {
 	Player = ship
 	ship.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, SpaceShip_A)))
 	PlayerShip = ship.AddComponent(NewShipController()).(*ShipController)
+	ship.AddComponent(Components.NewSmoothFollow(nil))
 	ship.Transform().SetParent2(Layer2)
 	ship.Transform().SetPositionf(400, 200)
 	ship.Transform().SetScalef(100, 100)
@@ -478,6 +479,7 @@ func SpawnMainPlayer(spawnPlayer Server.SpawnPlayer) {
 	Player.Transform().SetWorldPositionf(spawnPlayer.PlayerTransform.X, spawnPlayer.PlayerTransform.Y)
 	Player.Transform().SetWorldRotationf(spawnPlayer.PlayerTransform.Rotation)
 	Player.Transform().SetWorldScalef(100, 100)
+	Player.AddComponent(Components.NewSmoothFollow(nil))
 	shipHP := float32(1000)
 	PlayerShip.HPBar = HealthBar
 	PlayerShip.JetFire = JetFire

@@ -284,12 +284,3 @@ func (sp *ShipController) Update() {
 		sp.JetFireParent.SetActiveRecursive(false)
 	}
 }
-
-func (sp *ShipController) LateUpdate() {
-	if GameSceneGeneral.SceneData.Camera.GameObject() != nil {
-		myPos := Engine.Vector{sp.Transform().Position().X - float32(Engine.Width/2), sp.Transform().Position().Y - float32(Engine.Height/2), 0}
-		camPos := GameSceneGeneral.SceneData.Camera.Transform().Position()
-		myPos = Engine.Lerp(camPos, myPos, Engine.DeltaTime()*3)
-		GameSceneGeneral.SceneData.Camera.Transform().SetPosition(myPos)
-	}
-}
