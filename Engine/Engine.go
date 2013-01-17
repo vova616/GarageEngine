@@ -405,7 +405,7 @@ func Iter2(objs []*Transform, f func(*GameObject)) {
 }
 
 func drawGameObject(gameObject *GameObject) {
-	if gameObject.active == false {
+	if !gameObject.active {
 		return
 	}
 	//mat := gameObject.Transform().Matrix()
@@ -445,7 +445,7 @@ func Iter2Except(objs []*Transform, f func(*GameObject), except *GameObject) {
 }
 
 func startGameObject(gameObject *GameObject) {
-	if gameObject.active == false {
+	if !gameObject.active {
 		return
 	}
 	l := len(gameObject.components)
@@ -467,7 +467,7 @@ func destoyGameObject(gameObject *GameObject) {
 }
 
 func onCollisionPreSolveGameObject(gameObject *GameObject, arb *Arbiter) bool {
-	if gameObject.active == false {
+	if !gameObject.active {
 		return true
 	}
 	l := len(gameObject.components)
@@ -481,7 +481,7 @@ func onCollisionPreSolveGameObject(gameObject *GameObject, arb *Arbiter) bool {
 }
 
 func onCollisionPostSolveGameObject(gameObject *GameObject, arb *Arbiter) {
-	if gameObject.active == false {
+	if !gameObject.active {
 		return
 	}
 	l := len(gameObject.components)
@@ -495,7 +495,7 @@ func onCollisionPostSolveGameObject(gameObject *GameObject, arb *Arbiter) {
 }
 
 func onCollisionEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
-	if gameObject == nil || gameObject.active == false {
+	if gameObject == nil || !gameObject.active {
 		return true
 	}
 	l := len(gameObject.components)
@@ -511,7 +511,7 @@ func onCollisionEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
 }
 
 func onCollisionExitGameObject(gameObject *GameObject, arb *Arbiter) {
-	if gameObject == nil || gameObject.active == false {
+	if gameObject == nil || !gameObject.active {
 		return
 	}
 	l := len(gameObject.components)
@@ -525,7 +525,7 @@ func onCollisionExitGameObject(gameObject *GameObject, arb *Arbiter) {
 }
 
 func onMouseEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
-	if gameObject == nil || gameObject.active == false {
+	if gameObject == nil || !gameObject.active {
 		return true
 	}
 	l := len(gameObject.components)
@@ -541,7 +541,7 @@ func onMouseEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
 }
 
 func onMouseExitGameObject(gameObject *GameObject, arb *Arbiter) {
-	if gameObject == nil || gameObject.active == false {
+	if gameObject == nil || !gameObject.active {
 		return
 	}
 	l := len(gameObject.components)
@@ -555,7 +555,7 @@ func onMouseExitGameObject(gameObject *GameObject, arb *Arbiter) {
 }
 
 func udpateGameObject(gameObject *GameObject) {
-	if gameObject.active == false {
+	if !gameObject.active {
 		return
 	}
 
@@ -570,7 +570,7 @@ func udpateGameObject(gameObject *GameObject) {
 }
 
 func lateudpateGameObject(gameObject *GameObject) {
-	if gameObject.active == false {
+	if !gameObject.active {
 		return
 	}
 
@@ -585,7 +585,7 @@ func lateudpateGameObject(gameObject *GameObject) {
 }
 
 func fixedUdpateGameObject(gameObject *GameObject) {
-	if gameObject.active == false {
+	if !gameObject.active {
 		return
 	}
 

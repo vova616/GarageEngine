@@ -146,13 +146,28 @@ varying vec2 UV;
 uniform sampler2D mytexture;
 uniform vec4 bcolor;
 uniform vec4 addcolor;
-	
+
+float aastep(float dist)
+{
+	float threshold = 0.5;
+    float afwidth = 0.7 * length(vec2(dFdx(dist), dFdy(dist)));
+    return smoothstep(threshold - afwidth, threshold + afwidth, dist);
+}
+
+float aastep2(float dist)
+{
+	float smoothness = 45.0;
+	float w = clamp( smoothness * (abs(dFdx(dist)) + abs(dFdy(dist))), 0.0, 0.5);
+	return smoothstep(0.5-w, 0.5+w, dist);
+}	
+
+
 void main(void)
 { 
   	// retrieve distance from texture
 	float sdf = texture2D( mytexture, UV).a;
 
-	float smoothness = 45.0;
+	
 	float gamma = 2.2;
 
 	vec4 basecolor = addcolor;
@@ -197,8 +212,7 @@ void main(void)
 
 
 	// perform adaptive anti-aliasing of the edges\n
-	float w = clamp( smoothness * (abs(dFdx(UV.x)) + abs(dFdy(UV.y))), 0.0, 0.5);
-	float a = smoothstep(0.5-w, 0.5+w, sdf);
+	float a = aastep(sdf);
 
 	a *= basecolor.a;
 

@@ -25,12 +25,12 @@ type Font struct {
 }
 
 type LetterInfo struct {
-	Rect        image.Rectangle
-	YGrid       float32
-	XGrid       float32
-	RealWidth   float32
-	PlaneWidth  float32
-	PlaneHeight float32
+	Rect           image.Rectangle
+	YOffset        float32
+	XOffset        float32
+	XAdvance       float32
+	RelativeWidth  float32
+	RelativeHeight float32
 }
 
 func (t *Font) Size() float64 {
