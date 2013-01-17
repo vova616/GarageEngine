@@ -173,7 +173,7 @@ func (ui *UIText) GetPixelSize(text string) (width float32, height float32) {
 		if atlasImage == nil {
 			continue
 		}
-		width += atlasImage.RelativeWidth * spaceMult
+		width += atlasImage.XAdvance * spaceMult
 		/*
 			yratio := atlasImage.PlaneHeight
 			ygrid := atlasImage.YGrid
