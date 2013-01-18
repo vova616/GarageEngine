@@ -203,72 +203,76 @@ func Punch(amplitude, value float32) float32 {
 	s = period / float32((2*math.Pi)*math.Asin(0))
 	return (amplitude * float32(math.Pow(2, -10*float64(value))) * float32(math.Sin(float64((value*1-s)*(2*math.Pi)/period))))
 }
+func EaseInElastic(start, end, value float32) float32 {
+	end -= start
 
-/* 
-	left: 3
-	private float easeInElastic(float start, float end, float value){
-		end -= start;
+	var d float32 = 1.0
+	var p float32 = d * 0.3
+	var s float32 = 0.0
+	var a float32 = 0.0
+	if value == 0 {
+		return start
+	}
+	value /= d
+	if value == 1 {
+		return start + end
+	}
 
-		float d = 1f;
-		float p = d * .3f;
-		float s = 0;
-		float a = 0;
+	if a == 0 || a < float32(math.Abs(float64(end))) {
+		a = end
+		s = p / 4
+	} else {
+		s = p / (2 * float32(math.Pi)) * float32(math.Asin(float64(end/a)))
+	}
 
-		if (value == 0) return start;
+	return -(a * float32(math.Pow(2, 10*(float64(value)-1))) * float32(math.Sin(float64((value*d-s)*(2*float32(math.Pi))/p)))) + start
+}
+func EaseOutElastic(start, end, value float32) float32 {
+	end -= start
 
-		if ((value /= d) == 1) return start + end;
+	var d float32 = 1.0
+	var p float32 = d * 0.3
+	var s float32 = 0.0
+	var a float32 = 0.0
 
-		if (a == 0f || a < Mathf.Abs(end)){
-			a = end;
-			s = p / 4;
-			}else{
-			s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
-		}
+	if value == 0 {
+		return start
+	}
+	value /= d
+	if value == 1 {
+		return start + end
+	}
+	if a == 0 || a < float32(math.Abs(float64(end))) {
+		a = end
+		s = p / 4
+	} else {
+		s = p / (2 * float32(math.Pi)) * float32(math.Asin(float64(end/a)))
+	}
+	return (a * float32(math.Pow(2, -10*(float64(value)))) * float32(math.Sin(float64((value*d-s)*(2*float32(math.Pi))/p)))) + end + start
+}
+func EaseInOutElastic(start, end, value float32) float32 {
+	end -= start
 
-		return -(a * Mathf.Pow(2, 10 * (value-=1)) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)) + start;
-	}		
+	var d float32 = 1.0
+	var p float32 = d * 0.3
+	var s float32 = 0.0
+	var a float32 = 0.0
 
-	private float easeOutElastic(float start, float end, float value){
-		end -= start;
-
-		float d = 1f;
-		float p = d * .3f;
-		float s = 0;
-		float a = 0;
-
-		if (value == 0) return start;
-
-		if ((value /= d) == 1) return start + end;
-
-		if (a == 0f || a < Mathf.Abs(end)){
-			a = end;
-			s = p / 4;
-			}else{
-			s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
-		}
-
-		return (a * Mathf.Pow(2, -10 * value) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p) + end + start);
-	}		
-
-	private float easeInOutElastic(float start, float end, float value){
-		end -= start;
-
-		float d = 1f;
-		float p = d * .3f;
-		float s = 0;
-		float a = 0;
-
-		if (value == 0) return start;
-
-		if ((value /= d/2) == 2) return start + end;
-
-		if (a == 0f || a < Mathf.Abs(end)){
-			a = end;
-			s = p / 4;
-			}else{
-			s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
-		}
-
-		if (value < 1) return -0.5f * (a * Mathf.Pow(2, 10 * (value-=1)) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)) + start;
-		return a * Mathf.Pow(2, -10 * (value-=1)) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p) * 0.5f + end + start;
-	}		*/
+	if value == 0 {
+		return start
+	}
+	value /= d
+	if value == 1 {
+		return start + end
+	}
+	if a == 0 || a < float32(math.Abs(float64(end))) {
+		a = end
+		s = p / 4
+	} else {
+		s = p / (2 * float32(math.Pi)) * float32(math.Asin(float64(end/a)))
+	}
+	if value < 1 {
+		return -0.5*(a*float32(math.Pow(2, 10*(float64(value)-1)))*float32(math.Sin(float64((value*d-s)*(2*math.Pi)/p)))) + start
+	}
+	return a*float32(math.Pow(2, -10*(float64(value)-1)))*float32(math.Sin(float64((value*d-s)*(2*math.Pi)/p)))*0.5 + end + start
+}
