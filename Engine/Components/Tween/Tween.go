@@ -5,22 +5,17 @@ import (
 	"time"
 )
 
-type TweenType byte
 type TypeFunc func(*Tween, []float32) []float32
-type LoopType func(*Tween) bool
-
-const (
-	FromTo = TweenType(0)
-	To     = TweenType(1)
-)
+type Algorithm func(float32, float32, float32) float32
+type LoopFunc func(*Tween) bool
 
 type Tween struct {
 	Target *Engine.GameObject
 	From   []float32
 	To     []float32
 	Time   time.Duration
-	Algo   func(float32, float32, float32) float32
-	LoopF  LoopType
+	Algo   Algorithm
+	Loop   LoopFunc
 
 	StartCallback func()
 	EndCallback   func()
@@ -31,6 +26,7 @@ type Tween struct {
 	Type      TypeFunc
 
 	reverse bool
+	Format  string
 }
 
 func (this *Tween) SetFunc(typeFunc TypeFunc) {
@@ -44,7 +40,7 @@ func (t *Tween) updateProgress() bool {
 	} else {
 		t.progress = float32(float64(delta) / float64(t.Time))
 	}
-	return t.LoopF(t)
+	return t.Loop(t)
 }
 
 func (t *Tween) Value() []float32 {
