@@ -1,7 +1,7 @@
 package Tween
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/vova616/GarageEngine/Engine"
 	"time"
 )
@@ -30,7 +30,7 @@ func (this *Tweens) Update() {
 		if tween.updateProgress() {
 			this.RemoveTween(tween)
 		}
-		fmt.Println(tween.progress, tween.reverse)
+		//fmt.Println(tween.progress, tween.reverse)
 
 		if tween.Type != nil {
 			tween.Value()
