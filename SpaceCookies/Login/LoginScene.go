@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/vova616/GarageEngine/Engine"
 	"github.com/vova616/GarageEngine/Engine/Components"
+	//"github.com/vova616/GarageEngine/Engine/Components/Tween"
 	"github.com/vova616/GarageEngine/SpaceCookies/Game"
 	_ "image/jpeg"
 	_ "image/png"
@@ -106,6 +107,8 @@ func (s *LoginScene) Load() {
 	FPSDrawer.Transform().SetPositionf(20, float32(Engine.Height)-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
 
+	//Tween.CreateTween(&Tween.Tween{Target: FPSDrawer, From: []float32{1, 1}, To: []float32{100, 100},
+	//	Algo: Tween.EaseInBounce, Type: Tween.Scale, Time: time.Second * 5, LoopF: Tween.None})
 	/*
 		{
 			FPSDrawer := Engine.NewGameObject("FPS")
