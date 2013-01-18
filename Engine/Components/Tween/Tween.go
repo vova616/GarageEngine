@@ -33,6 +33,10 @@ func (this *Tween) SetFunc(typeFunc TypeFunc) {
 	this.Type = typeFunc
 }
 
+func (this *Tween) Progress() float32 {
+	return this.progress
+}
+
 func (t *Tween) updateProgress() bool {
 	delta := Engine.GameTime().Sub(t.startTime)
 	if t.reverse {
