@@ -107,8 +107,18 @@ func (s *LoginScene) Load() {
 	FPSDrawer.Transform().SetPositionf(20, float32(Engine.Height)-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
 
-	//Tween.CreateTween(&Tween.Tween{Target: FPSDrawer, From: []float32{1, 1}, To: []float32{100, 100},
-	//	Algo: Tween.EaseInBounce, Type: Tween.Scale, Time: time.Second * 5, LoopF: Tween.None})
+	/*
+		Tween.Create(&Tween.Tween{Target: FPSDrawer, From: []float32{1}, To: []float32{100},
+			Algo: Tween.Linear, Type: Tween.Scale, Time: time.Second * 3, Loop: Tween.PingPong})
+
+			Tween.Create(&Tween.Tween{Target: FPSDrawer, From: []float32{400}, To: []float32{500},
+				Algo: Tween.Linear, Type: Tween.Position, Time: time.Second * 3, Loop: Tween.PingPong, Format: "y"})
+
+			Tween.Create(&Tween.Tween{Target: FPSDrawer, From: []float32{0}, To: []float32{180},
+				Algo: Tween.Linear, Type: Tween.Rotation, Time: time.Second * 6, Loop: Tween.PingPong})
+
+		txt.SetAlign(Engine.AlignCenter)
+	*/
 	/*
 		{
 			FPSDrawer := Engine.NewGameObject("FPS")
