@@ -1,7 +1,7 @@
 package Components
 
 import (
-	"github.com/go-gl/gl"
+	"github.com/vova616/gl"
 	//"image"
 	//"github.com/go-gl/glfw"
 	//"gl/glu"

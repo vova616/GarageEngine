@@ -4,20 +4,24 @@ To avoid installing mingw and downloading libraries in windows I have added the 
 <br/>
 go get github.com/vova616/GarageEngine<br/>
 go get github.com/vova616/chipmunk<br/>
-go get github.com/go-gl/gl <br/>
+go get github.com/vova616/gl <br/>
 go get github.com/go-gl/glfw<br/>
 (just to make sure you got all the sources, ignore all the erroes)<br/>
 
 go to GarageEngine source folder and copy the pkg folder to your golang folder. (override)
 now you can try to compile GarageEngine.
-
+	
 Other:
-You need to download glfw/gl/glew libraries.<br/>
-sudo apt-get install binutils-gold freeglut3 freeglut3-dev libglew1.8 libglew1.8-dev libglfw-dev libxrandr2 libxrandr-dev <br/>
-go get github.com/vova616/GarageEngine
+You need to download glfw/gl/glew libraries.
+<br/>
+sudo apt-get update 
+<br/>
+sudo apt-get install build-essential binutils-gold freeglut3 freeglut3-dev libglew-dev libglfw-dev libxrandr2 libxrandr-dev libglew libglew1.8  
+<br/>
+go get github.com/vova616/GarageEngine	
 
 ## Dependencies
-github.com/go-gl/gl<br/>
+github.com/vova616/gl<br/>
 github.com/vova616/chipmunk<br/>
 github.com/go-gl/glfw
 
