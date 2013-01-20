@@ -2,7 +2,7 @@ package Engine
 
 import (
 	"errors"
-	"github.com/go-gl/gl"
+	"github.com/vova616/gl"
 	"image"
 	"image/draw"
 	"log"
