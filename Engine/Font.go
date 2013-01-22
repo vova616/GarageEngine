@@ -192,12 +192,6 @@ func NewSDFFont2(fontPath string, size float64, dpi int, readonly bool, firstRun
 		LeftSideBearing := (float32(adv2/256) + float32(adv2%256/256)) / float32(size)
 		realWidth := (float32(adv/256) + float32(adv%256/256)) / float32(size)
 
-		// ((float32(offset.Y) / float32(scaler)) + float32(mask.Bounds().Dy()))
-		//  ((float32(pt.Y) / 256) - float32(offy) + float32(mask.Bounds().Dy()))
-		//   (float32(pt.Y/256) - float32(bd.Max.Y)) / float32(osize)
-		//   
-		//   ((float32(offset.Y) / float32(scaler)) + float32(mask.Bounds().Max.Y))
-		//   	
 		LetterArray[r] = &LetterInfo{bd, realoffy, LeftSideBearing, realWidth, planeW, planeH}
 	}
 

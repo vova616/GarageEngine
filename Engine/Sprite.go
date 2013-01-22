@@ -34,6 +34,8 @@ type Sprite struct {
 	Border     bool
 	BorderSize float32
 	Color      Vector
+
+	align AlignType
 }
 
 func NewSprite(tex *Texture) *Sprite {
@@ -74,6 +76,14 @@ func (p *Sprite) SetAnimation(id interface{}) {
 	p.animation = float32(a[0])
 	p.startAnimation = a[0]
 	p.endAnimation = a[1]
+}
+
+func (p *Sprite) Align() AlignType {
+	return p.align
+}
+
+func (p *Sprite) SetAlign(align AlignType) {
+	p.align = align
 }
 
 func (p *Sprite) CurrentAnimation() interface{} {
@@ -164,6 +174,9 @@ func (sp *Sprite) Update() {
 	sp.UpdateShape()
 }
 
+/*
+Todo: make this an interface.
+*/
 func (sp *Sprite) UpdateShape() {
 	if sp.GameObject().Physics != nil {
 		ph := sp.GameObject().Physics
@@ -175,16 +188,32 @@ func (sp *Sprite) UpdateShape() {
 		scale.X *= ratio
 
 		if box != nil {
+			update := false
 			if vect.Float(scale.Y) != box.Height || vect.Float(scale.X) != box.Width {
 				box.Height = vect.Float(scale.Y)
 				box.Width = vect.Float(scale.X)
-				if !ph.Body.MomentIsInf() {
+				//box.Position = Vect{box.Width/2, box.Height/2}
+				update = true
+			}
+
+			c := Align(sp.align)
+			center := vect.Vect{vect.Float(c.X), vect.Float(c.Y)}
+			center.X *= vect.Float(scale.X)
+			center.Y *= vect.Float(scale.Y)
+
+			if box.Position.X != center.X || box.Position.Y != center.Y {
+				update = true
+				box.Position.X, box.Position.Y = center.X, center.Y
+			}
+
+			if update {
+				box.UpdatePoly()
+				if !ph.Body.MomentIsInf() && box.Height != 0 && box.Width != 0 {
 					ph.Body.SetMoment(vect.Float(box.Moment(float32(ph.Body.Mass()))))
 				}
-				//box.Position = Vect{box.Width/2, box.Height/2}
-				box.UpdatePoly()
 			}
 		} else if cir != nil {
+			update := false
 			s := float32(0)
 			if scale.X > scale.Y {
 				s = scale.X
@@ -193,10 +222,24 @@ func (sp *Sprite) UpdateShape() {
 			}
 			if float32(cir.Radius) != s/2 {
 				cir.Radius = vect.Float(s / 2)
-				if !ph.Body.MomentIsInf() {
+				update = true
+			}
+
+			c := Align(sp.align)
+			center := vect.Vect{vect.Float(c.X), vect.Float(c.Y)}
+			center.X *= vect.Float(s)
+			center.Y *= vect.Float(s)
+
+			if cir.Position.X != center.X || cir.Position.Y != center.Y {
+				update = true
+				cir.Position.X, cir.Position.Y = center.X, center.Y
+			}
+
+			if update {
+				sp.GameObject().Physics.Body.UpdateShapes()
+				if !ph.Body.MomentIsInf() && cir.Radius != 0 {
 					ph.Body.SetMoment(vect.Float(cir.Moment(float32(ph.Body.Mass()))))
 				}
-				sp.GameObject().Physics.Body.UpdateShapes()
 			}
 		}
 	}
@@ -242,9 +285,14 @@ func (sp *Sprite) Draw() {
 		vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(int(sp.animation)*12*4))
 		uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(sp.texcoordsIndex+(int(sp.animation)*8*4)))
 
+		v := Align(sp.align)
+		v.X *= float32(sp.Texture.Width()) / float32(sp.Texture.Height())
+
 		view := camera.Transform().Matrix()
 		view = view.Invert()
-		model := sp.GameObject().Transform().Matrix()
+		model := Identity()
+		model.Translate(v.X, v.Y, 0)
+		model.Mul(sp.GameObject().Transform().Matrix())
 
 		mv.UniformMatrix4fv(false, view)
 		mp.UniformMatrix4fv(false, *camera.Projection)
