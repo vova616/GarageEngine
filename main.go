@@ -9,7 +9,7 @@ import (
 	"github.com/vova616/GarageEngine/SpaceCookies/Login"
 	"github.com/vova616/GarageEngine/SpaceCookies/Server"
 	//"math"
-	//"github.com/go-gl/gl"
+	//"github.com/vova616/gl"
 	"os"
 	//"runtime"
 	"runtime/pprof"
