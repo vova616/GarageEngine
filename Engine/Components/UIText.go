@@ -255,12 +255,16 @@ func (ui *UIText) LateUpdate() {
 	}
 }
 
+/*
+Todo: make this an interface.
+*/
 func (ui *UIText) UpdateCollider() {
 	//if ui.GameObject().Physics.Body.Enabled {
 	if ui.GameObject().Physics == nil {
 		return
 	}
 	b := ui.GameObject().Physics.Box
+	body := ui.GameObject().Physics.Body
 	if b != nil {
 		h := vect.Float(float64(ui.height) * float64(ui.GameObject().Transform().WorldScale().Y))
 		w := vect.Float(float64(ui.width) * float64(ui.GameObject().Transform().WorldScale().X))
@@ -283,6 +287,9 @@ func (ui *UIText) UpdateCollider() {
 
 		if update {
 			b.UpdatePoly()
+			if !body.MomentIsInf() && h != 0 && w != 0 {
+				body.SetMoment(vect.Float(b.Moment(float32(body.Mass()))))
+			}
 		}
 	}
 	//log.Println(b.Height, b.Width, ui.GameObject().Transform().Scale().X, ui.GameObject().Name())
