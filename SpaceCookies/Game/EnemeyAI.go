@@ -47,7 +47,7 @@ func (ai *EnemeyAI) Start() {
 			return Engine.Close
 		}
 
-		ai.GameObject().Physics.Body.SetTorque(7000)
+		ai.GameObject().Physics.Body.SetTorque(10000)
 		return Engine.Continue
 	}
 
@@ -66,7 +66,12 @@ func (ai *EnemeyAI) Start() {
 			rnd = -rnd
 		}
 
-		ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*(100*rand.Float32()+50), (dir.Y+rnd)*(100*rand.Float32()+50))
+		attackSpeed := float32(70000)
+		minAttackSpeed := float32(20000)
+
+		attackSpeed -= minAttackSpeed
+
+		ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*((attackSpeed*rand.Float32())+minAttackSpeed), (dir.Y+rnd)*((attackSpeed*rand.Float32())+minAttackSpeed))
 		return Engine.Continue
 	}
 
@@ -74,7 +79,8 @@ func (ai *EnemeyAI) Start() {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
 			return Engine.Close
 		}
-
+		attackSpeed := float32(40000)
+		moveSpeed := float32(20000)
 		myPos := ai.Transform().WorldPosition()
 		targetPos := ai.Target.Transform().WorldPosition()
 		if targetPos.Distance(myPos) < 500 {
@@ -89,7 +95,7 @@ func (ai *EnemeyAI) Start() {
 					rnd = -rnd
 				}
 
-				ai.GameObject().Physics.Body.AddForce((-dir.X+rnd)*50, (-dir.Y+rnd)*50)
+				ai.GameObject().Physics.Body.AddForce((-dir.X+rnd)*moveSpeed, (-dir.Y+rnd)*moveSpeed)
 			} else {
 				dir := targetPos.Sub(myPos)
 				dir.Normalize()
@@ -99,7 +105,7 @@ func (ai *EnemeyAI) Start() {
 					rnd = -rnd
 				}
 
-				ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*100, (dir.Y+rnd)*100)
+				ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*attackSpeed, (dir.Y+rnd)*attackSpeed)
 			}
 		}
 
@@ -133,7 +139,10 @@ func (ai *EnemeyAI) Start() {
 		p := myPos.Add(dir.Mul(s))
 
 		c.Transform().SetPosition(p)
-		c.GameObject().Physics.Body.AddForce((dir.X+rnd)*200, (dir.Y+rnd)*200)
+
+		attackSpeed := float32(70000)
+
+		c.GameObject().Physics.Body.AddForce((dir.X+rnd)*attackSpeed, (dir.Y+rnd)*attackSpeed)
 
 		return Engine.Continue
 	}
