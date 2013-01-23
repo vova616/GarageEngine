@@ -25,10 +25,10 @@ type PlayerController struct {
 }
 
 func (sp *PlayerController) OnCollisionEnter(arbiter Engine.Arbiter) bool {
-	println("Enter " + arbiter.GameObjectB().Name())
+	//println("Enter " + arbiter.GameObjectB().Name())
 	count := 0
 	for _, con := range arbiter.Contacts {
-		println(arbiter.Normal(con).Y)
+		//println(arbiter.Normal(con).Y)
 		if -arbiter.Normal(con).Y > 0.9 {
 			count++
 		}
