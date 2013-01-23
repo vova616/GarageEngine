@@ -39,18 +39,18 @@ Make sure your executable file is in the same folder with the data folder.
 ## Videos:
 http://www.youtube.com/watch?v=iMMbf6SRb9Q<br/>
 http://www.youtube.com/watch?v=BMRlY9dFVLg
-
+	
 ## Coroutines Example:
 	func (sp *PlayerController) Start() {
 		as := StartCoroutine(func() { sp.AutoShoot() })
 		
 		StartCoroutine(func() {
-			Wait(3)
+			CoSleep(3)
 			YieldCoroutine(as) //wait for as to finish
 			for i := 0; i < 10; i++ {
-				YieldSkip()
-				YieldSkip()
-				YieldSkip()
+				CoCoYieldSkip()
+				CoYieldSkip()
+				CoYieldSkip()
 				sp.Shoot()
 			}
 		})
@@ -58,7 +58,7 @@ http://www.youtube.com/watch?v=BMRlY9dFVLg
 
 	func (sp *PlayerController) AutoShoot() {
 		for i := 0; i < 3; i++ {
-			Wait(3)
+			CoSleep(3)
 			sp.Shoot()
 		}
 	}
@@ -66,7 +66,7 @@ http://www.youtube.com/watch?v=BMRlY9dFVLg
 	func (sp *PlayerController) AutoShoot2() {
 		for i := 0; i < 3; i++ {
 			for i:=0;i<3*60;i++ {
-				YieldSkip() //Frame skip
+				CoYieldSkip() //Frame skip
 			}
 			sp.Shoot()
 		}

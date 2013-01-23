@@ -25,7 +25,7 @@ func (btn *UIButton) Update() {
 	}
 }
 
-func (btn *UIButton) OnMouseEnter(arbiter *Engine.Arbiter) bool {
+func (btn *UIButton) OnMouseEnter(arbiter Engine.Arbiter) bool {
 	btn.mouseOn = true
 	if btn.onHoverCallback != nil {
 		btn.onHoverCallback(true)
@@ -33,7 +33,7 @@ func (btn *UIButton) OnMouseEnter(arbiter *Engine.Arbiter) bool {
 	return true
 }
 
-func (btn *UIButton) OnMouseExit(arbiter *Engine.Arbiter) {
+func (btn *UIButton) OnMouseExit(arbiter Engine.Arbiter) {
 	btn.mouseOn = false
 	if btn.onHoverCallback != nil {
 		btn.onHoverCallback(false)

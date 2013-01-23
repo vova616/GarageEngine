@@ -159,6 +159,35 @@ func (s *LoginScene) Load() {
 	name.SetWritable(true)
 	name.SetAlign(Engine.AlignLeft)
 	//
+	/*
+		{
+			input := Engine.NewGameObject("TextBoxInput")
+			input.Transform().SetParent2(gui)
+			p := tBox.Transform().Position()
+			p.X += txt2.Width() * 20
+			input.Transform().SetPosition(p)
+			input.Transform().SetScalef(20, 20)
+
+			name := input.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
+			name.SetFocus(true)
+			name.SetWritable(true)
+			name.SetAlign(Engine.AlignTopCenter)
+		}
+		{
+			input := Engine.NewGameObject("TextBoxInput")
+			input.Transform().SetParent2(gui)
+			p := tBox.Transform().Position()
+			p.X += txt2.Width() * 20
+			input.Transform().SetPosition(p)
+			input.Transform().SetScalef(20, 20)
+
+			name := input.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
+			name.SetFocus(true)
+			name.SetWritable(true)
+			name.SetAlign(Engine.AlignBottomRight)
+		}
+	*/
+	//
 	errLabel := Engine.NewGameObject("TextBoxInput")
 	errLabel.Transform().SetParent2(gui)
 	errLabel.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-100)
@@ -178,7 +207,44 @@ func (s *LoginScene) Load() {
 	LoginButton.Physics.Shape.IsSensor = true
 	LoginButton.Transform().SetScalef(50, 50)
 	LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
-
+	/*
+		{
+			LoginButton := Engine.NewGameObject("LoginButton")
+			LoginButton.Transform().SetParent2(cam)
+			LoginButton.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-50)
+			LoginButton.AddComponent(Engine.NewSprite(button))
+			LoginButton.AddComponent(Engine.NewPhysics(false, 1, 1))
+			LoginButton.Physics.Shape.IsSensor = true
+			LoginButton.Transform().SetScalef(50, 50)
+			LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
+			LoginButton.Sprite.SetAlign(Engine.AlignTopLeft)
+			LoginButton.AddComponent(Components.NewUIButton(nil, func(enter bool) {
+				if enter {
+					LoginButton.Sprite.Color = Engine.Vector{0.4, 0.4, 0.4}
+				} else {
+					LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
+				}
+			}))
+		}
+		{
+			LoginButton := Engine.NewGameObject("LoginButton")
+			LoginButton.Transform().SetParent2(cam)
+			LoginButton.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-50)
+			LoginButton.AddComponent(Engine.NewSprite(button))
+			LoginButton.AddComponent(Engine.NewPhysics(false, 1, 1))
+			LoginButton.Physics.Shape.IsSensor = true
+			LoginButton.Transform().SetScalef(50, 50)
+			LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
+			LoginButton.Sprite.SetAlign(Engine.AlignBottomRight)
+			LoginButton.AddComponent(Components.NewUIButton(nil, func(enter bool) {
+				if enter {
+					LoginButton.Sprite.Color = Engine.Vector{0.4, 0.4, 0.4}
+				} else {
+					LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
+				}
+			}))
+		}
+	*/
 	loginText := Engine.NewGameObject("LoginButtonText")
 	loginText.Transform().SetParent2(LoginButton)
 	loginText.Transform().SetWorldScalef(24, 24)

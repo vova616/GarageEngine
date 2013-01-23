@@ -31,10 +31,10 @@ func (c *BaseComponent) Transform() *Transform {
 
 /*
 type CollisionCallback interface {
-	OnCollisionEnter(arbiter *Arbiter) bool
-	OnCollisionPreSolve(arbiter *Arbiter) bool
-	OnCollisionPostSolve(arbiter *Arbiter)
-	OnCollisionExit(arbiter *Arbiter)
+	OnCollisionEnter(arbiter Arbiter) bool
+	OnCollisionPreSolve(arbiter Arbiter) bool
+	OnCollisionPostSolve(arbiter Arbiter)
+	OnCollisionExit(arbiter Arbiter)
 }
 */
 
@@ -48,13 +48,13 @@ type Component interface {
 	Clone()
 	LateUpdate()
 
-	OnCollisionEnter(arbiter *Arbiter) bool
-	OnCollisionPreSolve(arbiter *Arbiter) bool
-	OnCollisionPostSolve(arbiter *Arbiter)
-	OnCollisionExit(arbiter *Arbiter)
+	OnCollisionEnter(arbiter Arbiter) bool
+	OnCollisionPreSolve(arbiter Arbiter) bool
+	OnCollisionPostSolve(arbiter Arbiter)
+	OnCollisionExit(arbiter Arbiter)
 
-	OnMouseEnter(arbiter *Arbiter) bool
-	OnMouseExit(arbiter *Arbiter)
+	OnMouseEnter(arbiter Arbiter) bool
+	OnMouseExit(arbiter Arbiter)
 
 	OnComponentBind(binded *GameObject)
 	OnDestroy()
@@ -108,27 +108,27 @@ func (c *BaseComponent) LateUpdate() {
 
 }
 
-func (c *BaseComponent) OnCollisionPreSolve(arbiter *Arbiter) bool {
+func (c *BaseComponent) OnCollisionPreSolve(arbiter Arbiter) bool {
 	return true
 }
 
-func (c *BaseComponent) OnCollisionEnter(arbiter *Arbiter) bool {
+func (c *BaseComponent) OnCollisionEnter(arbiter Arbiter) bool {
 	return true
 }
 
-func (c *BaseComponent) OnCollisionExit(arbiter *Arbiter) {
+func (c *BaseComponent) OnCollisionExit(arbiter Arbiter) {
 
 }
 
-func (c *BaseComponent) OnMouseEnter(arbiter *Arbiter) bool {
+func (c *BaseComponent) OnMouseEnter(arbiter Arbiter) bool {
 	return true
 }
 
-func (c *BaseComponent) OnMouseExit(arbiter *Arbiter) {
+func (c *BaseComponent) OnMouseExit(arbiter Arbiter) {
 
 }
 
-func (c *BaseComponent) OnCollisionPostSolve(arbiter *Arbiter) {
+func (c *BaseComponent) OnCollisionPostSolve(arbiter Arbiter) {
 
 }
 

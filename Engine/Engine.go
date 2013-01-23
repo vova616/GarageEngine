@@ -14,20 +14,46 @@ import (
 	"time"
 )
 
-type Arbiter chipmunk.Arbiter
+type Arbiter struct {
+	*chipmunk.Arbiter
+	gameObjectA *GameObject //Always the owner
+	gameObjectB *GameObject //Always the other target
+	Swapped     bool
+}
+
+func newArbiter(arb *chipmunk.Arbiter, owner *GameObject) Arbiter {
+	newArb := Arbiter{Arbiter: arb}
+	pa, ba := arb.BodyA.CallbackHandler.(*Physics)
+	if ba {
+		newArb.gameObjectA = pa.GameObject()
+	}
+	pb, bb := arb.BodyB.CallbackHandler.(*Physics)
+	if bb {
+		newArb.gameObjectB = pb.GameObject()
+	}
+
+	//Find owner
+	if newArb.gameObjectA != owner {
+		newArb.gameObjectA, newArb.gameObjectB = newArb.gameObjectB, newArb.gameObjectA
+		newArb.Swapped = true
+	}
+	return newArb
+}
 
 func (arbiter *Arbiter) GameObjectA() *GameObject {
-	if arbiter.BodyA.UserData == nil {
-		return nil
-	}
-	return arbiter.BodyA.UserData.(*Physics).GameObject()
+	return arbiter.gameObjectA
 }
 
 func (arbiter *Arbiter) GameObjectB() *GameObject {
-	if arbiter.BodyB.UserData == nil {
-		return nil
+	return arbiter.gameObjectB
+}
+
+func (arbiter *Arbiter) Normal(contact *chipmunk.Contact) Vector {
+	normal := contact.Normal()
+	if arbiter.Swapped {
+		return NewVector2(float32(-normal.X), float32(-normal.Y))
 	}
-	return arbiter.BodyB.UserData.(*Physics).GameObject()
+	return NewVector2(float32(normal.X), float32(normal.Y))
 }
 
 func init() {
@@ -473,7 +499,7 @@ func destoyGameObject(gameObject *GameObject) {
 	}
 }
 
-func onCollisionPreSolveGameObject(gameObject *GameObject, arb *Arbiter) bool {
+func onCollisionPreSolveGameObject(gameObject *GameObject, arb Arbiter) bool {
 	if !gameObject.active {
 		return true
 	}
@@ -487,7 +513,7 @@ func onCollisionPreSolveGameObject(gameObject *GameObject, arb *Arbiter) bool {
 	return b
 }
 
-func onCollisionPostSolveGameObject(gameObject *GameObject, arb *Arbiter) {
+func onCollisionPostSolveGameObject(gameObject *GameObject, arb Arbiter) {
 	if !gameObject.active {
 		return
 	}
@@ -501,7 +527,7 @@ func onCollisionPostSolveGameObject(gameObject *GameObject, arb *Arbiter) {
 	}
 }
 
-func onCollisionEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
+func onCollisionEnterGameObject(gameObject *GameObject, arb Arbiter) bool {
 	if gameObject == nil || !gameObject.active {
 		return true
 	}
@@ -517,7 +543,7 @@ func onCollisionEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
 	return b
 }
 
-func onCollisionExitGameObject(gameObject *GameObject, arb *Arbiter) {
+func onCollisionExitGameObject(gameObject *GameObject, arb Arbiter) {
 	if gameObject == nil || !gameObject.active {
 		return
 	}
@@ -531,7 +557,7 @@ func onCollisionExitGameObject(gameObject *GameObject, arb *Arbiter) {
 	}
 }
 
-func onMouseEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
+func onMouseEnterGameObject(gameObject *GameObject, arb Arbiter) bool {
 	if gameObject == nil || !gameObject.active {
 		return true
 	}
@@ -547,7 +573,7 @@ func onMouseEnterGameObject(gameObject *GameObject, arb *Arbiter) bool {
 	return b
 }
 
-func onMouseExitGameObject(gameObject *GameObject, arb *Arbiter) {
+func onMouseExitGameObject(gameObject *GameObject, arb Arbiter) {
 	if gameObject == nil || !gameObject.active {
 		return
 	}
