@@ -74,10 +74,14 @@ func NewFont(fontPath string, size float64) (*Font, error) {
 }
 
 func NewSDFFont(fontPath string, size float64) (*Font, error) {
-	return NewSDFFont2(fontPath, size, 72, false, 0, 255)
+	return NewSDFFont2(fontPath, size, 16, 32)
 }
 
-func NewSDFFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, lastRune rune) (*Font, error) {
+func NewSDFFont2(fontPath string, size float64, scaler float64, scanRange int) (*Font, error) {
+	return NewSDFFont3(fontPath, size, 72, false, 0, 255, scaler, scanRange)
+}
+
+func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRune, lastRune rune, scaler float64, scanRange int) (*Font, error) {
 	fontBytes, err := ioutil.ReadFile(fontPath)
 	if err != nil {
 		return nil, err
@@ -89,8 +93,7 @@ func NewSDFFont2(fontPath string, size float64, dpi int, readonly bool, firstRun
 
 	fontBytes = nil
 
-	scaler := float64(16)
-	pRange := 32
+	pRange := scanRange
 
 	_, _ = scaler, pRange
 
