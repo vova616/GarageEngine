@@ -67,7 +67,7 @@ func CreatePowerUp(position Engine.Vector) {
 
 }
 
-func (pu *PowerUp) OnCollisionEnter(arbiter *Engine.Arbiter) bool {
+func (pu *PowerUp) OnCollisionEnter(arbiter Engine.Arbiter) bool {
 	if pu.GameObject() != nil && (arbiter.GameObjectA() == Player || arbiter.GameObjectB() == Player) {
 		PowerUpShip(pu.Type)
 		pu.GameObject().Destroy()

@@ -28,20 +28,10 @@ func (m *Mouse) Start() {
 	ph.Shape.IsSensor = true
 }
 
-func (m *Mouse) OnCollisionEnter(arbiter *Arbiter) bool {
-	if m.GameObject().Physics.Body == arbiter.ShapeA.Body {
-		return onMouseEnterGameObject(arbiter.GameObjectB(), arbiter)
-	} else {
-		return onMouseEnterGameObject(arbiter.GameObjectA(), arbiter)
-	}
-
-	return true
+func (m *Mouse) OnCollisionEnter(arbiter Arbiter) bool {
+	return onMouseEnterGameObject(arbiter.GameObjectB(), arbiter)
 }
 
-func (m *Mouse) OnCollisionExit(arbiter *Arbiter) {
-	if m.GameObject().Physics.Body == arbiter.ShapeA.Body {
-		onMouseExitGameObject(arbiter.GameObjectB(), arbiter)
-	} else {
-		onMouseExitGameObject(arbiter.GameObjectA(), arbiter)
-	}
+func (m *Mouse) OnCollisionExit(arbiter Arbiter) {
+	onMouseExitGameObject(arbiter.GameObjectB(), arbiter)
 }

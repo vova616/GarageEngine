@@ -24,6 +24,28 @@ type PlayerController struct {
 	Fires []*Engine.GameObject
 }
 
+func (sp *PlayerController) OnCollisionEnter(arbiter Engine.Arbiter) bool {
+	println("Enter " + arbiter.GameObjectB().Name())
+	count := 0
+	for _, con := range arbiter.Contacts {
+		println(arbiter.Normal(con).Y)
+		if -arbiter.Normal(con).Y > 0.9 {
+			count++
+		}
+	}
+	if count >= 2 {
+		sp.Floor = arbiter.GameObjectB()
+	}
+
+	return true
+}
+func (sp *PlayerController) OnCollisionExit(arbiter Engine.Arbiter) {
+	println("Exit " + arbiter.GameObjectB().Name())
+	if arbiter.GameObjectB() == sp.Floor {
+		sp.Floor = nil
+	}
+}
+
 func NewPlayerController() *PlayerController {
 	return &PlayerController{Engine.NewComponent(), 10, 20000, nil, -1, nil, nil, make([]*Engine.GameObject, 0)}
 }
@@ -37,7 +59,7 @@ func (sp *PlayerController) Start() {
 	sp.Physics.Shape.Group = 1
 	//sp.Physics.Shape.Friction = 0.5
 
-	sp.TestCoroutines()
+	//sp.TestCoroutines()
 }
 
 func (sp *PlayerController) TestCoroutines() {
@@ -94,6 +116,8 @@ func (sp *PlayerController) Update() {
 	if Input.KeyPress(glfw.KeyUp) {
 		if sp.Floor != nil {
 			sp.Physics.Body.AddForce(0, sp.JumpSpeed)
+		} else {
+			sp.Shoot()
 		}
 	}
 

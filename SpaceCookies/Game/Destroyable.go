@@ -50,7 +50,7 @@ func (ds *Destoyable) Update() {
 	}
 }
 
-func (ds *Destoyable) OnCollisionEnter(arbiter *Engine.Arbiter) bool {
+func (ds *Destoyable) OnCollisionEnter(arbiter Engine.Arbiter) bool {
 	if !ds.Alive {
 		return true
 	}
