@@ -57,6 +57,7 @@ func NewSprite3(tex *Texture, uv AnimatedUV) *Sprite {
 		UVs:            uv,
 		Render:         true,
 		Color:          Vector{1, 1, 1},
+		align:          AlignCenter,
 	}
 	sp.CreateVBO(uv...)
 
@@ -238,6 +239,7 @@ func (sp *Sprite) UpdateShape() {
 			if update {
 				sp.GameObject().Physics.Body.UpdateShapes()
 				if !ph.Body.MomentIsInf() && cir.Radius != 0 {
+					//log.Println(sp.gameObject.name, cir.Radius, cir.Moment(float32(ph.Body.Mass())), scale.X, scale.Y, ph.Body.Mass(), cir.Position)
 					ph.Body.SetMoment(vect.Float(cir.Moment(float32(ph.Body.Mass()))))
 				}
 			}
