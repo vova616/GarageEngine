@@ -1,3 +1,7 @@
+## GarageEngine
+This is an educational project, I'm learning as I go, I cannot promise backwards compatibility at this point.<br/>
+the name will be probably changed.<br/> 
+
 ## Install:
 Windows:
 To avoid installing mingw and downloading libraries in windows I have added the .a files.
@@ -36,7 +40,7 @@ Rendering - support auto-batching, only render objects close to camera(make it s
 Coroutine - try to fix the bug that you cannot access to textures in Coroutines.<br/>
 Transform - Do not brake Z coord when using functions.<br/>
 Readme - explain Tree Behaviours.<br/>
-Learn from - (haunts)[https://github.com/runningwild/haunts].<br>/
+Learn from - https://github.com/runningwild/haunts .<br/>
 
 
 
