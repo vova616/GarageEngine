@@ -20,6 +20,25 @@ sudo apt-get install build-essential binutils-gold freeglut3 freeglut3-dev libgl
 <br/>
 go get github.com/vova616/GarageEngine	
 
+## To-Do list
+Clean project:<br/>
+Name changing Engine -> engine etc...<br/>
+Function changing -> SetWorldPositionf -> SetWorldPosition2d etc...<br>
+<br/>
+Atlas - Make functions return id, LoadImage should not use id and clean whatever we can.<br/>
+Font - Clean the hell out of it, clever atlas creating.<br/>
+Material - Think of design that does not require lots of work when creating custom shaders.<br/>
+Physics - Code interpolation and think of a better design for arbiter and clean & polish stuff.<br/>
+Scene - Do less work when coding scenes.<br/>
+Tree Behaviours - Clean & polish & new features.<br/>
+Camera - support multiple cameras, make the camera look at center or other point.<br/>
+Rendering - support auto-batching, only render objects close to camera(make it smarter), render by Z and not by layers.<br/>
+Coroutine - try to fix the bug that you cannot access to textures in Coroutines.<br/>
+Transform - Do not brake Z coord when using functions.<br/>
+Readme - explain Tree Behaviours.<br/>
+
+
+
 ## Dependencies
 github.com/vova616/gl<br/>
 github.com/vova616/chipmunk<br/>
