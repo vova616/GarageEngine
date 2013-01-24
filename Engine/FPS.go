@@ -2,15 +2,15 @@ package Engine
 
 type FPS struct {
 	BaseComponent
-	FPS, updateInterval, accum, frames, timeleft float32
-	do                                           func(float32)
+	FPS, updateInterval, accum, frames, timeleft float64
+	do                                           func(float64)
 }
 
 func NewFPS() *FPS {
 	return &FPS{NewComponent(), 0, 1, 0, 0, 0.5, nil}
 }
 
-func (sp *FPS) SetAction(action func(float32)) {
+func (sp *FPS) SetAction(action func(float64)) {
 	sp.do = action
 }
 

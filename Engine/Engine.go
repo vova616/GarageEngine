@@ -79,18 +79,18 @@ var (
 	insideGameloop = false
 
 	Space     *chipmunk.Space = nil
-	deltaTime float32
-	fixedTime float32
+	deltaTime float64
+	fixedTime float64
 	gameTime  time.Time
 
-	steps    = float32(1)
-	stepTime = float32(1) / float32(60) / steps
+	steps    = float64(1)
+	stepTime = float64(1) / float64(60) / steps
 
 	lastTime time.Time = time.Now()
 
 	EnablePhysics = true
 	Debug         = false
-	InternalFPS   = float32(100)
+	InternalFPS   = float64(100)
 
 	BehaviorTicks = 5
 
@@ -164,7 +164,7 @@ func Terminate() {
 	ShutdownRecived()
 }
 
-func DeltaTime() float32 {
+func DeltaTime() float64 {
 	return deltaTime
 }
 
@@ -243,7 +243,7 @@ func Run() {
 	gl.LoadIdentity()
 
 	gameTime = gameTime.Add(time.Since(lastTime))
-	deltaTime = float32(float64(time.Since(lastTime).Nanoseconds()) / float64(time.Second))
+	deltaTime = float64(time.Since(lastTime).Nanoseconds()) / float64(time.Second)
 	lastTime = time.Now()
 	before := time.Now()
 
@@ -333,7 +333,7 @@ func Run() {
 
 				physicsStepDelta := timer.StopCustom("Physics step time")
 
-				if float32(float64(physicsStepDelta.Nanoseconds())/float64(time.Second)) > stepTime*0.5 {
+				if float64(physicsStepDelta.Nanoseconds())/float64(time.Second) > stepTime*0.5 {
 					//stepTime *= 2
 
 					break
