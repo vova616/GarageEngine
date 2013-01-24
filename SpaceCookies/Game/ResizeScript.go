@@ -42,6 +42,7 @@ func (m *ResizeScript) SetValues(minX, mediumX, maxX, minY, mediumY, maxY float3
 }
 
 func (m *ResizeScript) Update() {
+	delta := float32(Engine.DeltaTime())
 	if m.State == 0 {
 		sx := (rand.Float32() * m.MaxX) + m.MinX
 		sy := (rand.Float32() * m.MaxY) + m.MinY
@@ -53,7 +54,7 @@ func (m *ResizeScript) Update() {
 		deltaX := m.MaxX - m.MinX
 		deltaY := m.MaxY - m.MinY
 		s := m.Transform().Scale()
-		s.X, s.Y = s.X+(deltaX*m.Speed*Engine.DeltaTime()), s.Y+(deltaY*m.Speed*Engine.DeltaTime())
+		s.X, s.Y = s.X+(deltaX*m.Speed*delta), s.Y+(deltaY*m.Speed*delta)
 		m.Transform().SetScale(s)
 		if s.X > m.MaxX || s.Y > m.MaxY {
 			m.State = 2
@@ -62,7 +63,7 @@ func (m *ResizeScript) Update() {
 		deltaX := m.MaxX - m.MediumX
 		deltaY := m.MaxY - m.MediumY
 		s := m.Transform().Scale()
-		s.X, s.Y = s.X-(deltaX*m.Speed*Engine.DeltaTime()), s.Y-(deltaY*m.Speed*Engine.DeltaTime())
+		s.X, s.Y = s.X-(deltaX*m.Speed*delta), s.Y-(deltaY*m.Speed*delta)
 		m.Transform().SetScale(s)
 		if s.X < m.MediumX || s.Y < m.MediumY {
 			m.State = 3
@@ -71,7 +72,7 @@ func (m *ResizeScript) Update() {
 		deltaX := m.MaxX - m.MediumX
 		deltaY := m.MaxY - m.MediumY
 		s := m.Transform().Scale()
-		s.X, s.Y = s.X+(deltaX*m.Speed*Engine.DeltaTime()), s.Y+(deltaY*m.Speed*Engine.DeltaTime())
+		s.X, s.Y = s.X+(deltaX*m.Speed*delta), s.Y+(deltaY*m.Speed*delta)
 		m.Transform().SetScale(s)
 		if s.X > m.MaxX || s.Y > m.MaxY {
 			m.State = 2

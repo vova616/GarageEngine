@@ -163,7 +163,7 @@ func (sp *Sprite) SetAnimationIndex(index int) {
 
 func (sp *Sprite) Update() {
 	if int(sp.animation) < sp.endAnimation {
-		sp.animation += sp.AnimationSpeed * DeltaTime()
+		sp.animation += float32(float64(sp.AnimationSpeed) * DeltaTime())
 	}
 	if sp.animation >= float32(sp.endAnimation) {
 		if sp.AnimationEndCallback != nil {

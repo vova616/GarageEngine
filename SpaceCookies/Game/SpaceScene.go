@@ -232,8 +232,8 @@ func (s *GameScene) Load() {
 	FPSDrawer.Transform().SetParent2(cam)
 	txt := FPSDrawer.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
 	fps := FPSDrawer.AddComponent(Engine.NewFPS()).(*Engine.FPS)
-	fps.SetAction(func(fps float32) {
-		txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
+	fps.SetAction(func(fps float64) {
+		txt.SetString("FPS: " + strconv.FormatFloat(fps, 'f', 2, 32))
 	})
 	txt.SetAlign(Engine.AlignLeft)
 
@@ -522,8 +522,8 @@ func (s *GameScene) OldLoad() {
 	FPSDrawer.Transform().SetParent2(cam)
 	txt := FPSDrawer.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
 	fps := FPSDrawer.AddComponent(Engine.NewFPS()).(*Engine.FPS)
-	fps.SetAction(func(fps float32) {
-		txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
+	fps.SetAction(func(fps float64) {
+		txt.SetString("FPS: " + strconv.FormatFloat(fps, 'f', 2, 32))
 	})
 	txt.SetAlign(Engine.AlignLeft)
 

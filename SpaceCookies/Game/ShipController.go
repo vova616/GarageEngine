@@ -163,12 +163,12 @@ func (sp *ShipController) Shoot() {
 }
 
 func (sp *ShipController) Update() {
-
+	delta := float32(Engine.DeltaTime())
 	r2 := sp.Transform().DirectionTransform(Engine.Up)
 	r3 := sp.Transform().DirectionTransform(Engine.Left)
 	ph := sp.GameObject().Physics
-	rx, ry := r2.X*Engine.DeltaTime(), r2.Y*Engine.DeltaTime()
-	rsx, rsy := r3.X*Engine.DeltaTime(), r3.Y*Engine.DeltaTime()
+	rx, ry := r2.X*delta, r2.Y*delta
+	rsx, rsy := r3.X*delta, r3.Y*delta
 
 	jet := false
 	back := false
@@ -195,7 +195,7 @@ func (sp *ShipController) Update() {
 		v.Normalize()
 		angle := float32(math.Atan2(float64(v.Y), float64(v.X))) * Engine.DegreeConst
 
-		angle = Engine.LerpAngle(sp.Transform().Rotation().Z, float32(int((angle - 90))), Engine.DeltaTime()*rotSpeed/50)
+		angle = Engine.LerpAngle(sp.Transform().Rotation().Z, float32(int((angle - 90))), delta*rotSpeed/50)
 		sp.Transform().SetRotationf(angle)
 
 		ph.Body.SetAngularVelocity(0)
@@ -220,14 +220,14 @@ func (sp *ShipController) Update() {
 		if Input.KeyDown('D') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
-			sp.Transform().SetRotationf(r.Z - rotSpeed*Engine.DeltaTime())
+			sp.Transform().SetRotationf(r.Z - rotSpeed*delta)
 			jet = true
 			back = true
 		}
 		if Input.KeyDown('A') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
-			sp.Transform().SetRotationf(r.Z + rotSpeed*Engine.DeltaTime())
+			sp.Transform().SetRotationf(r.Z + rotSpeed*delta)
 			jet = true
 			back = true
 		}

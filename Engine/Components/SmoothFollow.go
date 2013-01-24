@@ -28,7 +28,7 @@ func (sp *SmoothFollow) LateUpdate() {
 	if camera != nil {
 		myPos := Engine.Vector{sp.Target.Transform().Position().X - float32(Engine.Width/2), sp.Target.Transform().Position().Y - float32(Engine.Height/2), 0}
 		camPos := camera.Transform().Position()
-		camNPos := Engine.Lerp(camPos, myPos, Engine.DeltaTime()*sp.Speed)
+		camNPos := Engine.Lerp(camPos, myPos, float32(Engine.DeltaTime())*sp.Speed)
 		disX := camNPos.X - myPos.X
 		disY := camNPos.Y - myPos.Y
 		if float32(math.Abs(float64(disX))) > sp.MaxDis {
