@@ -36,6 +36,7 @@ Rendering - support auto-batching, only render objects close to camera(make it s
 Coroutine - try to fix the bug that you cannot access to textures in Coroutines.<br/>
 Transform - Do not brake Z coord when using functions.<br/>
 Readme - explain Tree Behaviours.<br/>
+Learn from - (haunts)[https://github.com/runningwild/haunts].<br>/
 
 
 
