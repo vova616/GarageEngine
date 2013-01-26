@@ -44,7 +44,7 @@ func NewShipController() *ShipController {
 	misslePositions := []Engine.Vector{{-28, 10, 0}, {28, 10, 0}, {0, 20, 0}, {-28, 40, 0}, {28, 40, 0}}
 
 	return &ShipController{Engine.NewComponent(), 500000, 250, nil, misslePositions, misslesDirection, 0, len(misslesDirection) - 1,
-		time.Now(), nil, nil, false, nil, nil, nil, []Engine.Vector{{-0.1, -0.51, 0}, {0.1, -0.51, 0}}}
+		time.Now(), nil, nil, true, nil, nil, nil, []Engine.Vector{{-0.1, -0.51, 0}, {0.1, -0.51, 0}}}
 }
 
 func (sp *ShipController) OnComponentBind(binded *Engine.GameObject) {
