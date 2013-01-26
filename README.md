@@ -33,7 +33,7 @@ Atlas - Make functions return id, LoadImage should not use id and clean whatever
 Font - Clean the hell out of it, clever atlas creating.<br/>
 Material - Think of design that does not require lots of work when creating custom shaders.<br/>
 Physics - Code interpolation and think of a better design for arbiter and clean & polish stuff.<br/>
-Scene - Do less work when coding scenes.<br/>
+Scene - Do less work when coding scenes also get scene by name.<br/>
 Tree Behaviours - Clean & polish & new features.<br/>
 Camera - support multiple cameras, make the camera look at center or other point.<br/>
 Rendering - support auto-batching, only render objects close to camera(make it smarter), render by Z and not by layers.<br/>
@@ -41,6 +41,7 @@ Coroutine - try to fix the bug that you cannot access to textures in Coroutines.
 Transform - Do not brake Z coord when using functions.<br/>
 Readme - explain Tree Behaviours.<br/>
 Learn from - https://github.com/runningwild/haunts .<br/>
+Comments - lacks tons of it.<br/>
 
 
 

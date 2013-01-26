@@ -170,7 +170,7 @@ func SpawnMainPlayer(spawnPlayer Server.SpawnPlayer) {
 	Player.Transform().SetWorldPositionf(spawnPlayer.PlayerTransform.X, spawnPlayer.PlayerTransform.Y)
 	Player.Transform().SetWorldRotationf(spawnPlayer.PlayerTransform.Rotation)
 	Player.Transform().SetWorldScalef(100, 100)
-	Player.AddComponent(Components.NewSmoothFollow(nil, 3, 400))
+	Player.AddComponent(Components.NewSmoothFollow(nil, 2, 200))
 	shipHP := float32(1000)
 	PlayerShip.HPBar = HealthBar
 	PlayerShip.JetFire = JetFire
