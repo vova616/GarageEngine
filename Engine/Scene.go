@@ -26,6 +26,10 @@ func (s *SceneData) Name() string {
 	return s.name
 }
 
+func (s *SceneData) SceneBase() *SceneData {
+	return s
+}
+
 func (s *SceneData) AddGameObject(gameObject ...*GameObject) {
 	s.gameObjects = append(s.gameObjects, gameObject...)
 }

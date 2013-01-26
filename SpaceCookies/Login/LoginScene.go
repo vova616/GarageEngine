@@ -301,10 +301,6 @@ func (s *LoginScene) Load() {
 	fmt.Println("LoginScene loaded")
 }
 
-func (s *LoginScene) SceneBase() *Engine.SceneData {
-	return s.SceneData
-}
-
 func (s *LoginScene) New() Engine.Scene {
 	gs := new(LoginScene)
 	gs.SceneData = Engine.NewScene("LoginScene")

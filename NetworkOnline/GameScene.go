@@ -222,10 +222,6 @@ func (s *GameScene) Load() {
 	fmt.Println("Scene loaded")
 }
 
-func (s *GameScene) SceneBase() *Engine.SceneData {
-	return s.SceneData
-}
-
 func (s *GameScene) New() Engine.Scene {
 	gs := new(GameScene)
 	gs.SceneData = Engine.NewScene("GameScene")
