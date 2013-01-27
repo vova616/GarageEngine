@@ -26,10 +26,14 @@ func newArbiter(arb *chipmunk.Arbiter, owner *GameObject) Arbiter {
 	pa, ba := arb.BodyA.CallbackHandler.(*Physics)
 	if ba {
 		newArb.gameObjectA = pa.GameObject()
+	} else {
+		panic("CallbackHandler is not Physics")
 	}
 	pb, bb := arb.BodyB.CallbackHandler.(*Physics)
 	if bb {
 		newArb.gameObjectB = pb.GameObject()
+	} else {
+		panic("CallbackHandler is not Physics")
 	}
 
 	//Find owner
