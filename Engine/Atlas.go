@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const BorderSize = 1
+var Padding = 1
 
 type Atlas interface {
 	GLTexture
@@ -74,18 +74,26 @@ func AtlasLoadDirectory(path string) (*ManagedAtlas, error) {
 
 func IndexUV(a Atlas, id interface{}) UV {
 	rect := a.Index(id)
-	h := float32(a.Height())
-	w := float32(a.Width())
-	return NewUV(float32(rect.Min.X)/w, float32(rect.Min.Y)/h, float32(rect.Max.X)/w, float32(rect.Max.Y)/h, float32(rect.Dx())/float32(rect.Dy()))
+	h := float64(a.Height())
+	w := float64(a.Width())
+	return NewUV(float32(float64(rect.Min.X)/w),
+		float32(float64(rect.Min.Y)/h),
+		float32(float64(rect.Max.X)/w),
+		float32(float64(rect.Max.Y)/h),
+		float32(float64(rect.Dx())/float64(rect.Dy())))
 }
 
 func IndexGroupUV(a Atlas, group interface{}) AnimatedUV {
 	rects := a.Group(group)
 	uvs := make([]UV, len(rects))
 	for i, r := range rects {
-		h := float32(a.Height())
-		w := float32(a.Width())
-		uvs[i] = NewUV(float32(r.Min.X)/w, float32(r.Min.Y)/h, float32(r.Max.X)/w, float32(r.Max.Y)/h, float32(r.Dx())/float32(r.Dy()))
+		h := float64(a.Height())
+		w := float64(a.Width())
+		uvs[i] = NewUV(float32(float64(r.Min.X)/w),
+			float32(float64(r.Min.Y)/h),
+			float32(float64(r.Max.X)/w),
+			float32(float64(r.Max.Y)/h),
+			float32(float64(r.Dx())/float64(r.Dy())))
 	}
 	return uvs
 }
@@ -233,21 +241,21 @@ func (node *AtlasNode) Insert(img image.Image, id interface{}) *AtlasNode {
 			return nil
 		}
 
-		if node.Rect.Dx()-(img.Bounds().Dx()+BorderSize) < 0 ||
-			node.Rect.Dy()-(img.Bounds().Dy()+BorderSize) < 0 {
+		dw := node.Rect.Dx() - (img.Bounds().Dx() + Padding)
+		dh := node.Rect.Dy() - (img.Bounds().Dy() + Padding)
+
+		if dw < 0 ||
+			dh < 0 {
 			return nil
 		}
 
-		if node.Rect.Dx() == img.Bounds().Dx()+BorderSize &&
-			node.Rect.Dy() == img.Bounds().Dy()+BorderSize {
+		if dw == 0 && dh == 0 {
 			return node
 		}
 
 		node.Child[0] = &AtlasNode{}
 		node.Child[1] = &AtlasNode{}
 
-		dw := node.Rect.Dx() - (img.Bounds().Dx() + BorderSize)
-		dh := node.Rect.Dy() - (img.Bounds().Dy() + BorderSize)
 		if dw > dh {
 			node.Child[0].Rect = image.Rect(
 				node.Rect.Min.X, node.Rect.Min.Y,
@@ -516,8 +524,10 @@ func (ma *ManagedAtlas) BuildAtlas() error {
 		var rect image.Rectangle
 		if node != nil {
 			rect = node.Rect
-			rect.Max.X -= BorderSize
-			rect.Max.Y -= BorderSize
+			//rect.Min.X += Padding
+			//rect.Min.Y += Padding
+			rect.Max.X -= Padding
+			rect.Max.Y -= Padding
 			node.ImageID = bigID
 			draw.Draw(ma.image, rect, bigImage, image.ZP, draw.Src)
 		} else {
@@ -527,7 +537,6 @@ func (ma *ManagedAtlas) BuildAtlas() error {
 		ma.uvs[bigID] = rect
 		ma.images[bigID] = nil
 	}
-
 	ma.Texture = NewRGBATexture(ma.image.Pix, ma.image.Bounds().Dx(), ma.image.Bounds().Dy())
 	ma.image.Pix = nil
 	ma.image = nil
