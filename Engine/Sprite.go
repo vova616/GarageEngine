@@ -25,7 +25,7 @@ type Sprite struct {
 	startAnimation       int
 	animation            float32
 	UVs                  AnimatedUV
-	animMap              map[interface{}][2]int
+	animMap              map[ID][2]int
 	currentAnim          interface{}
 	AnimationEndCallback OnAnimationEnd
 
@@ -64,11 +64,11 @@ func NewSprite3(tex *Texture, uv AnimatedUV) *Sprite {
 	return sp
 }
 
-func (p *Sprite) BindAnimations(animMap map[interface{}][2]int) {
+func (p *Sprite) BindAnimations(animMap map[ID][2]int) {
 	p.animMap = animMap
 }
 
-func (p *Sprite) SetAnimation(id interface{}) {
+func (p *Sprite) SetAnimation(id ID) {
 	a, e := p.animMap[id]
 	if !e {
 		panic("no such id")

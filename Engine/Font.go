@@ -41,7 +41,7 @@ func (t *Font) IsSDF() bool {
 	return t.sdf
 }
 
-func (t *Font) Index(runei interface{}) image.Rectangle {
+func (t *Font) Index(runei ID) image.Rectangle {
 	letter, ok := runei.(rune)
 	if !ok {
 		panic("runei is not rune")
@@ -53,7 +53,7 @@ func (t *Font) Index(runei interface{}) image.Rectangle {
 	return image.Rectangle{}
 }
 
-func (t *Font) Group(id interface{}) []image.Rectangle {
+func (t *Font) Group(id ID) []image.Rectangle {
 	panic("font does not have groups")
 }
 

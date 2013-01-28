@@ -55,13 +55,12 @@ func (ds *Destoyable) OnCollisionEnter(arbiter Engine.Arbiter) bool {
 		return true
 	}
 	var dmg *DamageDealer = nil
-	var enemy *Engine.GameObject
 	var enemyDestoyable *Destoyable
 
-	if arbiter.GameObjectA() == ds.GameObject() {
-		enemy = arbiter.GameObjectB()
-	} else {
-		enemy = arbiter.GameObjectA()
+	enemy := arbiter.GameObjectB()
+
+	if enemy == nil {
+		return true
 	}
 
 	dmg, _ = enemy.ComponentTypeOfi(dmg).(*DamageDealer)

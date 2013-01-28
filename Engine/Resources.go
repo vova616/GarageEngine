@@ -5,14 +5,14 @@ import (
 	//"github.com/vova616/gl"
 )
 
-type ID interface{}
+type ResID interface{}
 
 type Resource interface {
 	Release()
 }
 
 var (
-	ResourceManager = &Resources{make(map[ID]Resource)}
+	ResourceManager = &Resources{make(map[ResID]Resource)}
 )
 
 type MemHandle struct {
@@ -32,7 +32,7 @@ func (m *MemHandle) Bytes() []byte {
 }
 
 type Resources struct {
-	Resources map[ID]Resource
+	Resources map[ResID]Resource
 }
 
 func (r *Resources) Add(res Resource) error {
@@ -59,7 +59,7 @@ func (r *Resources) Release() {
 	for _, res := range r.Resources {
 		releaseSafe(res)
 	}
-	r.Resources = make(map[ID]Resource)
+	r.Resources = make(map[ResID]Resource)
 }
 
 func (r *Resources) ReleaseResource(res interface{}) {

@@ -61,7 +61,11 @@ const (
 	MissleTag = "Missle"
 	CookieTag = "Cookie"
 )
-const SpaceShip_A = 333
+
+var SpaceShip_A = "Ship"
+var Explosion_ID Engine.ID
+var PowerUps_ID Engine.ID
+
 const Missle_A = 334
 const HP_A = 123
 const HPGUI_A = 124
@@ -81,21 +85,23 @@ func LoadTextures() {
 	atlasSpace = Engine.NewManagedAtlas(1024, 1024)
 	atlasPowerUp = Engine.NewManagedAtlas(256, 256)
 
-	CheckError(atlas.LoadImage("./data/SpaceCookies/Ship1.png", SpaceShip_A))
-	CheckError(atlas.LoadImage("./data/SpaceCookies/missile.png", Missle_A))
-	CheckError(atlas.LoadGroupSheet("./data/SpaceCookies/Explosion.png", 128, 128, 6*8))
+	var e error
 
-	CheckError(atlas.LoadImage("./data/SpaceCookies/HealthBar.png", HP_A))
-	CheckError(atlas.LoadImage("./data/SpaceCookies/HealthBarGUI.png", HPGUI_A))
-	CheckError(atlas.LoadImage("./data/SpaceCookies/Queen.png", Queen_A))
-	CheckError(atlas.LoadImage("./data/SpaceCookies/Jet.png", Jet_A))
+	CheckError(atlas.LoadImageID("./data/SpaceCookies/Ship1.png", SpaceShip_A))
+	CheckError(atlas.LoadImageID("./data/SpaceCookies/missile.png", Missle_A))
+	e, Explosion_ID = atlas.LoadGroupSheet("./data/SpaceCookies/Explosion.png", 128, 128, 6*8)
+	CheckError(e)
+
+	CheckError(atlas.LoadImageID("./data/SpaceCookies/HealthBar.png", HP_A))
+	CheckError(atlas.LoadImageID("./data/SpaceCookies/HealthBarGUI.png", HPGUI_A))
+	CheckError(atlas.LoadImageID("./data/SpaceCookies/Queen.png", Queen_A))
+	CheckError(atlas.LoadImageID("./data/SpaceCookies/Jet.png", Jet_A))
 
 	atlas.BuildAtlas()
 	atlas.BuildMipmaps()
 	atlas.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
 	atlas.Texture.SetReadOnly()
 
-	var e error
 	boxt, e = Engine.LoadTexture("./data/SpaceCookies/wall.png")
 
 	boxt.BuildMipmaps()
@@ -118,7 +124,8 @@ func LoadTextures() {
 	atlasSpace.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
 	atlasSpace.Texture.SetReadOnly()
 
-	CheckError(atlasPowerUp.LoadGroupSheet("./data/SpaceCookies/powerups.png", 61, 61, 3*4))
+	e, PowerUps_ID = atlasPowerUp.LoadGroupSheet("./data/SpaceCookies/powerups.png", 61, 61, 3*4)
+	CheckError(e)
 	atlasPowerUp.BuildAtlas()
 	atlasPowerUp.SetFiltering(Engine.Linear, Engine.Linear)
 
@@ -254,7 +261,7 @@ func (s *GameScene) Load() {
 	Engine.Space.Gravity.Y = 0
 	Engine.Space.Iterations = 10
 
-	uvs, ind := Engine.AnimatedGroupUVs(atlas, "Explosion")
+	uvs, ind := Engine.AnimatedGroupUVs(atlas, Explosion_ID)
 	Explosion = Engine.NewGameObject("Explosion")
 	Explosion.AddComponent(Engine.NewSprite3(atlas.Texture, uvs))
 	Explosion.Sprite.BindAnimations(ind)
@@ -376,14 +383,14 @@ func (s *GameScene) Load() {
 	Background.Transform().SetScalef(50, 50)
 	Background.Transform().SetPositionf(400, 400)
 
-	uvs, ind = Engine.AnimatedGroupUVs(atlasPowerUp, "powerups")
+	uvs, ind = Engine.AnimatedGroupUVs(atlasPowerUp, PowerUps_ID)
 	PowerUpGO = Engine.NewGameObject("Background")
 	//PowerUpGO.Transform().SetParent2(Layer2)
 	PowerUpGO.AddComponent(Engine.NewSprite3(atlasPowerUp.Texture, uvs))
 	PowerUpGO.AddComponent(Engine.NewPhysics(false, 61, 61))
 	PowerUpGO.Physics.Shape.IsSensor = true
 	PowerUpGO.Sprite.BindAnimations(ind)
-	PowerUpGO.Sprite.SetAnimation("powerups")
+	PowerUpGO.Sprite.SetAnimation(PowerUps_ID)
 	PowerUpGO.Sprite.AnimationSpeed = 0
 	index := (rand.Int() % 6) + 6
 	PowerUpGO.Sprite.SetAnimationIndex(int(index))
@@ -610,7 +617,7 @@ func (s *GameScene) OldLoad() {
 	}
 	ship.AddComponent(NewDestoyable(shipHP, 1))
 
-	uvs, ind := Engine.AnimatedGroupUVs(atlas, "Explosion")
+	uvs, ind := Engine.AnimatedGroupUVs(atlas, Explosion_ID)
 	Explosion = Engine.NewGameObject("Explosion")
 	Explosion.AddComponent(Engine.NewSprite3(atlas.Texture, uvs))
 	Explosion.Sprite.BindAnimations(ind)
@@ -691,14 +698,14 @@ func (s *GameScene) OldLoad() {
 	Background.Transform().SetScalef(50, 50)
 	Background.Transform().SetPositionf(400, 400)
 
-	uvs, ind = Engine.AnimatedGroupUVs(atlasPowerUp, "powerups")
+	uvs, ind = Engine.AnimatedGroupUVs(atlasPowerUp, PowerUps_ID)
 	PowerUpGO = Engine.NewGameObject("Background")
 	//PowerUpGO.Transform().SetParent2(Layer2)
 	PowerUpGO.AddComponent(Engine.NewSprite3(atlasPowerUp.Texture, uvs))
 	PowerUpGO.AddComponent(Engine.NewPhysics(false, 61, 61))
 	PowerUpGO.Physics.Shape.IsSensor = true
 	PowerUpGO.Sprite.BindAnimations(ind)
-	PowerUpGO.Sprite.SetAnimation("powerups")
+	PowerUpGO.Sprite.SetAnimation(PowerUps_ID)
 	PowerUpGO.Sprite.AnimationSpeed = 0
 	index := (rand.Int() % 6) + 6
 	PowerUpGO.Sprite.SetAnimationIndex(int(index))
