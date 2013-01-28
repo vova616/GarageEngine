@@ -7,16 +7,20 @@ import (
 	"image/draw"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
 
 var Padding = 1
 
+type AnimatedUV []UV
+type ID interface{}
+
 type Atlas interface {
 	GLTexture
-	Index(id interface{}) image.Rectangle
-	Group(id interface{}) []image.Rectangle
+	Index(id ID) image.Rectangle
+	Group(id ID) []image.Rectangle
 }
 
 type UV struct {
@@ -27,9 +31,7 @@ func NewUV(u1, v1, u2, v2, ratio float32) UV {
 	return UV{u1, v1, u2, v2, ratio}
 }
 
-type AnimatedUV []UV
-
-func AnimatedUVs(a Atlas, ids ...interface{}) AnimatedUV {
+func AnimatedUVs(a Atlas, ids ...ID) AnimatedUV {
 	uvs := make([]UV, len(ids))
 	for i, id := range ids {
 		uvs[i] = IndexUV(a, id)
@@ -37,9 +39,9 @@ func AnimatedUVs(a Atlas, ids ...interface{}) AnimatedUV {
 	return uvs
 }
 
-func AnimatedGroupUVs(a Atlas, groups ...interface{}) (AnimatedUV, map[interface{}][2]int) {
+func AnimatedGroupUVs(a Atlas, groups ...ID) (AnimatedUV, map[ID][2]int) {
 	uvs := make([]UV, 0, len(groups))
-	indecies := make(map[interface{}][2]int)
+	indecies := make(map[ID][2]int)
 	last := 0
 	for _, id := range groups {
 		var ic [2]int
@@ -72,7 +74,7 @@ func AtlasLoadDirectory(path string) (*ManagedAtlas, error) {
 	return atlas, atlas.LoadGroup(path)
 }
 
-func IndexUV(a Atlas, id interface{}) UV {
+func IndexUV(a Atlas, id ID) UV {
 	rect := a.Index(id)
 	h := float64(a.Height())
 	w := float64(a.Width())
@@ -83,7 +85,7 @@ func IndexUV(a Atlas, id interface{}) UV {
 		float32(float64(rect.Dx())/float64(rect.Dy())))
 }
 
-func IndexGroupUV(a Atlas, group interface{}) AnimatedUV {
+func IndexGroupUV(a Atlas, group ID) AnimatedUV {
 	rects := a.Group(group)
 	uvs := make([]UV, len(rects))
 	for i, r := range rects {
@@ -116,16 +118,16 @@ func RenderAtlas(a Atlas) {
 type ManagedAtlas struct {
 	*Texture
 	image  *image.RGBA
-	uvs    map[interface{}]image.Rectangle
-	groups map[interface{}][]interface{}
-	images map[interface{}]image.Image
+	uvs    map[ID]image.Rectangle
+	groups map[ID][]ID
+	images map[ID]image.Image
 	Tree   *AtlasNode
 }
 
 type AtlasNode struct {
 	Child   [2]*AtlasNode
 	Rect    image.Rectangle
-	ImageID interface{}
+	ImageID ID
 }
 
 func NewAtlasNode(width, height int) *AtlasNode {
@@ -135,9 +137,9 @@ func NewAtlasNode(width, height int) *AtlasNode {
 func NewManagedAtlas(width, height int) *ManagedAtlas {
 	m := &ManagedAtlas{
 		image:  image.NewRGBA(image.Rect(0, 0, width, height)),
-		uvs:    make(map[interface{}]image.Rectangle),
-		groups: make(map[interface{}][]interface{}),
-		images: make(map[interface{}]image.Image),
+		uvs:    make(map[ID]image.Rectangle),
+		groups: make(map[ID][]ID),
+		images: make(map[ID]image.Image),
 		Tree:   NewAtlasNode(width, height)}
 	ResourceManager.Add(m)
 	return m
@@ -152,45 +154,45 @@ func NewRGBA(r image.Rectangle) (*image.RGBA, *MemHandle) {
 	return &image.RGBA{buf, 4 * w, r}, memHandle
 }
 */
-func AtlasFromSheet(path string, width, height, frames int) (atlas *ManagedAtlas, err error) {
+func AtlasFromSheet(path string, width, height, frames int) (atlas *ManagedAtlas, groupID ID, err error) {
+	fName := filepath.Base(path)
+	extIndex := strings.LastIndex(fName, ".")
+	if extIndex != -1 {
+		fName = fName[:extIndex]
+	}
+	fName = atlas.nextGroupID(fName)
+
 	file, e := os.Open(path)
 	if e != nil {
-		return nil, e
+		return nil, nil, e
 	}
 	defer file.Close()
 	ds, e := file.Stat()
 	if e != nil {
-		return nil, e
+		return nil, nil, e
 	}
 	if ds.IsDir() {
-		return nil, errors.New("The path is not a file. " + path)
-	}
-
-	fullName := ds.Name()
-	extIndex := strings.LastIndex(fullName, ".")
-	fName := fullName
-	if extIndex != -1 {
-		fName = fullName[:extIndex]
+		return nil, nil, errors.New("The path is not a file. " + path)
 	}
 
 	file.Close()
 
 	img, e := LoadImage(path)
 	if e != nil {
-		return nil, e
+		return nil, nil, e
 	}
 
 	atlas = &ManagedAtlas{
 		image:  image.NewRGBA(image.Rect(0, 0, img.Bounds().Dx(), img.Bounds().Dy())),
-		uvs:    make(map[interface{}]image.Rectangle),
-		groups: make(map[interface{}][]interface{}),
-		images: make(map[interface{}]image.Image),
+		uvs:    make(map[ID]image.Rectangle),
+		groups: make(map[ID][]ID),
+		images: make(map[ID]image.Image),
 		Tree:   NewAtlasNode(img.Bounds().Dx(), img.Bounds().Dy())}
 	ResourceManager.Add(atlas)
 
 	draw.Draw(atlas.image, atlas.image.Bounds(), img, image.Point{0, 0}, draw.Src)
 
-	group := make([]interface{}, 0)
+	group := make([]ID, 0)
 
 	maxx, maxy := img.Bounds().Dx()/width, img.Bounds().Dy()/height
 
@@ -207,7 +209,7 @@ func AtlasFromSheet(path string, width, height, frames int) (atlas *ManagedAtlas
 		}
 	}
 	atlas.groups[fName] = group
-	return atlas, nil
+	return atlas, fName, nil
 }
 
 func (atlas *ManagedAtlas) Release() {
@@ -226,7 +228,7 @@ func (atlas *ManagedAtlas) Release() {
 	atlas.Tree = nil
 }
 
-func (node *AtlasNode) Insert(img image.Image, id interface{}) *AtlasNode {
+func (node *AtlasNode) Insert(img image.Image, id ID) *AtlasNode {
 	if node.Child[0] != nil {
 		newNode := node.Child[1].Insert(img, id)
 		if newNode != nil {
@@ -279,35 +281,35 @@ func (node *AtlasNode) Insert(img image.Image, id interface{}) *AtlasNode {
 	return nil
 }
 
-func (atlas *ManagedAtlas) LoadGIF(path string) (err error) {
+func (atlas *ManagedAtlas) LoadGIF(path string) (err error, groupID ID) {
+	fName := filepath.Base(path)
+	extIndex := strings.LastIndex(fName, ".")
+	if extIndex != -1 {
+		fName = fName[:extIndex]
+	}
+	fName = atlas.nextGroupID(fName)
+
 	file, e := os.Open(path)
 	if e != nil {
-		return e
+		return e, nil
 	}
 	defer file.Close()
 	ds, e := file.Stat()
 	if e != nil {
-		return e
+		return e, nil
 	}
 	if ds.IsDir() {
-		return errors.New("The path is not a file. " + path)
-	}
-
-	fullName := ds.Name()
-	extIndex := strings.LastIndex(fullName, ".")
-	fName := fullName
-	if extIndex != -1 {
-		fName = fullName[:extIndex]
+		return errors.New("The path is not a file. " + path), nil
 	}
 
 	file.Close()
 
 	imgs, e := LoadGIF(path)
 	if e != nil {
-		return e
+		return e, nil
 	}
 
-	group := make([]interface{}, 0)
+	group := make([]ID, 0)
 
 	for i, img := range imgs {
 		is := strconv.FormatInt(int64(i), 10)
@@ -319,57 +321,63 @@ func (atlas *ManagedAtlas) LoadGIF(path string) (err error) {
 		i++
 	}
 	atlas.groups[fName] = group
-	return nil
+	return nil, fName
 }
 
-func (atlas *ManagedAtlas) LoadGroupSheet(path string, width, height, frames int) error {
+func (atlas *ManagedAtlas) LoadGroupSheet(path string, width, height, frames int) (err error, groupID ID) {
+	return atlas.LoadGroupSheetOffset(path, image.Pt(0, 0), width, height, frames)
+}
+
+func (atlas *ManagedAtlas) LoadGroupSheetOffset(path string, pt image.Point, width, height, frames int) (err error, groupID ID) {
+	fName := filepath.Base(path)
+	extIndex := strings.LastIndex(fName, ".")
+	if extIndex != -1 {
+		fName = fName[:extIndex]
+	}
+	fName = atlas.nextGroupID(fName)
+
 	file, e := os.Open(path)
 	if e != nil {
-		return e
+		return e, nil
 	}
 	defer file.Close()
 	ds, e := file.Stat()
 	if e != nil {
-		return e
+		return e, nil
 	}
 	if ds.IsDir() {
-		return errors.New("The path is not a file. " + path)
-	}
-
-	fullName := ds.Name()
-	extIndex := strings.LastIndex(fullName, ".")
-	fName := fullName
-	if extIndex != -1 {
-		fName = fullName[:extIndex]
+		return errors.New("The path is not a file. " + path), nil
 	}
 
 	file.Close()
 
 	img, e := LoadImage(path)
 	if e != nil {
-		return e
+		return e, nil
 	}
 
-	group := make([]interface{}, 0)
+	group := make([]ID, 0)
 
-	maxx, maxy := img.Bounds().Dx()/width, img.Bounds().Dy()/height
-
-	i := 0
-	for y := 0; y < maxy; y++ {
-		for x := 0; x < maxx; x++ {
-			is := strconv.FormatInt(int64(i), 10)
-			if i == 0 {
-				is = ""
-			}
-			sprite := image.NewRGBA(image.Rect(0, 0, width, height))
-			draw.Draw(sprite, sprite.Rect, img, image.Point{x * width, y * height}, draw.Src)
+	x, y := 0, 0
+	for i := 0; i < frames; i++ {
+		is := strconv.FormatInt(int64(i), 10)
+		if i == 0 {
+			is = ""
+		}
+		sprite := image.NewRGBA(image.Rect(0, 0, width, height))
+		point := image.Point{(x * width) + pt.X, (y * height) + pt.Y}
+		if sprite.Rect.Add(point).In(img.Bounds()) {
+			draw.Draw(sprite, sprite.Rect, img, point, draw.Src)
 			atlas.AddImage(sprite, fName+is)
 			group = append(group, fName+is)
-			i++
+			x++
+		} else {
+			x = 0
+			y++
 		}
 	}
 	atlas.groups[fName] = group
-	return nil
+	return nil, fName
 }
 
 func (atlas *ManagedAtlas) LoadGroup(path string) error {
@@ -390,6 +398,7 @@ func (atlas *ManagedAtlas) LoadGroup(path string) error {
 	files, er := d.Readdir(0)
 	for _, file := range files {
 		fullName := file.Name()
+		fullName = filepath.Base(fullName)
 		extIndex := strings.LastIndex(fullName, ".")
 
 		fName := fullName
@@ -410,7 +419,7 @@ func (atlas *ManagedAtlas) LoadGroup(path string) error {
 			}
 
 			atlas.AddImage(img, fName)
-			group := make([]interface{}, 1)
+			group := make([]ID, 1)
 			group[0] = fName
 
 			fulldir := d.Name() + "/" + fName + "_"
@@ -440,8 +449,60 @@ func (atlas *ManagedAtlas) LoadGroup(path string) error {
 	return er
 }
 
-func (ma *ManagedAtlas) LoadImage(path string, id interface{}) error {
-	_, exist := ma.uvs[id]
+func (ma *ManagedAtlas) LoadImage(path string) (err error, id ID) {
+
+	img, e := LoadImage(path)
+
+	if e != nil {
+		return e, nil
+	}
+
+	fName := filepath.Base(path)
+	extIndex := strings.LastIndex(fName, ".")
+	if extIndex != -1 {
+		fName = fName[:extIndex]
+	}
+
+	id = ma.nextImageID(fName)
+	ma.images[id] = img
+
+	return nil, id
+}
+
+func (ma *ManagedAtlas) nextImageID(name string) string {
+	for i := -1; i < 9999; i++ {
+		is := strconv.FormatInt(int64(i), 10)
+		if i == -1 {
+			is = ""
+		}
+
+		id := name + is
+		_, exist := ma.images[id]
+		if !exist {
+			return id
+		}
+	}
+	panic("Cannot choose id.")
+}
+
+func (ma *ManagedAtlas) nextGroupID(name string) string {
+	for i := -1; i < 9999; i++ {
+		is := strconv.FormatInt(int64(i), 10)
+		if i == -1 {
+			is = ""
+		}
+
+		id := name + is
+		_, exist := ma.groups[id]
+		if !exist {
+			return id
+		}
+	}
+	panic("Cannot choose id.")
+}
+
+func (ma *ManagedAtlas) LoadImageID(path string, id ID) error {
+	_, exist := ma.images[id]
 	if exist {
 		errors.New("id already exists")
 	}
@@ -457,11 +518,11 @@ func (ma *ManagedAtlas) LoadImage(path string, id interface{}) error {
 	return nil
 }
 
-func (ma *ManagedAtlas) AddImage(img image.Image, id interface{}) error {
+func (ma *ManagedAtlas) AddImage(img image.Image, id ID) error {
 	if img == nil {
 		return errors.New("image is nil")
 	}
-	_, exist := ma.uvs[id]
+	_, exist := ma.images[id]
 	if exist {
 		return errors.New("id already exists")
 	}
@@ -471,7 +532,7 @@ func (ma *ManagedAtlas) AddImage(img image.Image, id interface{}) error {
 	return nil
 }
 
-func (ma *ManagedAtlas) Group(id interface{}) []image.Rectangle {
+func (ma *ManagedAtlas) Group(id ID) []image.Rectangle {
 	rects, exist := ma.groups[id]
 	if exist {
 		m := make([]image.Rectangle, 0, len(rects))
@@ -483,7 +544,7 @@ func (ma *ManagedAtlas) Group(id interface{}) []image.Rectangle {
 	return nil
 }
 
-func (ma *ManagedAtlas) Index(id interface{}) image.Rectangle {
+func (ma *ManagedAtlas) Index(id ID) image.Rectangle {
 	rect, exist := ma.uvs[id]
 	if exist {
 		return rect
@@ -491,8 +552,8 @@ func (ma *ManagedAtlas) Index(id interface{}) image.Rectangle {
 	return image.Rectangle{}
 }
 
-func (ma *ManagedAtlas) Indexs() []interface{} {
-	images := make([]interface{}, 0, len(ma.uvs))
+func (ma *ManagedAtlas) Indexs() []ID {
+	images := make([]ID, 0, len(ma.uvs))
 	for key, _ := range ma.uvs {
 		images = append(images, key)
 	}
@@ -503,7 +564,7 @@ func (ma *ManagedAtlas) BuildAtlas() error {
 	for {
 		maxArea := 0
 		var bigImage image.Image = nil
-		var bigID interface{}
+		var bigID ID
 
 		for id, img := range ma.images {
 			if img != nil {

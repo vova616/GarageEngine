@@ -90,8 +90,14 @@ func (s *GameScene) Load() {
 	if e != nil {
 		fmt.Println(e)
 	}
-	atlas.LoadImage("./data/rect.png", 333)
-	atlas.LoadImage("./data/circle.png", 222)
+	err, rectID := atlas.LoadImage("./data/rect.png")
+	if err != nil {
+		panic(err)
+	}
+	err, circleID := atlas.LoadImage("./data/circle.png")
+	if err != nil {
+		panic(err)
+	}
 
 	atlas.BuildAtlas()
 
@@ -120,7 +126,7 @@ func (s *GameScene) Load() {
 	cir.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
 
 	ball := Engine.NewGameObject("Ball")
-	ball.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, 222)))
+	ball.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, circleID)))
 	ball.Transform().SetScalef(30, 30)
 	ball.AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15)))
 	ball.Physics.Body.SetMass(10)
@@ -130,7 +136,7 @@ func (s *GameScene) Load() {
 
 	for i := 0; i < 0; i++ {
 		sprite3 := Engine.NewGameObject("Sprite" + fmt.Sprint(i))
-		sprite3.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, 333)))
+		sprite3.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, rectID)))
 		sprite3.Transform().SetParent2(Layer2)
 		sprite3.Transform().SetRotationf(180)
 		sprite3.Transform().SetPositionf(160, 120+float32(i*31))
