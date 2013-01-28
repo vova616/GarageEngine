@@ -264,7 +264,9 @@ func Run() {
 		drawDelta,
 		coroutinesDelta,
 		stepDelta,
-		behaviorDelta time.Duration
+		behaviorDelta,
+		startPhysicsDelta,
+		endPhysicsDelta time.Duration
 
 	if mainScene != nil {
 		fixedTime += deltaTime
@@ -296,27 +298,38 @@ func Run() {
 					if g.Physics != nil && g.Physics.started() {
 						pos := g.Transform().WorldPosition()
 
-						//Interpolation check: if position/angle has been changed directly and not by the physics engine, change g.Physics.lastPosition/lastAngle
 						var pAngle vect.Float
 						var pPos vect.Vect
-						if vect.Float(pos.X) != g.Physics.lastPosition.X || vect.Float(pos.Y) != g.Physics.lastPosition.Y {
-							g.Physics.lastPosition.X, g.Physics.lastPosition.Y = vect.Float(pos.X), vect.Float(pos.Y)
-						}
-						if vect.Float(g.Transform().WorldRotation().Z) != g.Physics.lastAngle {
+						if g.Physics.Interpolate {
+							//Interpolation check: if position/angle has been changed directly and not by the physics engine, change g.Physics.lastPosition/lastAngle
+
+							if vect.Float(pos.X) != g.Physics.lastPosition.X || vect.Float(pos.Y) != g.Physics.lastPosition.Y {
+								g.Physics.lastPosition.X, g.Physics.lastPosition.Y = vect.Float(pos.X), vect.Float(pos.Y)
+							}
+							if vect.Float(g.Transform().WorldRotation().Z) != g.Physics.lastAngle {
+								g.Physics.lastAngle = vect.Float(g.Transform().WorldRotation().Z)
+							}
+							pPos = g.Physics.lastPosition
+							pAngle = g.Physics.lastAngle
+
+						} else {
+							pPos.X, pPos.Y = vect.Float(pos.X), vect.Float(pos.Y)
+							pAngle = vect.Float(g.Transform().WorldRotation().Z)
+
+							g.Physics.lastPosition = pPos
 							g.Physics.lastAngle = pAngle
 						}
-						pPos = g.Physics.lastPosition
-						pAngle = g.Physics.lastAngle * RadianConst
-						g.Physics.lastPosition = pPos
-						g.Physics.lastAngle = g.Physics.lastAngle
 
 						//Set physics data
-						g.Physics.Body.SetAngle(pAngle)
+						g.Physics.Body.SetAngle(pAngle * RadianConst)
 						g.Physics.Body.SetPosition(pPos)
 
 					}
 				}
+
+				timer.StartCustom("Start Physics Delta")
 				Iter(arr, setPosition)
+				startPhysicsDelta = timer.StopCustom("Start Physics Delta")
 
 				Space.Step(vect.Float(stepTime))
 				fixedTime -= stepTime
@@ -327,7 +340,8 @@ func Run() {
 				//break if its taking too much time
 				if float64(physicsStepDelta.Nanoseconds())/float64(time.Second) > maxPhysicsTime {
 					physicsBreak = true
-					//println("physics taking too much ", float64(physicsStepDelta.Nanoseconds())/float64(time.Second), stepTime)
+					println("physics taking too much ", physicsStepDelta.Nanoseconds())
+					//fmt.Println("physics taking too much", float64(physicsStepDelta.Nanoseconds())/float64(time.Second))
 				}
 
 				updatePosition := func(g *GameObject) {
@@ -351,27 +365,32 @@ func Run() {
 						objPos.Y += float32(pos.Y - lPos.Y)
 						g.Transform().SetWorldPosition(objPos)
 
-						//Interpolation 
-						g.Physics.lastPosition = vect.Vect{vect.Float(objPos.X), vect.Float(objPos.Y)}
-						g.Physics.lastAngle = vect.Float(a)
-						if (fixedTime > 0 && fixedTime < stepTime) || physicsBreak {
-							fTime := fixedTime
-							for fTime > stepTime {
-								fTime -= stepTime
+						if g.Physics.Interpolate {
+							//Interpolation 
+							g.Physics.lastPosition = vect.Vect{vect.Float(objPos.X), vect.Float(objPos.Y)}
+							g.Physics.lastAngle = vect.Float(a)
+
+							if (fixedTime > 0 && fixedTime < stepTime) || physicsBreak {
+								fTime := fixedTime
+								for fTime > stepTime {
+									fTime -= stepTime
+								}
+								alpha := vect.Float(fTime / stepTime)
+
+								objPos.X = float32((vect.Float(objPos.X) * alpha) + (g.Physics.lastPosition.X * (1 - alpha)))
+								objPos.Y = float32((vect.Float(objPos.Y) * alpha) + (g.Physics.lastPosition.Y * (1 - alpha)))
+								a = float32((vect.Float(a) * alpha) + (g.Physics.lastAngle * (1 - alpha)))
+
+								g.Transform().SetWorldRotationf(a)
+								g.Transform().SetWorldPosition(objPos)
 							}
-							alpha := vect.Float(fTime / stepTime)
-
-							objPos.X = float32((vect.Float(objPos.X) * alpha) + (g.Physics.lastPosition.X * (1 - alpha)))
-							objPos.Y = float32((vect.Float(objPos.Y) * alpha) + (g.Physics.lastPosition.Y * (1 - alpha)))
-							a = float32((vect.Float(a) * alpha) + (g.Physics.lastAngle * (1 - alpha)))
-
-							g.Transform().SetWorldRotationf(a)
-							g.Transform().SetWorldPosition(objPos)
 						}
 					}
 				}
 
+				timer.StartCustom("End Physics Delta")
 				Iter(arr, updatePosition)
+				endPhysicsDelta = timer.StopCustom("End Physics Delta")
 
 				if physicsBreak {
 					break
@@ -442,6 +461,8 @@ func Run() {
 		fmt.Println("BehaviorTree time", behaviorDelta)
 		fmt.Println("------------------")
 		fmt.Println("Physics time:", physicsDelta)
+		fmt.Println("StartDelta time", startPhysicsDelta)
+		fmt.Println("EndDelta time", endPhysicsDelta)
 		fmt.Println("StepTime time", Space.StepTime)
 		fmt.Println("ApplyImpulse time", Space.ApplyImpulsesTime)
 		fmt.Println("ReindexQueryTime time", Space.ReindexQueryTime)

@@ -13,6 +13,7 @@ type Physics struct {
 
 	lastPosition vect.Vect
 	lastAngle    vect.Float
+	Interpolate  bool
 }
 
 func NewPhysics(static bool, w, h float32) *Physics {
