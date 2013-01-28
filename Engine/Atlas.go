@@ -358,22 +358,21 @@ func (atlas *ManagedAtlas) LoadGroupSheetOffset(path string, pt image.Point, wid
 
 	group := make([]ID, 0)
 
-	x, y := 0, 0
+	point := image.Point{pt.X, pt.Y}
 	for i := 0; i < frames; i++ {
 		is := strconv.FormatInt(int64(i), 10)
 		if i == 0 {
 			is = ""
 		}
 		sprite := image.NewRGBA(image.Rect(0, 0, width, height))
-		point := image.Point{(x * width) + pt.X, (y * height) + pt.Y}
-		if sprite.Rect.Add(point).In(img.Bounds()) {
-			draw.Draw(sprite, sprite.Rect, img, point, draw.Src)
-			atlas.AddImage(sprite, fName+is)
-			group = append(group, fName+is)
-			x++
-		} else {
-			x = 0
-			y++
+		draw.Draw(sprite, sprite.Rect, img, point, draw.Src)
+		atlas.AddImage(sprite, fName+is)
+		group = append(group, fName+is)
+
+		point.X += width
+		if !sprite.Rect.Add(point).In(img.Bounds()) {
+			point.X = 0
+			point.Y += height
 		}
 	}
 	atlas.groups[fName] = group
