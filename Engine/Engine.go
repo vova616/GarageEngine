@@ -87,8 +87,9 @@ var (
 	fixedTime float64
 	gameTime  time.Time
 
-	steps    = float64(1)
-	stepTime = float64(1) / float64(60) / steps
+	steps          = float64(1)
+	stepTime       = float64(1) / float64(60) / steps
+	maxPhysicsTime = float64(1) / float64(30)
 
 	lastTime time.Time = time.Now()
 
@@ -320,6 +321,15 @@ func Run() {
 				Space.Step(vect.Float(stepTime))
 				fixedTime -= stepTime
 
+				physicsStepDelta := timer.StopCustom("Physics step time")
+
+				physicsBreak := false
+				//break if its taking too much time
+				if float64(physicsStepDelta.Nanoseconds())/float64(time.Second) > maxPhysicsTime {
+					physicsBreak = true
+					//println("physics taking too much ", float64(physicsStepDelta.Nanoseconds())/float64(time.Second), stepTime)
+				}
+
 				updatePosition := func(g *GameObject) {
 					if g.Physics != nil && g.Physics.started() {
 
@@ -344,8 +354,12 @@ func Run() {
 						//Interpolation 
 						g.Physics.lastPosition = vect.Vect{vect.Float(objPos.X), vect.Float(objPos.Y)}
 						g.Physics.lastAngle = vect.Float(a)
-						if fixedTime > 0 && fixedTime < stepTime {
-							alpha := vect.Float(fixedTime / stepTime)
+						if (fixedTime > 0 && fixedTime < stepTime) || physicsBreak {
+							fTime := fixedTime
+							for fTime > stepTime {
+								fTime -= stepTime
+							}
+							alpha := vect.Float(fTime / stepTime)
 
 							objPos.X = float32((vect.Float(objPos.X) * alpha) + (g.Physics.lastPosition.X * (1 - alpha)))
 							objPos.Y = float32((vect.Float(objPos.Y) * alpha) + (g.Physics.lastPosition.Y * (1 - alpha)))
@@ -359,10 +373,7 @@ func Run() {
 
 				Iter(arr, updatePosition)
 
-				physicsStepDelta := timer.StopCustom("Physics step time")
-
-				//break if its taking too much time
-				if float64(physicsStepDelta.Nanoseconds())/float64(time.Second) > stepTime*0.5 {
+				if physicsBreak {
 					break
 				}
 			}
