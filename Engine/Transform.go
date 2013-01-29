@@ -239,11 +239,13 @@ func (t *Transform) WorldScale() Vector {
 }
 
 func (t *Transform) SetWorldPosition(vect Vector) {
+	if t.updateMatrix() == false && t.worldPosition == vect {
+		return
+	}
 	if t.parent == nil {
 		t.SetPosition(vect.Sub(t.position))
 	} else {
-		x := t.parent.Matrix()
-		t.SetPosition(vect.Transform(x.Invert()))
+		t.SetPosition(vect.Transform(t.parent.matrix.Invert()))
 	}
 }
 
@@ -335,9 +337,9 @@ func (t *Transform) SetParent2(g *GameObject) {
 	}
 }
 
-func (t *Transform) updateMatrix() {
+func (t *Transform) updateMatrix() bool {
 	if t.updatedMatrix && ((t.parent != nil && t.parent.Matrix() == *t.parentMatrix) || t.parent == nil) {
-		return
+		return false
 	}
 
 	trans := t
@@ -368,6 +370,7 @@ func (t *Transform) updateMatrix() {
 	//fmt.Println(t.GameObject().name)
 
 	t.updatedMatrix = true
+	return true
 }
 
 func (t *Transform) Matrix() Matrix {
