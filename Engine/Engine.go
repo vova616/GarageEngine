@@ -356,14 +356,12 @@ func Run() {
 						lAngle := float32(g.Physics.lastAngle)
 						a := g.Transform().Angle()
 						a += angle - lAngle
-						g.Transform().SetWorldRotationf(a)
 
 						pos := b.Position()
 						lPos := g.Physics.lastPosition
 						objPos := g.Transform().WorldPosition()
 						objPos.X += float32(pos.X - lPos.X)
 						objPos.Y += float32(pos.Y - lPos.Y)
-						g.Transform().SetWorldPosition(objPos)
 
 						if g.Physics.Interpolate {
 							//Interpolation 
@@ -380,11 +378,11 @@ func Run() {
 								objPos.X = float32((vect.Float(objPos.X) * alpha) + (g.Physics.lastPosition.X * (1 - alpha)))
 								objPos.Y = float32((vect.Float(objPos.Y) * alpha) + (g.Physics.lastPosition.Y * (1 - alpha)))
 								a = float32((vect.Float(a) * alpha) + (g.Physics.lastAngle * (1 - alpha)))
-
-								g.Transform().SetWorldRotationf(a)
-								g.Transform().SetWorldPosition(objPos)
 							}
 						}
+
+						g.Transform().SetWorldRotationf(a)
+						g.Transform().SetWorldPosition(objPos)
 					}
 				}
 
