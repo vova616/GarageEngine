@@ -340,7 +340,7 @@ func Run() {
 				//break if its taking too much time
 				if float64(physicsStepDelta.Nanoseconds())/float64(time.Second) > maxPhysicsTime {
 					physicsBreak = true
-					println("physics taking too much ", physicsStepDelta.Nanoseconds())
+					//println("physics taking too much ", physicsStepDelta.Nanoseconds())
 					//fmt.Println("physics taking too much", float64(physicsStepDelta.Nanoseconds())/float64(time.Second))
 				}
 
