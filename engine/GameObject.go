@@ -138,6 +138,8 @@ func (g *GameObject) destroy() {
 	g.components = nil
 	g.valid = false
 	g.active = false
+	g.Sprite = nil
+	g.Physics = nil
 }
 
 func (g *GameObject) Clone() *GameObject {

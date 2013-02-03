@@ -68,9 +68,9 @@ func StartCoroutine(fnc func()) *Coroutine {
 
 func startCoroutine(fnc func(), gr *Coroutine) {
 	defer errorFunc()
+	defer func() { gr.out <- Ended }()
 	gr.WaitForCommand()
 	fnc()
-	gr.out <- Ended
 }
 
 func errorFunc() {
