@@ -1,9 +1,9 @@
-package NetworkOnline
+package networkOnline
 
 import (
 	"fmt"
-	"github.com/vova616/GarageEngine/Engine"
-	"github.com/vova616/GarageEngine/Engine/Components"
+	"github.com/vova616/garageEngine/engine"
+	"github.com/vova616/garageEngine/engine/components"
 	_ "image/jpeg"
 	_ "image/png"
 	//"gl"  
@@ -17,25 +17,25 @@ import (
 )
 
 type GameScene struct {
-	*Engine.SceneData
-	Layer1 *Engine.GameObject
-	Layer2 *Engine.GameObject
-	Layer3 *Engine.GameObject
+	*engine.SceneData
+	Layer1 *engine.GameObject
+	Layer2 *engine.GameObject
+	Layer3 *engine.GameObject
 }
 
 var (
 	GameSceneGeneral *GameScene
-	cir              *Engine.Texture
-	box              *Engine.Texture
+	cir              *engine.Texture
+	box              *engine.Texture
 )
 
 func (s *GameScene) Load() {
-	ArialFont, err := Engine.NewFont("./data/Fonts/arial.ttf", 48)
+	ArialFont, err := engine.NewFont("./data/Fonts/arial.ttf", 48)
 	if err != nil {
 		panic(err)
 	}
 
-	ArialFont2, err := Engine.NewFont("./data/Fonts/arial.ttf", 24)
+	ArialFont2, err := engine.NewFont("./data/Fonts/arial.ttf", 24)
 	if err != nil {
 		panic(err)
 	}
@@ -44,44 +44,44 @@ func (s *GameScene) Load() {
 
 	GameSceneGeneral = s
 
-	s.Camera = Engine.NewCamera()
+	s.Camera = engine.NewCamera()
 
-	cam := Engine.NewGameObject("Camera")
+	cam := engine.NewGameObject("Camera")
 	cam.AddComponent(s.Camera)
 	cam.AddComponent(NewCameraCtl())
 
 	cam.Transform().SetScalef(1, 1)
 
-	gui := Engine.NewGameObject("GUI")
+	gui := engine.NewGameObject("GUI")
 
-	Layer1 := Engine.NewGameObject("Layer1")
-	Layer2 := Engine.NewGameObject("Layer2")
-	Layer3 := Engine.NewGameObject("Layer3")
+	Layer1 := engine.NewGameObject("Layer1")
+	Layer2 := engine.NewGameObject("Layer2")
+	Layer3 := engine.NewGameObject("Layer3")
 
 	s.Layer1 = Layer1
 	s.Layer2 = Layer2
 	s.Layer3 = Layer3
 
-	mouse := Engine.NewGameObject("Mouse")
+	mouse := engine.NewGameObject("Mouse")
 	mouse.AddComponent(NewMouseDebugger())
-	mouse.AddComponent(Engine.NewMouse())
+	mouse.AddComponent(engine.NewMouse())
 	mouse.Transform().SetParent2(cam)
 
-	FPSDrawer := Engine.NewGameObject("FPS")
-	txt := FPSDrawer.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
-	fps := FPSDrawer.AddComponent(Engine.NewFPS()).(*Engine.FPS)
+	FPSDrawer := engine.NewGameObject("FPS")
+	txt := FPSDrawer.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
+	fps := FPSDrawer.AddComponent(engine.NewFPS()).(*engine.FPS)
 	fps.SetAction(func(fps float64) {
 		txt.SetString("FPS: " + strconv.FormatFloat(fps, 'f', 2, 32))
 	})
 	FPSDrawer.Transform().SetParent2(cam)
-	FPSDrawer.Transform().SetPositionf(60, float32(Engine.Height)-20)
+	FPSDrawer.Transform().SetPositionf(60, float32(engine.Height)-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
 
 	//SPACCCEEEEE
-	Engine.Space.Gravity.Y = -300
-	Engine.Space.Iterations = 10
+	engine.Space.Gravity.Y = -300
+	engine.Space.Iterations = 10
 
-	atlas := Engine.NewManagedAtlas(512, 512)
+	atlas := engine.NewManagedAtlas(512, 512)
 	e := atlas.LoadGroup("./data/fire")
 	if e != nil {
 		fmt.Println(e)
@@ -102,14 +102,14 @@ func (s *GameScene) Load() {
 	atlas.BuildAtlas()
 
 	atlas.BuildMipmaps()
-	atlas.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
+	atlas.SetFiltering(engine.MipMapLinearNearest, engine.Nearest)
 
-	uvsFire, indFire := Engine.AnimatedGroupUVs(atlas, "fire")
+	uvsFire, indFire := engine.AnimatedGroupUVs(atlas, "fire")
 	_ = uvsFire
 	_ = indFire
 
-	clone2 := Engine.NewGameObject("Sprite")
-	s2 := clone2.AddComponent(Engine.NewSprite3(atlas.Texture, uvsFire)).(*Engine.Sprite)
+	clone2 := engine.NewGameObject("Sprite")
+	s2 := clone2.AddComponent(engine.NewSprite3(atlas.Texture, uvsFire)).(*engine.Sprite)
 	s2.BindAnimations(indFire)
 	s2.AnimationSpeed = 6
 	clone2.Transform().SetPositionf(775, 300)
@@ -120,29 +120,29 @@ func (s *GameScene) Load() {
 	f.Transform().SetPositionf(25, 300)
 	f.Transform().SetParent2(Layer1)
 
-	box, _ = Engine.LoadTexture("./data/rect.png")
-	cir, _ = Engine.LoadTexture("./data/circle.png")
+	box, _ = engine.LoadTexture("./data/rect.png")
+	cir, _ = engine.LoadTexture("./data/circle.png")
 	cir.BuildMipmaps()
-	cir.SetFiltering(Engine.MipMapLinearNearest, Engine.Nearest)
+	cir.SetFiltering(engine.MipMapLinearNearest, engine.Nearest)
 
-	ball := Engine.NewGameObject("Ball")
-	ball.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, circleID)))
+	ball := engine.NewGameObject("Ball")
+	ball.AddComponent(engine.NewSprite2(atlas.Texture, engine.IndexUV(atlas, circleID)))
 	ball.Transform().SetScalef(30, 30)
-	ball.AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15)))
+	ball.AddComponent(engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15)))
 	ball.Physics.Body.SetMass(10)
 	ball.Physics.Body.SetMoment(ball.Physics.Shape.Moment(10))
 	ball.Physics.Shape.SetFriction(0.8)
 	ball.Physics.Shape.SetElasticity(0.8)
 
 	for i := 0; i < 0; i++ {
-		sprite3 := Engine.NewGameObject("Sprite" + fmt.Sprint(i))
-		sprite3.AddComponent(Engine.NewSprite2(atlas.Texture, Engine.IndexUV(atlas, rectID)))
+		sprite3 := engine.NewGameObject("Sprite" + fmt.Sprint(i))
+		sprite3.AddComponent(engine.NewSprite2(atlas.Texture, engine.IndexUV(atlas, rectID)))
 		sprite3.Transform().SetParent2(Layer2)
 		sprite3.Transform().SetRotationf(180)
 		sprite3.Transform().SetPositionf(160, 120+float32(i*31))
 		sprite3.Transform().SetScalef(30, 30)
 
-		phx := sprite3.AddComponent(Engine.NewPhysics(false, 30, 30)).(*Engine.Physics)
+		phx := sprite3.AddComponent(engine.NewPhysics(false, 30, 30)).(*engine.Physics)
 		phx.Shape.SetFriction(1)
 		phx.Shape.SetElasticity(0.0)
 		phx.Body.SetMass(1)
@@ -154,9 +154,9 @@ func (s *GameScene) Load() {
 		sprite3.Transform().SetPositionf(200+float32(i%4)*25, float32(i*30)+120)
 	}
 
-	floor := Engine.NewGameObject("Floor")
-	floor.AddComponent(Engine.NewSprite(box))
-	floor.AddComponent(Engine.NewPhysics(true, 1000000, 100))
+	floor := engine.NewGameObject("Floor")
+	floor.AddComponent(engine.NewSprite(box))
+	floor.AddComponent(engine.NewPhysics(true, 1000000, 100))
 	floor.Transform().SetParent2(Layer2)
 	floor.Transform().SetPositionf(100, -20)
 	floor.Transform().SetScalef(10000, 100)
@@ -172,25 +172,25 @@ func (s *GameScene) Load() {
 	floor3.Transform().SetParent2(Layer2)
 	floor3.Transform().SetPositionf(0, -20)
 
-	uvs2, ind := Engine.AnimatedGroupUVs(atlas, "stand", "walk")
+	uvs2, ind := engine.AnimatedGroupUVs(atlas, "stand", "walk")
 	_ = uvs2
 	_ = ind
 
-	sprite4 := Engine.NewGameObject("Sprite")
-	sprite := sprite4.AddComponent(Engine.NewSprite3(atlas.Texture, uvs2)).(*Engine.Sprite)
+	sprite4 := engine.NewGameObject("Sprite")
+	sprite := sprite4.AddComponent(engine.NewSprite3(atlas.Texture, uvs2)).(*engine.Sprite)
 	sprite.BindAnimations(ind)
 	//sprite4.AddComponent(NewSprite(sp))
 	sprite.AnimationSpeed = 5
 	player := sprite4.AddComponent(NewPlayerController()).(*PlayerController)
 	//sprite4.AddComponent(NewRotator())
-	ph := sprite4.AddComponent(Engine.NewPhysics(false, 100, 100)).(*Engine.Physics)
+	ph := sprite4.AddComponent(engine.NewPhysics(false, 100, 100)).(*engine.Physics)
 	player.Fire = clone2
 	sprite4.Transform().SetParent2(Layer1)
 	sprite4.Transform().SetPositionf(900, 100)
 	sprite4.Transform().SetScalef(100, 100)
 	ph.Body.SetMass(100)
 	ph.Body.IgnoreGravity = false
-	ph.Body.SetMoment(Engine.Inf)
+	ph.Body.SetMoment(engine.Inf)
 	ph.Shape.SetFriction(1)
 	ph.Shape.SetElasticity(0)
 	sprite.Border = true
@@ -210,10 +210,10 @@ func (s *GameScene) Load() {
 		//phx.Shape.Friction = 1
 		_ = phx
 	*/
-	shadowShader := Engine.NewGameObject("Shadow")
-	sCam := Engine.NewCamera()
+	shadowShader := engine.NewGameObject("Shadow")
+	sCam := engine.NewCamera()
 	shadowShader.AddComponent(sCam)
-	sShadow := Engine.NewShadowShader(s.Camera)
+	sShadow := engine.NewShadowShader(s.Camera)
 	cam.AddComponent(sShadow)
 
 	//sShadow.Sprite = bbBox
@@ -228,8 +228,8 @@ func (s *GameScene) Load() {
 	fmt.Println("Scene loaded")
 }
 
-func (s *GameScene) New() Engine.Scene {
+func (s *GameScene) New() engine.Scene {
 	gs := new(GameScene)
-	gs.SceneData = Engine.NewScene("GameScene")
+	gs.SceneData = engine.NewScene("GameScene")
 	return gs
 }

@@ -1,12 +1,12 @@
-package Game
+package game
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 	"math/rand"
 )
 
 type ResizeScript struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 	MinX, MediumX, MaxX float32
 	MinY, MediumY, MaxY float32
 	State               int
@@ -14,7 +14,7 @@ type ResizeScript struct {
 }
 
 func NewResizeScript(minX, mediumX, maxX, minY, mediumY, maxY float32) *ResizeScript {
-	return &ResizeScript{BaseComponent: Engine.NewComponent(), MinX: minX, MediumX: mediumX, MaxX: maxX, MinY: minY, MediumY: mediumY, MaxY: maxY, Speed: 3}
+	return &ResizeScript{BaseComponent: engine.NewComponent(), MinX: minX, MediumX: mediumX, MaxX: maxX, MinY: minY, MediumY: mediumY, MaxY: maxY, Speed: 3}
 }
 
 func (m *ResizeScript) SetValues(minX, mediumX, maxX, minY, mediumY, maxY float32) {
@@ -42,7 +42,7 @@ func (m *ResizeScript) SetValues(minX, mediumX, maxX, minY, mediumY, maxY float3
 }
 
 func (m *ResizeScript) Update() {
-	delta := float32(Engine.DeltaTime())
+	delta := float32(engine.DeltaTime())
 	if m.State == 0 {
 		sx := (rand.Float32() * m.MaxX) + m.MinX
 		sy := (rand.Float32() * m.MaxY) + m.MinY

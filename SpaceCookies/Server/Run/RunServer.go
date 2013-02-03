@@ -1,7 +1,7 @@
 package main
 
-import "github.com/vova616/GarageEngine/SpaceCookies/Server"
+import "github.com/vova616/garageEngine/spaceCookies/server"
 
 func main() {
-	Server.StartServer()
+	server.StartServer()
 }

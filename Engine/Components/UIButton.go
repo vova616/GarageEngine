@@ -1,31 +1,31 @@
-package Components
+package components
 
 import (
 	//"gl"
-	"github.com/vova616/GarageEngine/Engine"
-	"github.com/vova616/GarageEngine/Engine/Input"
+	"github.com/vova616/garageEngine/engine"
+	"github.com/vova616/garageEngine/engine/input"
 )
 
 type UIButton struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 	onPressCallback func()
 	onHoverCallback func(bool)
 	mouseOn         bool
 }
 
 func NewUIButton(ClickCallback func(), HoverCallback func(bool)) *UIButton {
-	return &UIButton{Engine.NewComponent(), ClickCallback, HoverCallback, false}
+	return &UIButton{engine.NewComponent(), ClickCallback, HoverCallback, false}
 }
 
 func (btn *UIButton) Update() {
 	if btn.mouseOn {
-		if btn.onPressCallback != nil && Input.MousePress(Input.Mouse1) {
+		if btn.onPressCallback != nil && input.MousePress(input.Mouse1) {
 			btn.onPressCallback()
 		}
 	}
 }
 
-func (btn *UIButton) OnMouseEnter(arbiter Engine.Arbiter) bool {
+func (btn *UIButton) OnMouseEnter(arbiter engine.Arbiter) bool {
 	btn.mouseOn = true
 	if btn.onHoverCallback != nil {
 		btn.onHoverCallback(true)
@@ -33,7 +33,7 @@ func (btn *UIButton) OnMouseEnter(arbiter Engine.Arbiter) bool {
 	return true
 }
 
-func (btn *UIButton) OnMouseExit(arbiter Engine.Arbiter) {
+func (btn *UIButton) OnMouseExit(arbiter engine.Arbiter) {
 	btn.mouseOn = false
 	if btn.onHoverCallback != nil {
 		btn.onHoverCallback(false)

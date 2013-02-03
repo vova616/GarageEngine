@@ -1,8 +1,8 @@
-package NetworkOnline
+package networkOnline
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
-	"github.com/vova616/GarageEngine/Engine/Input"
+	"github.com/vova616/garageEngine/engine"
+	"github.com/vova616/garageEngine/engine/input"
 	//"log" 
 	"github.com/go-gl/glfw"
 	"github.com/vova616/chipmunk"
@@ -10,41 +10,41 @@ import (
 )
 
 type MouseDebugger struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 }
 
 func NewMouseDebugger() *MouseDebugger {
-	return &MouseDebugger{Engine.NewComponent()}
+	return &MouseDebugger{engine.NewComponent()}
 }
 
 func (m *MouseDebugger) Update() {
-	if Input.MouseDown(glfw.MouseLeft) {
+	if input.MouseDown(glfw.MouseLeft) {
 
 		mousePosition := m.Transform().WorldPosition()
 
-		sprite3 := Engine.NewGameObject("Sprite")
-		sprite3.AddComponent(Engine.NewSprite(cir))
+		sprite3 := engine.NewGameObject("Sprite")
+		sprite3.AddComponent(engine.NewSprite(cir))
 		sprite3.Transform().SetParent2(GameSceneGeneral.Layer2)
 		sprite3.Transform().SetWorldPosition(mousePosition)
 
-		sprite3.Transform().SetScale(Engine.NewVector2(30, 30))
+		sprite3.Transform().SetScale(engine.NewVector2(30, 30))
 
-		phx := sprite3.AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15))).(*Engine.Physics)
+		phx := sprite3.AddComponent(engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15))).(*engine.Physics)
 		phx.Shape.SetFriction(0.5)
 		//phx.Shape.Group = 1
 		phx.Shape.SetElasticity(0.5)
 	}
-	if Input.MouseDown(glfw.MouseRight) {
+	if input.MouseDown(glfw.MouseRight) {
 
 		mousePosition := m.Transform().WorldPosition()
 
-		sprite3 := Engine.NewGameObject("Sprite")
-		sprite3.AddComponent(Engine.NewSprite(box))
+		sprite3 := engine.NewGameObject("Sprite")
+		sprite3.AddComponent(engine.NewSprite(box))
 		sprite3.Transform().SetParent2(GameSceneGeneral.Layer2)
 		sprite3.Transform().SetWorldPosition(mousePosition)
 
-		sprite3.Transform().SetScale(Engine.NewVector2(30, 30))
-		phx := sprite3.AddComponent(Engine.NewPhysics(false, 50, 50)).(*Engine.Physics)
+		sprite3.Transform().SetScale(engine.NewVector2(30, 30))
+		phx := sprite3.AddComponent(engine.NewPhysics(false, 50, 50)).(*engine.Physics)
 		phx.Shape.SetFriction(0.5)
 		//phx.Shape.Group = 2
 		phx.Shape.SetElasticity(0.5)

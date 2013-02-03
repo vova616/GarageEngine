@@ -1,45 +1,45 @@
-package Components
+package components
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
-	//"Engine/Input"
+	"github.com/vova616/garageEngine/engine"
+	//"Engine/input"
 	//"log"
 )
 
 type Controller struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 	Speed float32
 }
 
 func NewController() *Controller {
-	return &Controller{Engine.NewComponent(), 100}
+	return &Controller{engine.NewComponent(), 100}
 }
 
 func (sp *Controller) Update() {
 	/*
-		if Input.KeyDown('A') {
+		if input.KeyDown('A') {
 			sp.Transform().Position.X -= sp.Speed*DeltaTime()
 		}
-		if Input.KeyDown('D') {
+		if input.KeyDown('D') {
 			sp.Transform().Position.X += sp.Speed*DeltaTime()
 		}
-		if Input.KeyDown('W') {
+		if input.KeyDown('W') {
 			sp.Transform().Position.Y += sp.Speed*DeltaTime()
 		}
-		if Input.KeyDown('S') {
+		if input.KeyDown('S') {
 			sp.Transform().Position.Y -= sp.Speed*DeltaTime()
 		}
-		if Input.KeyDown('Q') {
+		if input.KeyDown('Q') {
 			sp.Transform().Rotation.Z -= sp.Speed*DeltaTime()
 		}
-		if Input.KeyDown('E') {
+		if input.KeyDown('E') {
 			sp.Transform().Rotation.Z += sp.Speed*DeltaTime()
 		}
-		if Input.KeyDown('Z') {
+		if input.KeyDown('Z') {
 			sp.Transform().Scale.X += sp.Speed*DeltaTime()
 			sp.Transform().Scale.Y += sp.Speed*DeltaTime()
 		}
-		if Input.KeyDown('X') {
+		if input.KeyDown('X') {
 			sp.Transform().Scale.X -= sp.Speed*DeltaTime()
 			sp.Transform().Scale.Y -= sp.Speed*DeltaTime()
 		}

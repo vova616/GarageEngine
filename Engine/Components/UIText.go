@@ -1,4 +1,4 @@
-package Components
+package components
 
 import (
 	"github.com/vova616/gl"
@@ -12,15 +12,15 @@ import (
 	//"os" 
 	//"strconv"
 	//"github.com/go-gl/glfw"
-	"github.com/vova616/GarageEngine/Engine"
-	"github.com/vova616/GarageEngine/Engine/Input"
+	"github.com/vova616/garageEngine/engine"
+	"github.com/vova616/garageEngine/engine/input"
 	"github.com/vova616/chipmunk/vect"
 	//"runtime"
 )
 
 type UIText struct {
-	Engine.BaseComponent
-	Font           *Engine.Font
+	engine.BaseComponent
+	Font           *engine.Font
 	text           string
 	buffer         gl.Buffer
 	vertexCount    int
@@ -30,7 +30,7 @@ type UIText struct {
 
 	width  float32
 	height float32
-	align  Engine.AlignType
+	align  engine.AlignType
 
 	focused    bool
 	writeable  bool
@@ -38,30 +38,30 @@ type UIText struct {
 
 	autoFocus bool //This will go away
 
-	Color Engine.Vector
+	Color engine.Vector
 }
 
-func NewUIText(font *Engine.Font, text string) *UIText {
+func NewUIText(font *engine.Font, text string) *UIText {
 	if font == nil {
 		return nil
 	}
 
-	uitext := &UIText{BaseComponent: Engine.NewComponent(),
+	uitext := &UIText{BaseComponent: engine.NewComponent(),
 		Font:      font,
 		text:      text,
 		buffer:    gl.GenBuffer(),
-		align:     Engine.AlignCenter,
+		align:     engine.AlignCenter,
 		writeable: false,
 		tabSize:   4,
-		Color:     Engine.Vector{1, 1, 1}}
+		Color:     engine.Vector{1, 1, 1}}
 
 	uitext.setString(text)
-	Input.AddCharCallback(func(rn rune) { uitext.charCallback(rn) })
+	input.AddCharCallback(func(rn rune) { uitext.charCallback(rn) })
 	return uitext
 }
 
-func (ui *UIText) OnComponentBind(binded *Engine.GameObject) {
-	ph := binded.AddComponent(Engine.NewPhysics(false, 1, 1)).(*Engine.Physics)
+func (ui *UIText) OnComponentBind(binded *engine.GameObject) {
+	ph := binded.AddComponent(engine.NewPhysics(false, 1, 1)).(*engine.Physics)
 	_ = ph
 	ph.Body.IgnoreGravity = true
 	ph.Shape.IsSensor = true
@@ -124,7 +124,7 @@ func (ui *UIText) setString(text string) {
 
 		vertexCount += 4
 
-		uv := Engine.IndexUV(ui.Font, rune)
+		uv := engine.IndexUV(ui.Font, rune)
 
 		data[(index*12)+0] = xgrid
 		data[(index*12)+1] = ygrid
@@ -229,19 +229,19 @@ func (ui *UIText) Update() {
 			speed = -speed
 		}
 
-		s.X += speed * Engine.DeltaTime()
-		s.Y += speed * Engine.DeltaTime()
+		s.X += speed * engine.DeltaTime()
+		s.Y += speed * engine.DeltaTime()
 
 		ui.Transform().SetScale(s)
 	*/
 
 	//Handle Tab & Backspace
 	if ui.focused && ui.writeable {
-		if len(ui.text) > 0 && Input.KeyPress(Input.KeyBackspace) {
+		if len(ui.text) > 0 && input.KeyPress(input.KeyBackspace) {
 			ui.updateText = true
 			ui.text = ui.text[:len(ui.text)-1]
 		}
-		if Input.KeyPress(Input.KeyTab) {
+		if input.KeyPress(input.KeyTab) {
 			ui.updateText = true
 			ui.text += "\t"
 		}
@@ -275,7 +275,7 @@ func (ui *UIText) UpdateCollider() {
 			update = true
 		}
 
-		c := Engine.Align(ui.align)
+		c := engine.Align(ui.align)
 		center := vect.Vect{vect.Float(c.X), vect.Float(c.Y)}
 		center.X = (center.X * w)
 		center.Y = (center.Y * h)
@@ -296,11 +296,11 @@ func (ui *UIText) UpdateCollider() {
 	//}
 }
 
-func (ui *UIText) Align() Engine.AlignType {
+func (ui *UIText) Align() engine.AlignType {
 	return ui.align
 }
 
-func (ui *UIText) SetAlign(align Engine.AlignType) {
+func (ui *UIText) SetAlign(align engine.AlignType) {
 	ui.align = align
 }
 
@@ -309,13 +309,13 @@ func (ui *UIText) Draw() {
 		return
 	}
 
-	v := Engine.Align(ui.align)
+	v := engine.Align(ui.align)
 	v.X = (v.X * ui.width)
 	v.Y = (v.Y * ui.height)
 
-	mat := Engine.TextureMaterial
+	mat := engine.TextureMaterial
 	if ui.Font.IsSDF() {
-		mat = Engine.SDFMaterial
+		mat = engine.SDFMaterial
 	}
 	mat.Begin(ui.GameObject())
 
@@ -336,11 +336,11 @@ func (ui *UIText) Draw() {
 	vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
 	uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(ui.texcoordsIndex))
 
-	camera := Engine.GetScene().SceneBase().Camera
+	camera := engine.GetScene().SceneBase().Camera
 
 	view := camera.Transform().Matrix()
 	view = view.Invert()
-	model := Engine.NewIdentity()
+	model := engine.NewIdentity()
 	model.Translate(v.X, v.Y, 0)
 	model.Mul(ui.GameObject().Transform().Matrix())
 

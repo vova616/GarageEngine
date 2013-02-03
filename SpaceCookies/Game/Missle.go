@@ -1,27 +1,27 @@
-package Game
+package game
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 	"math/rand"
 	//"reflect"
 )
 
 type Missle struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 	Speed     float32
-	Explosion *Engine.GameObject
+	Explosion *engine.GameObject
 	exploded  bool
 }
 
 func NewMissle(speed float32) *Missle {
-	return &Missle{BaseComponent: Engine.NewComponent(), Speed: speed}
+	return &Missle{BaseComponent: engine.NewComponent(), Speed: speed}
 }
 
-func (ms *Missle) OnComponentBind(gameObject *Engine.GameObject) {
+func (ms *Missle) OnComponentBind(gameObject *engine.GameObject) {
 	gameObject.Tag = MissleTag
 }
 
-func (ms *Missle) OnHit(enemey *Engine.GameObject, damager *DamageDealer) {
+func (ms *Missle) OnHit(enemey *engine.GameObject, damager *DamageDealer) {
 
 }
 
@@ -40,7 +40,7 @@ func (ms *Missle) OnDie(byTimer bool) {
 			n.Transform().SetWorldPosition(ms.Transform().WorldPosition())
 			s := n.Transform().Scale()
 			n.Transform().SetScale(s.Mul2(rand.Float32() + 0.5))
-			n.AddComponent(Engine.NewPhysics(false, 1, 1))
+			n.AddComponent(engine.NewPhysics(false, 1, 1))
 			n.Transform().SetRotationf(rand.Float32() * 360)
 			rot := n.Transform().Direction()
 			n.Physics.Body.SetVelocity(-rot.X*10, -rot.Y*10)

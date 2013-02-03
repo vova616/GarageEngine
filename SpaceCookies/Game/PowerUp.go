@@ -1,7 +1,7 @@
-package Game
+package game
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 	"math/rand"
 	"time"
 )
@@ -9,7 +9,7 @@ import (
 type Power int
 
 type PowerUp struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 	Type Power
 }
 
@@ -26,10 +26,10 @@ const (
 )
 
 func NewPowerUp(typ Power) *PowerUp {
-	return &PowerUp{BaseComponent: Engine.NewComponent(), Type: typ}
+	return &PowerUp{BaseComponent: engine.NewComponent(), Type: typ}
 }
 
-func CreatePowerUp(position Engine.Vector) {
+func CreatePowerUp(position engine.Vector) {
 	chance := rand.Int() % 100
 	if chance <= PowerUpChance {
 		c := PowerUpGO.Clone()
@@ -67,7 +67,7 @@ func CreatePowerUp(position Engine.Vector) {
 
 }
 
-func (pu *PowerUp) OnCollisionEnter(arbiter Engine.Arbiter) bool {
+func (pu *PowerUp) OnCollisionEnter(arbiter engine.Arbiter) bool {
 	if pu.GameObject() != nil && (arbiter.GameObjectA() == Player || arbiter.GameObjectB() == Player) {
 		PowerUpShip(pu.Type)
 		pu.GameObject().Destroy()

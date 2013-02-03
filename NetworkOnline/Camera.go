@@ -1,35 +1,35 @@
-package NetworkOnline
+package networkOnline
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 	//"log"
-	"github.com/vova616/GarageEngine/Engine/Input"
+	"github.com/vova616/garageEngine/engine/input"
 )
 
 type CameraController struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 }
 
 func NewCameraCtl() *CameraController {
-	return &CameraController{Engine.NewComponent()}
+	return &CameraController{engine.NewComponent()}
 }
 
 func (sp *CameraController) Update() {
 	t := sp.GameObject().Transform()
 
-	if Input.KeyDown('A') {
+	if input.KeyDown('A') {
 		t.Translatef(-10, 0)
 	}
-	if Input.KeyDown('D') {
+	if input.KeyDown('D') {
 		t.Translatef(10, 0)
 	}
-	if Input.KeyDown('S') {
+	if input.KeyDown('S') {
 		t.Translatef(0, -10)
 	}
-	if Input.KeyDown('W') {
+	if input.KeyDown('W') {
 		t.Translatef(0, 10)
 	}
-	if Input.KeyDown('E') {
+	if input.KeyDown('E') {
 		s := t.Scale()
 		s.X -= 0.05
 		s.Y -= 0.05
@@ -41,7 +41,7 @@ func (sp *CameraController) Update() {
 		}
 		t.SetScale(s)
 	}
-	if Input.KeyDown('Q') {
+	if input.KeyDown('Q') {
 		s := t.Scale()
 		s.X += 0.05
 		s.Y += 0.05

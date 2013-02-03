@@ -1,7 +1,7 @@
-package Engine
+package engine
 
 import (
-	"github.com/vova616/GarageEngine/freetype"
+	"github.com/vova616/garageEngine/freetype"
 	"image"
 	"image/color"
 	"image/draw"

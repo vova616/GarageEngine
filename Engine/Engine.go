@@ -1,9 +1,9 @@
-package Engine
+package engine
 
 import (
 	"github.com/vova616/gl"
 	//"log"
-	"github.com/vova616/GarageEngine/Engine/Input"
+	"github.com/vova616/garageEngine/engine/input"
 	//"os"
 	"fmt"
 	"github.com/go-gl/glfw"
@@ -136,7 +136,7 @@ func LoadScene(scene Scene) {
 		Space = chipmunk.NewSpace()
 	}
 
-	Input.ClearInput()
+	input.ClearInput()
 
 	sn := scene.New()
 	sn.Load()
@@ -196,10 +196,10 @@ func StartEngine() {
 	glfw.SetSwapInterval(1) //0 to make FPS Maximum
 	glfw.SetWindowTitle(Title)
 	glfw.SetWindowSizeCallback(onResize)
-	glfw.SetKeyCallback(Input.OnKey)
-	glfw.SetCharCallback(Input.OnChar)
-	glfw.SetMouseButtonCallback(Input.ButtonPress)
-	Input.MousePosition = glfw.MousePos
+	glfw.SetKeyCallback(input.OnKey)
+	glfw.SetCharCallback(input.OnChar)
+	glfw.SetMouseButtonCallback(input.ButtonPress)
+	input.MousePosition = glfw.MousePos
 
 	if err = initGL(); err != nil {
 		panic(err)
@@ -417,7 +417,7 @@ func Run() {
 		RunBT(BehaviorTicks)
 		behaviorDelta = timer.StopCustom("BehaviorTree")
 
-		Input.UpdateInput()
+		input.UpdateInput()
 
 		stepDelta = timer.Stop()
 	}

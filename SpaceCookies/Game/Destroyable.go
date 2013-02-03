@@ -1,13 +1,13 @@
-package Game
+package game
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 	//"reflect"
 	"time"
 )
 
 type Destoyable struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 	Alive           bool
 	HP              float32
 	FullHP          float32
@@ -20,12 +20,12 @@ type Destoyable struct {
 }
 
 func NewDestoyable(hp float32, team int) *Destoyable {
-	return &Destoyable{BaseComponent: Engine.NewComponent(), FullHP: hp, Alive: true, HP: hp, Team: team}
+	return &Destoyable{BaseComponent: engine.NewComponent(), FullHP: hp, Alive: true, HP: hp, Team: team}
 }
 
 type DestoyableFuncs interface {
 	OnDie(byTimer bool)
-	OnHit(*Engine.GameObject, *DamageDealer)
+	OnHit(*engine.GameObject, *DamageDealer)
 }
 
 func (ds *Destoyable) Start() {
@@ -50,7 +50,7 @@ func (ds *Destoyable) Update() {
 	}
 }
 
-func (ds *Destoyable) OnCollisionEnter(arbiter Engine.Arbiter) bool {
+func (ds *Destoyable) OnCollisionEnter(arbiter engine.Arbiter) bool {
 	if !ds.Alive {
 		return true
 	}

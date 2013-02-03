@@ -1,4 +1,4 @@
-package Engine
+package engine
 
 import (
 //c "github.com/vova616/chipmunk"

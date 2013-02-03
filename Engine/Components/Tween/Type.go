@@ -1,7 +1,7 @@
-package Tween
+package tween
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 
 //"math"
 //"time"
@@ -67,7 +67,7 @@ func WorldRotation(t *Tween, arr []float32) []float32 {
 	return []float32{rot.X, rot.Y, rot.Z}
 }
 
-func VectorFmt(v Engine.Vector, arr []float32, s string) Engine.Vector {
+func VectorFmt(v engine.Vector, arr []float32, s string) engine.Vector {
 	if len(s) == 0 {
 		if len(arr) > 2 {
 			v.X = arr[0]
@@ -110,7 +110,7 @@ func VectorFmt(v Engine.Vector, arr []float32, s string) Engine.Vector {
 	return v
 }
 
-func VectorFmtRotation(v Engine.Vector, arr []float32, s string) Engine.Vector {
+func VectorFmtRotation(v engine.Vector, arr []float32, s string) engine.Vector {
 	if len(s) == 0 && len(arr) == 1 {
 		v.Z = arr[0]
 		return v

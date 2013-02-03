@@ -1,20 +1,20 @@
-package Components
+package components
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 	"math"
 	//"log"
 )
 
 type SmoothFollow struct {
-	Engine.BaseComponent
-	Target *Engine.GameObject
+	engine.BaseComponent
+	Target *engine.GameObject
 	Speed  float32
 	MaxDis float32
 }
 
-func NewSmoothFollow(target *Engine.GameObject, speed float32, maxdis float32) *SmoothFollow {
-	return &SmoothFollow{Engine.NewComponent(), target, speed, maxdis}
+func NewSmoothFollow(target *engine.GameObject, speed float32, maxdis float32) *SmoothFollow {
+	return &SmoothFollow{engine.NewComponent(), target, speed, maxdis}
 }
 
 func (sp *SmoothFollow) Start() {
@@ -24,12 +24,12 @@ func (sp *SmoothFollow) Start() {
 }
 
 func (sp *SmoothFollow) LateUpdate() {
-	camera := Engine.GetScene().SceneBase().Camera
+	camera := engine.GetScene().SceneBase().Camera
 	if camera != nil {
-		myPos := Engine.Vector{sp.Target.Transform().Position().X - float32(Engine.Width/2), sp.Target.Transform().Position().Y - float32(Engine.Height/2), 0}
+		myPos := engine.Vector{sp.Target.Transform().Position().X - float32(engine.Width/2), sp.Target.Transform().Position().Y - float32(engine.Height/2), 0}
 		camPos := camera.Transform().Position()
 
-		camPos = Engine.Lerp(camPos, myPos, float32(Engine.DeltaTime())*sp.Speed)
+		camPos = engine.Lerp(camPos, myPos, float32(engine.DeltaTime())*sp.Speed)
 		disX := camPos.X - myPos.X
 		disY := camPos.Y - myPos.Y
 		if float32(math.Abs(float64(disX))) > sp.MaxDis {

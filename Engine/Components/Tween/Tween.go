@@ -1,7 +1,7 @@
-package Tween
+package tween
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 	"time"
 )
 
@@ -10,7 +10,7 @@ type Algorithm func(float32, float32, float32) float32
 type LoopFunc func(t *Tween, progress float32) (newProgress float32, destroy bool)
 
 type Tween struct {
-	Target *Engine.GameObject
+	Target *engine.GameObject
 	From   []float32
 	To     []float32
 	Time   time.Duration
@@ -38,7 +38,7 @@ func (this *Tween) Progress() float32 {
 }
 
 func (t *Tween) updateProgress() bool {
-	delta := Engine.GameTime().Sub(t.startTime)
+	delta := engine.GameTime().Sub(t.startTime)
 	if t.reverse {
 		t.progress = 1 - float32(float64(delta)/float64(t.Time))
 	} else {

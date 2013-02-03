@@ -1,4 +1,4 @@
-package Input
+package input
 
 type CharCallback func(char rune)
 

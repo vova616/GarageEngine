@@ -9,6 +9,6 @@
  	{
      "sublimegdb_workingdir": "${folder:${project_path:project.sublime-project}}/", 
       // NOTE: You MUST provide --interpreter=mi for the plugin to work
-      "sublimegdb_commandline": "go build && gdb --interpreter=mi ./GarageEngine.exe"
+      "sublimegdb_commandline": "go build && gdb --interpreter=mi ./Garageengine.exe"
 	}
 } 
