@@ -1,4 +1,4 @@
-package Input
+package input
 
 // Key and button state/action definitions
 const (

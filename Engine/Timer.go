@@ -1,4 +1,4 @@
-package Engine
+package engine
 
 import (
 	"time"

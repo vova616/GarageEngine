@@ -1,4 +1,4 @@
-package Input
+package input
 
 var (
 	MousePosition func() (int, int) = nil

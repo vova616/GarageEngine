@@ -1,13 +1,13 @@
-package Tween
+package tween
 
 import (
 	//"fmt"
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 	"time"
 )
 
 type Tweens struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 	TweensArr []*Tween
 }
 
@@ -39,7 +39,7 @@ func (this *Tweens) Update() {
 }
 
 func newTweens(t *Tween) *Tweens {
-	ts := &Tweens{Engine.NewComponent(), make([]*Tween, 0, 2)}
+	ts := &Tweens{engine.NewComponent(), make([]*Tween, 0, 2)}
 	ts.AddTween(t)
 	return ts
 }
@@ -57,31 +57,31 @@ func Create(t *Tween) *Tween {
 	if t.Loop == nil {
 		t.Loop = None
 	}
-	t.startTime = Engine.GameTime()
+	t.startTime = engine.GameTime()
 	t.progress = 0
 	return t
 }
 
-func CreateHelper(target *Engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration) *Tween {
+func CreateHelper(target *engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration) *Tween {
 	return Create(&Tween{Target: target, Type: typef, From: from, To: to, Time: time})
 }
 
-func CreateHelper2(target *Engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration, algo Algorithm) *Tween {
+func CreateHelper2(target *engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration, algo Algorithm) *Tween {
 	return Create(&Tween{Target: target, Type: typef, From: from, To: to, Time: time, Algo: algo})
 }
 
-func CreateHelper3(target *Engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration, algo Algorithm, loop LoopFunc) *Tween {
+func CreateHelper3(target *engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration, algo Algorithm, loop LoopFunc) *Tween {
 	return Create(&Tween{Target: target, Type: typef, From: from, To: to, Time: time, Algo: algo, Loop: loop})
 }
 
-func CreateHelper4(target *Engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration, algo Algorithm, loop LoopFunc, format string) *Tween {
+func CreateHelper4(target *engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration, algo Algorithm, loop LoopFunc, format string) *Tween {
 	return Create(&Tween{Target: target, Type: typef, From: from, To: to, Time: time, Algo: algo, Loop: loop, Format: format})
 }
 
-func CreateHelper5(target *Engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration, format string) *Tween {
+func CreateHelper5(target *engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration, format string) *Tween {
 	return Create(&Tween{Target: target, Type: typef, From: from, To: to, Time: time, Format: format})
 }
 
-func CreateHelper6(target *Engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration, algo Algorithm, format string) *Tween {
+func CreateHelper6(target *engine.GameObject, typef TypeFunc, from []float32, to []float32, time time.Duration, algo Algorithm, format string) *Tween {
 	return Create(&Tween{Target: target, Type: typef, From: from, To: to, Time: time, Algo: algo, Format: format})
 }

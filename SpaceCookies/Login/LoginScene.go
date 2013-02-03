@@ -1,11 +1,11 @@
-package Login
+package login
 
 import (
 	"fmt"
-	"github.com/vova616/GarageEngine/Engine"
-	"github.com/vova616/GarageEngine/Engine/Components"
-	//"github.com/vova616/GarageEngine/Engine/Components/Tween"
-	"github.com/vova616/GarageEngine/SpaceCookies/Game"
+	"github.com/vova616/garageEngine/engine"
+	"github.com/vova616/garageEngine/engine/components"
+	//"github.com/vova616/garageEngine/engine/components/tween"
+	"github.com/vova616/garageEngine/spaceCookies/game"
 	_ "image/jpeg"
 	_ "image/png"
 	//"gl"  
@@ -24,16 +24,16 @@ import (
 )
 
 type LoginScene struct {
-	*Engine.SceneData
+	*engine.SceneData
 }
 
 var (
 	LoginSceneGeneral *LoginScene
 
-	backgroundTexture *Engine.Texture
-	button            *Engine.Texture
-	ArialFont         *Engine.Font
-	ArialFont2        *Engine.Font
+	backgroundTexture *engine.Texture
+	button            *engine.Texture
+	ArialFont         *engine.Font
+	ArialFont2        *engine.Font
 )
 
 func CheckError(err error) bool {
@@ -46,23 +46,23 @@ func CheckError(err error) bool {
 
 func LoadTextures() {
 	var e error
-	ArialFont, e = Engine.NewFont("./data/Fonts/arial.ttf", 24)
+	ArialFont, e = engine.NewFont("./data/Fonts/arial.ttf", 24)
 	CheckError(e)
 	ArialFont.Texture.SetReadOnly()
 
-	ArialFont2, e = Engine.NewFont("./data/Fonts/arial.ttf", 24)
+	ArialFont2, e = engine.NewFont("./data/Fonts/arial.ttf", 24)
 	CheckError(e)
 	ArialFont2.Texture.SetReadOnly()
 
-	backgroundTexture, e = Engine.LoadTexture("./data/SpaceCookies/background.png")
+	backgroundTexture, e = engine.LoadTexture("./data/spaceCookies/background.png")
 	CheckError(e)
 
-	button, e = Engine.LoadTexture("./data/SpaceCookies/button.png")
+	button, e = engine.LoadTexture("./data/spaceCookies/button.png")
 	CheckError(e)
 }
 
 func init() {
-	Engine.Title = "Space Cookies"
+	engine.Title = "Space Cookies"
 }
 
 func (s *LoginScene) Load() {
@@ -73,209 +73,209 @@ func (s *LoginScene) Load() {
 
 	LoginSceneGeneral = s
 
-	s.Camera = Engine.NewCamera()
+	s.Camera = engine.NewCamera()
 
-	cam := Engine.NewGameObject("Camera")
+	cam := engine.NewGameObject("Camera")
 	cam.AddComponent(s.Camera)
 
 	cam.Transform().SetScalef(1, 1)
 
-	background := Engine.NewGameObject("Background")
-	background.AddComponent(Engine.NewSprite(backgroundTexture))
-	background.AddComponent(Game.NewBackground(background.Sprite))
+	background := engine.NewGameObject("Background")
+	background.AddComponent(engine.NewSprite(backgroundTexture))
+	background.AddComponent(game.NewBackground(background.Sprite))
 	background.Sprite.Render = false
 	//background.Transform().SetScalef(float32(backgroung.Height()), float32(backgroung.Height()), 1)
 	background.Transform().SetScalef(800, 800)
 	background.Transform().SetPositionf(0, 0)
 
-	gui := Engine.NewGameObject("GUI")
+	gui := engine.NewGameObject("GUI")
 	gui.Transform().SetParent2(cam)
 
-	mouse := Engine.NewGameObject("Mouse")
-	mouse.AddComponent(Engine.NewMouse())
+	mouse := engine.NewGameObject("Mouse")
+	mouse.AddComponent(engine.NewMouse())
 	mouse.Transform().SetParent2(gui)
 
-	FPSDrawer := Engine.NewGameObject("FPS")
+	FPSDrawer := engine.NewGameObject("FPS")
 	FPSDrawer.Transform().SetParent2(gui)
-	txt := FPSDrawer.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
-	fps := FPSDrawer.AddComponent(Engine.NewFPS()).(*Engine.FPS)
+	txt := FPSDrawer.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
+	fps := FPSDrawer.AddComponent(engine.NewFPS()).(*engine.FPS)
 	fps.SetAction(func(fps float64) {
 		txt.SetString("FPS: " + strconv.FormatFloat(fps, 'f', 2, 32))
 	})
-	txt.SetAlign(Engine.AlignLeft)
+	txt.SetAlign(engine.AlignLeft)
 
-	FPSDrawer.Transform().SetPositionf(20, float32(Engine.Height)-20)
+	FPSDrawer.Transform().SetPositionf(20, float32(engine.Height)-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
 
 	/*
-		Tween.Create(&Tween.Tween{Target: FPSDrawer, From: []float32{1}, To: []float32{100},
-			Algo: Tween.Linear, Type: Tween.Scale, Time: time.Second * 3, Loop: Tween.PingPong})
+		tween.Create(&tween.Tween{Target: FPSDrawer, From: []float32{1}, To: []float32{100},
+			Algo: tween.Linear, Type: tween.Scale, Time: time.Second * 3, Loop: tween.PingPong})
 
-			Tween.Create(&Tween.Tween{Target: FPSDrawer, From: []float32{400}, To: []float32{500},
-				Algo: Tween.Linear, Type: Tween.Position, Time: time.Second * 3, Loop: Tween.PingPong, Format: "y"})
+			tween.Create(&tween.Tween{Target: FPSDrawer, From: []float32{400}, To: []float32{500},
+				Algo: tween.Linear, Type: tween.Position, Time: time.Second * 3, Loop: tween.PingPong, Format: "y"})
 
-			Tween.Create(&Tween.Tween{Target: FPSDrawer, From: []float32{0}, To: []float32{180},
-				Algo: Tween.Linear, Type: Tween.Rotation, Time: time.Second * 6, Loop: Tween.PingPong})
+			tween.Create(&tween.Tween{Target: FPSDrawer, From: []float32{0}, To: []float32{180},
+				Algo: tween.Linear, Type: tween.Rotation, Time: time.Second * 6, Loop: tween.PingPong})
 
-		txt.SetAlign(Engine.AlignCenter)
+		txt.SetAlign(engine.AlignCenter)
 	*/
 	/*
 		{
-			FPSDrawer := Engine.NewGameObject("FPS")
+			FPSDrawer := engine.NewGameObject("FPS")
 			FPSDrawer.Transform().SetParent2(gui)
-			txt := FPSDrawer.AddComponent(Components.NewUIText(ArialFont, "")).(*Components.UIText)
-			fps := FPSDrawer.AddComponent(Engine.NewFPS()).(*Engine.FPS)
+			txt := FPSDrawer.AddComponent(components.NewUIText(ArialFont, "")).(*components.UIText)
+			fps := FPSDrawer.AddComponent(engine.NewFPS()).(*engine.FPS)
 			fps.SetAction(func(fps float32) {
 				txt.SetString("FPS: " + strconv.FormatFloat(float64(fps), 'f', 2, 32))
 			})
-			txt.SetAlign(Engine.AlignLeft)
+			txt.SetAlign(engine.AlignLeft)
 
-			FPSDrawer.Transform().SetPositionf(20, float32(Engine.Height)-500)
+			FPSDrawer.Transform().SetPositionf(20, float32(engine.Height)-500)
 			FPSDrawer.Transform().SetScalef(20, 20)
 		}
 	*/
 
 	//
-	tBox := Engine.NewGameObject("TextBox")
+	tBox := engine.NewGameObject("TextBox")
 	tBox.Transform().SetParent2(gui)
 
-	txt2 := tBox.AddComponent(Components.NewUIText(ArialFont2, "Type your name: ")).(*Components.UIText)
+	txt2 := tBox.AddComponent(components.NewUIText(ArialFont2, "Type your name: ")).(*components.UIText)
 	txt2.SetFocus(false)
 	txt2.SetWritable(false)
-	txt2.SetAlign(Engine.AlignLeft)
+	txt2.SetAlign(engine.AlignLeft)
 
-	tBox.Transform().SetPositionf(float32(Engine.Width)/2-txt2.Width()*20, float32(Engine.Height)/2)
+	tBox.Transform().SetPositionf(float32(engine.Width)/2-txt2.Width()*20, float32(engine.Height)/2)
 	tBox.Transform().SetScalef(20, 20)
 	//
-	input := Engine.NewGameObject("TextBoxInput")
+	input := engine.NewGameObject("TextBoxInput")
 	input.Transform().SetParent2(gui)
 	p := tBox.Transform().Position()
 	p.X += txt2.Width() * 20
 	input.Transform().SetPosition(p)
 	input.Transform().SetScalef(20, 20)
 
-	name := input.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
+	name := input.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
 	name.SetFocus(true)
 	name.SetWritable(true)
-	name.SetAlign(Engine.AlignLeft)
+	name.SetAlign(engine.AlignLeft)
 	//
 	/*
 		{
-			input := Engine.NewGameObject("TextBoxInput")
+			input := engine.NewGameObject("TextBoxInput")
 			input.Transform().SetParent2(gui)
 			p := tBox.Transform().Position()
 			p.X += txt2.Width() * 20
 			input.Transform().SetPosition(p)
 			input.Transform().SetScalef(20, 20)
 
-			name := input.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
+			name := input.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
 			name.SetFocus(true)
 			name.SetWritable(true)
-			name.SetAlign(Engine.AlignTopCenter)
+			name.SetAlign(engine.AlignTopCenter)
 		}
 		{
-			input := Engine.NewGameObject("TextBoxInput")
+			input := engine.NewGameObject("TextBoxInput")
 			input.Transform().SetParent2(gui)
 			p := tBox.Transform().Position()
 			p.X += txt2.Width() * 20
 			input.Transform().SetPosition(p)
 			input.Transform().SetScalef(20, 20)
 
-			name := input.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
+			name := input.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
 			name.SetFocus(true)
 			name.SetWritable(true)
-			name.SetAlign(Engine.AlignBottomRight)
+			name.SetAlign(engine.AlignBottomRight)
 		}
 	*/
 	//
-	errLabel := Engine.NewGameObject("TextBoxInput")
+	errLabel := engine.NewGameObject("TextBoxInput")
 	errLabel.Transform().SetParent2(gui)
-	errLabel.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-100)
+	errLabel.Transform().SetPositionf(float32(engine.Width)/2, float32(engine.Height)/2-100)
 	errLabel.Transform().SetScalef(24, 24)
 
-	errLabelTxt := errLabel.AddComponent(Components.NewUIText(ArialFont2, "")).(*Components.UIText)
+	errLabelTxt := errLabel.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
 	errLabelTxt.SetFocus(false)
 	errLabelTxt.SetWritable(false)
-	errLabelTxt.SetAlign(Engine.AlignCenter)
-	errLabelTxt.Color = Engine.Vector{1, 1, 1}
+	errLabelTxt.SetAlign(engine.AlignCenter)
+	errLabelTxt.Color = engine.Vector{1, 1, 1}
 	//
-	LoginButton := Engine.NewGameObject("LoginButton")
+	LoginButton := engine.NewGameObject("LoginButton")
 	LoginButton.Transform().SetParent2(cam)
-	LoginButton.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-50)
-	LoginButton.AddComponent(Engine.NewSprite(button))
-	LoginButton.AddComponent(Engine.NewPhysics(false, 1, 1))
+	LoginButton.Transform().SetPositionf(float32(engine.Width)/2, float32(engine.Height)/2-50)
+	LoginButton.AddComponent(engine.NewSprite(button))
+	LoginButton.AddComponent(engine.NewPhysics(false, 1, 1))
 	LoginButton.Physics.Shape.IsSensor = true
 	LoginButton.Transform().SetScalef(50, 50)
-	LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
+	LoginButton.Sprite.Color = engine.Vector{0.5, 0.5, 0.5}
 	/*
 		{
-			LoginButton := Engine.NewGameObject("LoginButton")
+			LoginButton := engine.NewGameObject("LoginButton")
 			LoginButton.Transform().SetParent2(cam)
-			LoginButton.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-50)
-			LoginButton.AddComponent(Engine.NewSprite(button))
-			LoginButton.AddComponent(Engine.NewPhysics(false, 1, 1))
+			LoginButton.Transform().SetPositionf(float32(engine.Width)/2, float32(engine.Height)/2-50)
+			LoginButton.AddComponent(engine.NewSprite(button))
+			LoginButton.AddComponent(engine.NewPhysics(false, 1, 1))
 			LoginButton.Physics.Shape.IsSensor = true
 			LoginButton.Transform().SetScalef(50, 50)
-			LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
-			LoginButton.Sprite.SetAlign(Engine.AlignTopLeft)
-			LoginButton.AddComponent(Components.NewUIButton(nil, func(enter bool) {
+			LoginButton.Sprite.Color = engine.Vector{0.5, 0.5, 0.5}
+			LoginButton.Sprite.SetAlign(engine.AlignTopLeft)
+			LoginButton.AddComponent(components.NewUIButton(nil, func(enter bool) {
 				if enter {
-					LoginButton.Sprite.Color = Engine.Vector{0.4, 0.4, 0.4}
+					LoginButton.Sprite.Color = engine.Vector{0.4, 0.4, 0.4}
 				} else {
-					LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
+					LoginButton.Sprite.Color = engine.Vector{0.5, 0.5, 0.5}
 				}
 			}))
 		}
 		{
-			LoginButton := Engine.NewGameObject("LoginButton")
+			LoginButton := engine.NewGameObject("LoginButton")
 			LoginButton.Transform().SetParent2(cam)
-			LoginButton.Transform().SetPositionf(float32(Engine.Width)/2, float32(Engine.Height)/2-50)
-			LoginButton.AddComponent(Engine.NewSprite(button))
-			LoginButton.AddComponent(Engine.NewPhysics(false, 1, 1))
+			LoginButton.Transform().SetPositionf(float32(engine.Width)/2, float32(engine.Height)/2-50)
+			LoginButton.AddComponent(engine.NewSprite(button))
+			LoginButton.AddComponent(engine.NewPhysics(false, 1, 1))
 			LoginButton.Physics.Shape.IsSensor = true
 			LoginButton.Transform().SetScalef(50, 50)
-			LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
-			LoginButton.Sprite.SetAlign(Engine.AlignBottomRight)
-			LoginButton.AddComponent(Components.NewUIButton(nil, func(enter bool) {
+			LoginButton.Sprite.Color = engine.Vector{0.5, 0.5, 0.5}
+			LoginButton.Sprite.SetAlign(engine.AlignBottomRight)
+			LoginButton.AddComponent(components.NewUIButton(nil, func(enter bool) {
 				if enter {
-					LoginButton.Sprite.Color = Engine.Vector{0.4, 0.4, 0.4}
+					LoginButton.Sprite.Color = engine.Vector{0.4, 0.4, 0.4}
 				} else {
-					LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
+					LoginButton.Sprite.Color = engine.Vector{0.5, 0.5, 0.5}
 				}
 			}))
 		}
 	*/
-	loginText := Engine.NewGameObject("LoginButtonText")
+	loginText := engine.NewGameObject("LoginButtonText")
 	loginText.Transform().SetParent2(LoginButton)
 	loginText.Transform().SetWorldScalef(24, 24)
 	loginText.Transform().SetPositionf(0, 0.1)
 
 	var errChan chan error
-	LoginButton.AddComponent(Components.NewUIButton(func() {
-		if errChan == nil && Game.MyClient == nil {
-			go Game.Connect(name.String(), &errChan)
+	LoginButton.AddComponent(components.NewUIButton(func() {
+		if errChan == nil && game.MyClient == nil {
+			go game.Connect(name.String(), &errChan)
 			errLabelTxt.SetString("Connecting...")
 		}
 	}, func(enter bool) {
 		if enter {
-			LoginButton.Sprite.Color = Engine.Vector{0.4, 0.4, 0.4}
+			LoginButton.Sprite.Color = engine.Vector{0.4, 0.4, 0.4}
 		} else {
-			LoginButton.Sprite.Color = Engine.Vector{0.5, 0.5, 0.5}
+			LoginButton.Sprite.Color = engine.Vector{0.5, 0.5, 0.5}
 		}
 	}))
 
-	txt2 = loginText.AddComponent(Components.NewUIText(ArialFont2, "Log in")).(*Components.UIText)
+	txt2 = loginText.AddComponent(components.NewUIText(ArialFont2, "Log in")).(*components.UIText)
 	txt2.SetFocus(false)
 	txt2.SetWritable(false)
-	txt2.SetAlign(Engine.AlignCenter)
-	txt2.Color = Engine.Vector{1, 1, 1}
+	txt2.SetAlign(engine.AlignCenter)
+	txt2.Color = engine.Vector{1, 1, 1}
 	//	
 
-	Engine.StartCoroutine(func() {
+	engine.StartCoroutine(func() {
 		for {
 
 			if errChan == nil {
-				Engine.CoYieldSkip()
+				engine.CoYieldSkip()
 				continue
 			}
 			select {
@@ -287,13 +287,13 @@ func (s *LoginScene) Load() {
 			default:
 
 			}
-			Engine.CoYieldSkip()
+			engine.CoYieldSkip()
 		}
 	})
 
 	//SPACCCEEEEE
-	Engine.Space.Gravity.Y = 0
-	Engine.Space.Iterations = 1
+	engine.Space.Gravity.Y = 0
+	engine.Space.Iterations = 1
 
 	s.AddGameObject(cam)
 	s.AddGameObject(background)
@@ -301,8 +301,8 @@ func (s *LoginScene) Load() {
 	fmt.Println("LoginScene loaded")
 }
 
-func (s *LoginScene) New() Engine.Scene {
+func (s *LoginScene) New() engine.Scene {
 	gs := new(LoginScene)
-	gs.SceneData = Engine.NewScene("LoginScene")
+	gs.SceneData = engine.NewScene("LoginScene")
 	return gs
 }

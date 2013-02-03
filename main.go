@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/vova616/GarageEngine/Engine"
-	"github.com/vova616/GarageEngine/NetworkOnline"
-	"github.com/vova616/GarageEngine/SpaceCookies/Game"
-	"github.com/vova616/GarageEngine/SpaceCookies/Login"
-	"github.com/vova616/GarageEngine/SpaceCookies/Server"
+	"github.com/vova616/garageEngine/engine"
+	"github.com/vova616/garageEngine/networkOnline"
+	"github.com/vova616/garageEngine/spaceCookies/game"
+	"github.com/vova616/garageEngine/spaceCookies/login"
+	"github.com/vova616/garageEngine/spaceCookies/server"
 	//"math"
 	//"github.com/vova616/gl"
 	"os"
@@ -38,7 +38,7 @@ func main() {
 	defer file.Close()
 
 	go Start()
-	Engine.Terminated()
+	engine.Terminated()
 
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)
@@ -54,23 +54,23 @@ func main() {
 func Start() {
 	defer func() {
 		if p := recover(); p != nil {
-			fmt.Println(p, Engine.PanicPath())
+			fmt.Println(p, engine.PanicPath())
 		}
 
-		Engine.Terminate()
+		engine.Terminate()
 	}()
-	Engine.StartEngine()
-	_ = Game.GameSceneGeneral
-	_ = NetworkOnline.GameSceneGeneral
-	_ = Login.LoginSceneGeneral
+	engine.StartEngine()
+	_ = game.GameSceneGeneral
+	_ = networkOnline.GameSceneGeneral
+	_ = login.LoginSceneGeneral
 
 	/*
 		Running local server.
 	*/
-	go Server.StartServer()
+	go server.StartServer()
 
-	Engine.LoadScene(Login.LoginSceneGeneral)
-	for Engine.MainLoop() {
+	engine.LoadScene(login.LoginSceneGeneral)
+	for engine.MainLoop() {
 
 	}
 }

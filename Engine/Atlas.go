@@ -1,4 +1,4 @@
-package Engine
+package engine
 
 import (
 	"errors"
@@ -289,24 +289,39 @@ func (atlas *ManagedAtlas) LoadGIF(path string) (err error, groupID ID) {
 	}
 	fName = atlas.nextGroupID(fName)
 
+	return atlas.LoadGIFID(path, fName), fName
+}
+
+func (atlas *ManagedAtlas) LoadGIFID(path string, groupID ID) (err error) {
+	fName := filepath.Base(path)
+	extIndex := strings.LastIndex(fName, ".")
+	if extIndex != -1 {
+		fName = fName[:extIndex]
+	}
+
+	_, exist := atlas.groups[groupID]
+	if exist {
+		panic("id already exists.")
+	}
+
 	file, e := os.Open(path)
 	if e != nil {
-		return e, nil
+		return e
 	}
 	defer file.Close()
 	ds, e := file.Stat()
 	if e != nil {
-		return e, nil
+		return e
 	}
 	if ds.IsDir() {
-		return errors.New("The path is not a file. " + path), nil
+		return errors.New("The path is not a file. " + path)
 	}
 
 	file.Close()
 
 	imgs, e := LoadGIF(path)
 	if e != nil {
-		return e, nil
+		return e
 	}
 
 	group := make([]ID, 0)
@@ -320,8 +335,8 @@ func (atlas *ManagedAtlas) LoadGIF(path string) (err error, groupID ID) {
 		atlas.AddImage(img, fName+is)
 		i++
 	}
-	atlas.groups[fName] = group
-	return nil, fName
+	atlas.groups[groupID] = group
+	return nil
 }
 
 func (atlas *ManagedAtlas) LoadGroupSheet(path string, width, height, frames int) (err error, groupID ID) {

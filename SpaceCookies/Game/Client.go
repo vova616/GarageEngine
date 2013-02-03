@@ -1,11 +1,11 @@
-package Game
+package game
 
 import (
 	//"log"
 	"encoding/gob"
 	"fmt"
-	"github.com/vova616/GarageEngine/Engine"
-	"github.com/vova616/GarageEngine/SpaceCookies/Server"
+	"github.com/vova616/garageEngine/spaceCookies/server"
+	"github.com/vova616/garageEngine/engine"
 	"log"
 	"net"
 	"time"
@@ -20,10 +20,10 @@ const ServerIP = "localhost:123"
 const ServerLocalIP = "localhost:123"
 
 type Client struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 	Socket *net.TCPConn
 	Name   string
-	ID     Server.ID
+	ID     server.ID
 	Ship   *ShipController
 
 	Encoder *gob.Encoder
@@ -56,7 +56,7 @@ func Connect(name string, errChan *chan error) {
 		}
 	}
 	tcpCon := con.(*net.TCPConn)
-	MyClient = &Client{BaseComponent: Engine.NewComponent(), Socket: tcpCon, Name: name, Encoder: gob.NewEncoder(tcpCon), Decoder: gob.NewDecoder(tcpCon), Jobs: make(chan func(), 1000), GameJobs: make(chan func(), 1000)}
+	MyClient = &Client{BaseComponent: engine.NewComponent(), Socket: tcpCon, Name: name, Encoder: gob.NewEncoder(tcpCon), Decoder: gob.NewDecoder(tcpCon), Jobs: make(chan func(), 1000), GameJobs: make(chan func(), 1000)}
 	go MyClient.Run()
 	LoginErrChan = *errChan
 }
@@ -73,7 +73,7 @@ func (c *Client) Update() {
 	}
 }
 
-func (c *Client) Send(p Server.Packet) {
+func (c *Client) Send(p server.Packet) {
 	if c.Disconnected {
 		return
 	}
@@ -87,7 +87,7 @@ func (c *Client) LateUpdate() {
 	r := c.Transform().Angle()
 	if c.lastX != p.X || c.lastY != p.Y || c.lastRotation != r {
 		c.Jobs <- func() {
-			c.Send(Server.NewPlayerMove(Server.NewPlayerTransform(c.ID, p.X, p.Y, r)))
+			c.Send(server.NewPlayerMove(server.NewPlayerTransform(c.ID, p.X, p.Y, r)))
 		}
 		c.lastX, c.lastY, c.lastRotation = p.X, p.Y, r
 	}
@@ -109,7 +109,7 @@ func (c *Client) Run() {
 	}
 
 	for {
-		var packet Server.Packet
+		var packet server.Packet
 		e := c.Decoder.Decode(&packet)
 		if e != nil {
 			panic(e)
@@ -118,11 +118,11 @@ func (c *Client) Run() {
 	}
 }
 
-func (c *Client) HandlePacket(packet Server.Packet) {
+func (c *Client) HandlePacket(packet server.Packet) {
 	defer c.OnPanic()
 	switch packet.ID() {
-	case Server.ID_SpawnPlayer:
-		spawnPlayer := packet.(Server.SpawnPlayer)
+	case server.ID_SpawnPlayer:
+		spawnPlayer := packet.(server.SpawnPlayer)
 		c.GameJobs <- func() {
 			if spawnPlayer.PlayerInfo.PlayerID == c.ID {
 				SpawnMainPlayer(spawnPlayer)
@@ -130,17 +130,17 @@ func (c *Client) HandlePacket(packet Server.Packet) {
 				SpawnPlayer(spawnPlayer)
 			}
 		}
-	case Server.ID_EnterGame:
-		enterGame := packet.(Server.EnterGame)
+	case server.ID_EnterGame:
+		enterGame := packet.(server.EnterGame)
 		c.ID = enterGame.PlayerID
 		c.Name = enterGame.Name
-		Engine.LoadScene(GameSceneGeneral)
-	case Server.ID_LoginError:
-		error := packet.(Server.LoginError)
+		engine.LoadScene(GameSceneGeneral)
+	case server.ID_LoginError:
+		error := packet.(server.LoginError)
 		LoginErrChan <- fmt.Errorf(error.Error)
 		panic(error)
-	case Server.ID_PlayerTransform:
-		trans := packet.(Server.PlayerTransform)
+	case server.ID_PlayerTransform:
+		trans := packet.(server.PlayerTransform)
 		c.GameJobs <- func() {
 			p, exist := Players[trans.PlayerID]
 			if !exist {
@@ -165,7 +165,7 @@ func (c *Client) OnPanic() {
 }
 
 func (c *Client) SendName() error {
-	p := Server.NewWelcome(c.Name)
+	p := server.NewWelcome(c.Name)
 	e := c.Encoder.Encode(&p)
 	if e != nil {
 		return e
@@ -174,7 +174,7 @@ func (c *Client) SendName() error {
 }
 
 func (c *Client) SendRespawn() error {
-	p := Server.NewPlayerRespawn()
+	p := server.NewPlayerRespawn()
 	e := c.Encoder.Encode(&p)
 	if e != nil {
 		return e

@@ -1,8 +1,8 @@
-package Game
+package game
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
-	"github.com/vova616/GarageEngine/Engine/Input"
+	"github.com/vova616/garageEngine/engine"
+	"github.com/vova616/garageEngine/engine/input"
 	//"log" 
 	//"github.com/go-gl/glfw"
 	//c "github.com/vova616/chipmunk"
@@ -11,15 +11,15 @@ import (
 )
 
 type MouseDebugger struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 }
 
 func NewMouseDebugger() *MouseDebugger {
-	return &MouseDebugger{Engine.NewComponent()}
+	return &MouseDebugger{engine.NewComponent()}
 }
 
 func (m *MouseDebugger) Update() {
-	if Input.MouseDown(Input.MouseMiddle) {
+	if input.MouseDown(input.MouseMiddle) {
 		if queenDead {
 			mousePosition := m.Transform().WorldPosition()
 
@@ -31,7 +31,7 @@ func (m *MouseDebugger) Update() {
 			c.Transform().SetScalef(size, size)
 		}
 	}
-	if Input.MouseDown(Input.MouseRight) {
+	if input.MouseDown(input.MouseRight) {
 
 		mousePosition := m.Transform().WorldPosition()
 
@@ -48,20 +48,20 @@ func (m *MouseDebugger) Update() {
 
 	}
 
-	if Input.KeyPress('R') {
+	if input.KeyPress('R') {
 		MyClient.SendRespawn()
 	}
 	if queenDead {
-		if Input.KeyPress(Input.KeyF1) {
+		if input.KeyPress(input.KeyF1) {
 			PowerUpShip(HP)
 		}
-		if Input.KeyPress(Input.KeyF2) {
+		if input.KeyPress(input.KeyF2) {
 			PowerUpShip(Damage)
 		}
-		if Input.KeyPress(Input.KeyF3) {
+		if input.KeyPress(input.KeyF3) {
 			PowerUpShip(Range)
 		}
-		if Input.KeyPress(Input.KeyF4) {
+		if input.KeyPress(input.KeyF4) {
 			PowerUpShip(Speed)
 		}
 	}

@@ -1,15 +1,15 @@
-package Game
+package game
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 	//"reflect"
 )
 
 type DamageDealer struct {
-	Engine.BaseComponent
+	engine.BaseComponent
 	Damage float32
 }
 
 func NewDamageDealer(dmg float32) *DamageDealer {
-	return &DamageDealer{BaseComponent: Engine.NewComponent(), Damage: dmg}
+	return &DamageDealer{BaseComponent: engine.NewComponent(), Damage: dmg}
 }

@@ -1,10 +1,10 @@
-package Game
+package game
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
-	//"Engine/Components"
+	"github.com/vova616/garageEngine/engine"
+	//"Engine/components"
 	//"github.com/go-gl/glfw"
-	"github.com/vova616/GarageEngine/Engine/Input"
+	"github.com/vova616/garageEngine/engine/input"
 	//"log"
 	//"fmt"
 	//
@@ -16,40 +16,40 @@ import (
 )
 
 type ShipController struct {
-	Engine.BaseComponent `json:"-"`
+	engine.BaseComponent `json:"-"`
 	Speed                float32
 	RotationSpeed        float32
 	Missle               *Missle `json:"-"`
-	MisslesPosition      []Engine.Vector
-	MisslesDirection     [][]Engine.Vector
+	MisslesPosition      []engine.Vector
+	MisslesDirection     [][]engine.Vector
 	MissleLevel          int
 	MaxMissleLevel       int                `json:"-"`
 	lastShoot            time.Time          `json:"-"`
 	Destoyable           *Destoyable        `json:"-"`
-	HPBar                *Engine.GameObject `json:"-"`
+	HPBar                *engine.GameObject `json:"-"`
 
 	UseMouse bool `json:"-"`
 
-	JetFire         *Engine.GameObject `json:"-"`
-	JetFireParent   *Engine.GameObject `json:"-"`
+	JetFire         *engine.GameObject `json:"-"`
+	JetFireParent   *engine.GameObject `json:"-"`
 	JetFirePool     []*ResizeScript    `json:"-"`
-	JetFirePosition []Engine.Vector    `json:"-"`
+	JetFirePosition []engine.Vector    `json:"-"`
 }
 
 func NewShipController() *ShipController {
-	misslesDirection := [][]Engine.Vector{{{0, 1, 0}, {0, 1, 0}},
+	misslesDirection := [][]engine.Vector{{{0, 1, 0}, {0, 1, 0}},
 		{{-0.2, 1, 0}, {0.2, 1, 0}, {0, 1, 0}},
 		{{-0.2, 1, 0}, {0.2, 1, 0}, {0, 1, 0}, {-0.2, 1, 0}, {0.2, 1, 0}}}
 
-	misslePositions := []Engine.Vector{{-28, 10, 0}, {28, 10, 0}, {0, 20, 0}, {-28, 40, 0}, {28, 40, 0}}
+	misslePositions := []engine.Vector{{-28, 10, 0}, {28, 10, 0}, {0, 20, 0}, {-28, 40, 0}, {28, 40, 0}}
 
-	return &ShipController{Engine.NewComponent(), 500000, 250, nil, misslePositions, misslesDirection, 0, len(misslesDirection) - 1,
-		time.Now(), nil, nil, true, nil, nil, nil, []Engine.Vector{{-0.1, -0.51, 0}, {0.1, -0.51, 0}}}
+	return &ShipController{engine.NewComponent(), 500000, 250, nil, misslePositions, misslesDirection, 0, len(misslesDirection) - 1,
+		time.Now(), nil, nil, true, nil, nil, nil, []engine.Vector{{-0.1, -0.51, 0}, {0.1, -0.51, 0}}}
 }
 
-func (sp *ShipController) OnComponentBind(binded *Engine.GameObject) {
+func (sp *ShipController) OnComponentBind(binded *engine.GameObject) {
 
-	sp.GameObject().AddComponent(Engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15)))
+	sp.GameObject().AddComponent(engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15)))
 }
 
 func (sp *ShipController) Start() {
@@ -59,10 +59,10 @@ func (sp *ShipController) Start() {
 	sp.Destoyable = sp.GameObject().ComponentTypeOfi(sp.Destoyable).(*Destoyable)
 	sp.OnHit(nil, nil)
 
-	sp.JetFireParent = Engine.NewGameObject("JetFireParent")
+	sp.JetFireParent = engine.NewGameObject("JetFireParent")
 	sp.JetFireParent.Transform().SetParent2(sp.GameObject())
 
-	uvJet := Engine.IndexUV(atlas, Jet_A)
+	uvJet := engine.IndexUV(atlas, Jet_A)
 
 	if sp.JetFire != nil {
 		l := 1
@@ -71,7 +71,7 @@ func (sp *ShipController) Start() {
 		for i := 0; i < len(sp.JetFirePosition); i++ {
 			for j := 0; j < l; j++ {
 
-				jfp := Engine.NewGameObject("JetFireParent2")
+				jfp := engine.NewGameObject("JetFireParent2")
 				jfp.Transform().SetParent2(sp.JetFireParent)
 				jfp.Transform().SetPosition(sp.JetFirePosition[i])
 				rz := NewResizeScript(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
@@ -88,13 +88,13 @@ func (sp *ShipController) Start() {
 		}
 	}
 
-	myPos := Engine.Vector{sp.Transform().Position().X - float32(Engine.Width/2), sp.Transform().Position().Y - float32(Engine.Height/2), 0}
+	myPos := engine.Vector{sp.Transform().Position().X - float32(engine.Width/2), sp.Transform().Position().Y - float32(engine.Height/2), 0}
 	GameSceneGeneral.SceneData.Camera.Transform().SetPosition(myPos)
 	sp.MaxMissleLevel = len(sp.MisslesDirection) - 1
 	//sp.Physics.Shape.Friction = 0.5
 }
 
-func (sp *ShipController) OnHit(enemey *Engine.GameObject, damager *DamageDealer) {
+func (sp *ShipController) OnHit(enemey *engine.GameObject, damager *DamageDealer) {
 	if sp.HPBar != nil && sp.Destoyable != nil {
 		hp := (float32(sp.Destoyable.HP) / float32(sp.Destoyable.FullHP)) * 100
 		s := sp.HPBar.Transform().Scale()
@@ -110,7 +110,7 @@ func (sp *ShipController) OnDie(byTimer bool) {
 		n.Transform().SetWorldPosition(sp.Transform().WorldPosition())
 		s := n.Transform().Scale()
 		n.Transform().SetScale(s.Mul2(rand.Float32() * 8))
-		n.AddComponent(Engine.NewPhysics(false, 1, 1))
+		n.AddComponent(engine.NewPhysics(false, 1, 1))
 
 		n.Transform().SetRotationf(rand.Float32() * 360)
 		rot := n.Transform().Direction()
@@ -135,7 +135,7 @@ func (sp *ShipController) Shoot() {
 
 			p := sp.Transform().WorldPosition()
 			_ = a
-			m := Engine.Identity()
+			m := engine.Identity()
 			//m.Scale(scale.X, scale.Y, scale.Z)
 			m.Translate(pos.X, pos.Y, pos.Z)
 			m.Rotate(a.Z, 0, 0, -1)
@@ -150,22 +150,22 @@ func (sp *ShipController) Shoot() {
 			nfire.Tag = MissleTag
 
 			v := sp.GameObject().Physics.Body.Velocity()
-			angle := float32(math.Atan2(float64(s.X), float64(s.Y))) * Engine.DegreeConst
+			angle := float32(math.Atan2(float64(s.X), float64(s.Y))) * engine.DegreeConst
 
 			nfire.Physics.Body.SetVelocity(float32(v.X), float32(v.Y))
 			nfire.Physics.Body.AddForce(s.X*3000, s.Y*3000)
 
 			nfire.Physics.Shape.Group = 1
-			nfire.Physics.Body.SetMoment(Engine.Inf)
+			nfire.Physics.Body.SetMoment(engine.Inf)
 			nfire.Transform().SetRotationf(180 - angle)
 		}
 	}
 }
 
 func (sp *ShipController) Update() {
-	delta := float32(Engine.DeltaTime())
-	r2 := sp.Transform().DirectionTransform(Engine.Up)
-	r3 := sp.Transform().DirectionTransform(Engine.Left)
+	delta := float32(engine.DeltaTime())
+	r2 := sp.Transform().DirectionTransform(engine.Up)
+	r3 := sp.Transform().DirectionTransform(engine.Left)
 	ph := sp.GameObject().Physics
 	rx, ry := r2.X*delta, r2.Y*delta
 	rsx, rsy := r3.X*delta, r3.Y*delta
@@ -173,42 +173,42 @@ func (sp *ShipController) Update() {
 	jet := false
 	back := false
 
-	if Input.KeyDown('W') {
+	if input.KeyDown('W') {
 		ph.Body.AddForce(sp.Speed*rx, sp.Speed*ry)
 		jet = true
 	}
 
-	if Input.KeyDown('S') {
+	if input.KeyDown('S') {
 		ph.Body.AddForce(-sp.Speed*rx, -sp.Speed*ry)
 		jet = true
 		back = true
 	}
 
 	rotSpeed := sp.RotationSpeed
-	if Input.KeyDown(Input.KeyLshift) {
+	if input.KeyDown(input.KeyLshift) {
 		rotSpeed = 100
 	}
 
 	if sp.UseMouse {
-		v := Engine.GetScene().SceneBase().Camera.MouseWorldPosition()
+		v := engine.GetScene().SceneBase().Camera.MouseWorldPosition()
 		v = v.Sub(sp.Transform().WorldPosition())
 		v.Normalize()
-		angle := float32(math.Atan2(float64(v.Y), float64(v.X))) * Engine.DegreeConst
+		angle := float32(math.Atan2(float64(v.Y), float64(v.X))) * engine.DegreeConst
 
-		angle = Engine.LerpAngle(sp.Transform().Rotation().Z, float32(int((angle - 90))), delta*rotSpeed/50)
+		angle = engine.LerpAngle(sp.Transform().Rotation().Z, float32(int((angle - 90))), delta*rotSpeed/50)
 		sp.Transform().SetRotationf(angle)
 
 		ph.Body.SetAngularVelocity(0)
 		ph.Body.SetTorque(0)
 
-		if Input.KeyDown('D') || Input.KeyDown('E') {
+		if input.KeyDown('D') || input.KeyDown('E') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
 			ph.Body.AddForce(-sp.Speed*rsx, -sp.Speed*rsy)
 			jet = true
 			back = true
 		}
-		if Input.KeyDown('A') || Input.KeyDown('Q') {
+		if input.KeyDown('A') || input.KeyDown('Q') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
 			ph.Body.AddForce(sp.Speed*rsx, sp.Speed*rsy)
@@ -217,14 +217,14 @@ func (sp *ShipController) Update() {
 		}
 	} else {
 		r := sp.Transform().Rotation()
-		if Input.KeyDown('D') {
+		if input.KeyDown('D') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
 			sp.Transform().SetRotationf(r.Z - rotSpeed*delta)
 			jet = true
 			back = true
 		}
-		if Input.KeyDown('A') {
+		if input.KeyDown('A') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
 			sp.Transform().SetRotationf(r.Z + rotSpeed*delta)
@@ -232,14 +232,14 @@ func (sp *ShipController) Update() {
 			back = true
 		}
 
-		if Input.KeyDown('E') {
+		if input.KeyDown('E') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
 			ph.Body.AddForce(-sp.Speed*rsx, -sp.Speed*rsy)
 			jet = true
 			back = true
 		}
-		if Input.KeyDown('Q') {
+		if input.KeyDown('Q') {
 			ph.Body.SetAngularVelocity(0)
 			ph.Body.SetTorque(0)
 			ph.Body.AddForce(sp.Speed*rsx, sp.Speed*rsy)
@@ -248,17 +248,17 @@ func (sp *ShipController) Update() {
 		}
 	}
 
-	if Input.MouseDown(Input.MouseLeft) {
+	if input.MouseDown(input.MouseLeft) {
 		if time.Now().After(sp.lastShoot) {
 			sp.Shoot()
 			sp.lastShoot = time.Now().Add(time.Millisecond * 200)
 		}
 	}
 
-	if Input.KeyPress('P') {
-		Engine.EnablePhysics = !Engine.EnablePhysics
+	if input.KeyPress('P') {
+		engine.EnablePhysics = !engine.EnablePhysics
 	}
-	if Input.KeyPress('T') {
+	if input.KeyPress('T') {
 		sp.UseMouse = !sp.UseMouse
 	}
 

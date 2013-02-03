@@ -1,17 +1,17 @@
-package Game
+package game
 
 import (
-	"github.com/vova616/GarageEngine/Engine"
+	"github.com/vova616/garageEngine/engine"
 	//"reflect"
 )
 
 type Background struct {
-	Engine.BaseComponent
-	sprite *Engine.Sprite
+	engine.BaseComponent
+	sprite *engine.Sprite
 }
 
-func NewBackground(sprite *Engine.Sprite) *Background {
-	return &Background{BaseComponent: Engine.NewComponent(), sprite: sprite}
+func NewBackground(sprite *engine.Sprite) *Background {
+	return &Background{BaseComponent: engine.NewComponent(), sprite: sprite}
 }
 
 func (sp *Background) Draw() {

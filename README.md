@@ -6,14 +6,14 @@ the name will be probably changed.<br/>
 Windows:
 To avoid installing mingw and downloading libraries in windows I have added the .a files.
 <br/>
-go get github.com/vova616/GarageEngine<br/>
+go get github.com/vova616/garageEngine<br/>
 go get github.com/vova616/chipmunk<br/>
 go get github.com/vova616/gl <br/>
 go get github.com/go-gl/glfw<br/>
 (just to make sure you got all the sources, ignore all the erroes)<br/>
 
 go to GarageEngine source folder and copy the pkg folder to your golang folder. (override)
-now you can try to compile GarageEngine.
+now you can try to compile Garageengine.
 	
 Other:
 You need to download glfw/gl/glew libraries.
@@ -22,7 +22,7 @@ sudo apt-get update
 <br/>
 sudo apt-get install build-essential binutils-gold freeglut3 freeglut3-dev libglew-dev libglfw-dev libxrandr2 libxrandr-dev libglew libglew1.8  
 <br/>
-go get github.com/vova616/GarageEngine	
+go get github.com/vova616/garageEngine	
 
 ## To-Do list
 Clean project:<br/>
@@ -55,7 +55,7 @@ The useage is same as unity coroutines.<br/>
 Use Behaviour Trees, its better and faster.
 
 ## Behaviour Trees:
-Example in SpaceCookies/Game/EnemeyAI.go
+Example in SpaceCookies/game/EnemeyAI.go
 
 ## SpaceCookies
 Mini game to test the engine, it will host server on port 123 then you connect to it.

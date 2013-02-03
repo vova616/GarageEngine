@@ -1,4 +1,4 @@
-package Server
+package server
 
 import "strings"
 import "log"
