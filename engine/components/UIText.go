@@ -12,9 +12,9 @@ import (
 	//"os" 
 	//"strconv"
 	//"github.com/go-gl/glfw"
+	"github.com/vova616/chipmunk/vect"
 	"github.com/vova616/garageEngine/engine"
 	"github.com/vova616/garageEngine/engine/input"
-	"github.com/vova616/chipmunk/vect"
 	//"runtime"
 )
 
@@ -325,6 +325,8 @@ func (ui *UIText) Draw() {
 	mv := mat.ViewMatrix
 	mm := mat.ModelMatrix
 	tx := mat.Texture
+	ti := mat.Tiling
+	of := mat.Offset
 	color := mat.AddColor
 	_ = color
 
@@ -338,9 +340,8 @@ func (ui *UIText) Draw() {
 
 	camera := engine.GetScene().SceneBase().Camera
 
-	view := camera.Transform().Matrix()
-	view = view.Invert()
-	model := engine.NewIdentity()
+	view := camera.InvertedMatrix()
+	model := engine.Identity()
 	model.Translate(v.X, v.Y, 0)
 	model.Mul(ui.GameObject().Transform().Matrix())
 
@@ -351,19 +352,16 @@ func (ui *UIText) Draw() {
 	*/
 
 	mv.UniformMatrix4fv(false, view)
-	mp.UniformMatrix4fv(false, *camera.Projection)
-	mm.UniformMatrix4fv(false, *model)
+	mp.UniformMatrix4f(false, (*[16]float32)(camera.Projection))
+	mm.UniformMatrix4fv(false, model)
+	ti.Uniform2f(1, 1)
+	of.Uniform2f(0, 0)
 
 	ui.Font.Bind()
-	gl.ActiveTexture(gl.TEXTURE0)
 	tx.Uniform1i(0)
 
 	color.Uniform4f(ui.Color.X, ui.Color.Y, ui.Color.Z, 1)
 
 	gl.DrawArrays(gl.QUADS, 0, ui.vertexCount)
-
-	ui.Font.Unbind()
-	vert.DisableArray()
-	uv.DisableArray()
 
 }

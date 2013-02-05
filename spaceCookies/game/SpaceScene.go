@@ -11,9 +11,9 @@ import (
 	"time"
 	//"strings"
 	//"math"
-	"github.com/vova616/garageEngine/spaceCookies/server"
 	"github.com/vova616/chipmunk"
 	"github.com/vova616/chipmunk/vect"
+	"github.com/vova616/garageEngine/spaceCookies/server"
 	//"image"
 	//"image/color"
 	"encoding/json"
@@ -142,10 +142,6 @@ func LoadTextures() {
 	ArialFont2.Texture.SetReadOnly()
 }
 
-func init() {
-	engine.Title = "Space Cookies"
-}
-
 func SpawnMainPlayer(spawnPlayer server.SpawnPlayer) {
 	Health := engine.NewGameObject("HP")
 	Health.Transform().SetParent2(GameSceneGeneral.Camera.GameObject())
@@ -204,7 +200,7 @@ func SpawnPlayer(spawnPlayer server.SpawnPlayer) {
 func (s *GameScene) Load() {
 	Players = make(map[server.ID]*engine.GameObject)
 	LoadTextures()
-
+	engine.SetTitle("Space Cookies")
 	queenDead = false
 
 	rand.Seed(time.Now().UnixNano())

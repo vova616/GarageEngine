@@ -1,4 +1,4 @@
-package networkOnline
+package zumbies
 
 import (
 	"github.com/vova616/garageEngine/engine"

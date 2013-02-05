@@ -48,7 +48,7 @@ func (s *GameScene) Load() {
 
 	cam := engine.NewGameObject("Camera")
 	cam.AddComponent(s.Camera)
-	cam.AddComponent(NewCameraCtl())
+	cam.AddComponent(NewCameraCtl(100))
 
 	cam.Transform().SetScalef(1, 1)
 
@@ -193,8 +193,6 @@ func (s *GameScene) Load() {
 	ph.Body.SetMoment(engine.Inf)
 	ph.Shape.SetFriction(1)
 	ph.Shape.SetElasticity(0)
-	sprite.Border = true
-	sprite.BorderSize = 0
 
 	/*
 		floor = NewGameObject("Box")

@@ -26,6 +26,11 @@ func (c *Camera) Update() {
 	*/
 }
 
+func (c *Camera) InvertedMatrix() Matrix {
+	invert := c.Transform().matrix.Invert()
+	return invert
+}
+
 func (c *Camera) UpdateResolution() {
 	//w := float32(Width) * c.Size * 0.5
 	//h := float32(Height) * c.Size * 0.5
