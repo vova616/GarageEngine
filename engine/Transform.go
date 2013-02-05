@@ -239,14 +239,14 @@ func (t *Transform) WorldScale() Vector {
 }
 
 func (t *Transform) SetWorldPosition(vect Vector) {
+	if t.parent == nil {
+		t.SetPosition(vect)
+		return
+	}
 	if t.updateMatrix() == false && t.worldPosition == vect {
 		return
 	}
-	if t.parent == nil {
-		t.SetPosition(vect.Sub(t.position))
-	} else {
-		t.SetPosition(vect.Transform(t.parent.matrix.Invert()))
-	}
+	t.SetPosition(vect.Transform(t.parent.matrix.Invert()))
 }
 
 func (t *Transform) SetWorldPositionf(x, y float32) {
@@ -254,14 +254,11 @@ func (t *Transform) SetWorldPositionf(x, y float32) {
 }
 
 func (t *Transform) SetWorldRotation(vect Vector) {
-	var p Vector
 	if t.parent == nil {
-		p = t.rotation
+		t.SetRotation(vect)
 	} else {
-		p = t.parent.WorldRotation()
+		t.SetRotation(vect.Sub(t.parent.WorldRotation()))
 	}
-
-	t.SetRotation(vect.Sub(p))
 }
 
 func (t *Transform) SetWorldRotationf(z float32) {
@@ -269,14 +266,11 @@ func (t *Transform) SetWorldRotationf(z float32) {
 }
 
 func (t *Transform) SetWorldScale(vect Vector) {
-	var p Vector
 	if t.parent == nil {
-		p = t.scale
+		t.SetScale(vect)
 	} else {
-		p = t.parent.WorldScale()
+		t.SetScale(vect.Div(t.parent.WorldScale()))
 	}
-
-	t.SetScale(vect.Div(p))
 }
 
 func (t *Transform) SetWorldScalef(x, y float32) {
@@ -288,7 +282,7 @@ func (t *Transform) Parent() *Transform {
 }
 
 func (t *Transform) GameObject() *GameObject {
-	return t.gameObject
+	return t.gameObject.GameObject()
 }
 
 func (t *Transform) Child(index int) *Transform {
@@ -310,7 +304,7 @@ func (t *Transform) Translate(v Vector) {
 }
 
 func (t *Transform) Translatef(x, y float32) {
-	t.Translate(NewVector3(x, y, 1))
+	t.Translate(NewVector3(x, y, 0))
 }
 
 func (t *Transform) SetParent(parent *Transform) {
@@ -322,6 +316,9 @@ func (t *Transform) SetParent(parent *Transform) {
 			}
 		}
 	}
+	t.scale = t.WorldScale()
+	t.position = t.WorldPosition()
+	t.rotation = t.WorldRotation()
 	t.parent = parent
 	t.updatedMatrix = false
 	if parent != nil {
@@ -337,9 +334,19 @@ func (t *Transform) SetParent2(g *GameObject) {
 	}
 }
 
+/*
+Faster option will be to use Stamps, each transform will have stamp and parterStamp
+*/
 func (t *Transform) updateMatrix() bool {
-	if t.updatedMatrix && ((t.parent != nil && t.parent.Matrix() == *t.parentMatrix) || t.parent == nil) {
-		return false
+	if t.updatedMatrix {
+		if t.parent != nil {
+			t.parent.updateMatrix()
+			if *t.parent.matrix == *t.parentMatrix {
+				return false
+			}
+		} else {
+			return false
+		}
 	}
 
 	trans := t
@@ -356,8 +363,9 @@ func (t *Transform) updateMatrix() bool {
 	mat.Translate(p.X, p.Y, p.Z)
 
 	if trans.parent != nil {
-		*t.parentMatrix = trans.parent.Matrix()
-		mat.Mul(*t.parentMatrix)
+		trans.parent.updateMatrix()
+		*t.parentMatrix = *trans.parent.matrix
+		mat.MulPtr(t.parentMatrix)
 		t.worldScale = trans.parent.worldScale.Mul(trans.scale)
 		t.worldRotation = trans.parent.worldRotation.Add(trans.rotation)
 	} else {

@@ -99,9 +99,9 @@ var (
 
 	BehaviorTicks = 5
 
-	Title  = "Engine Test"
-	Width  = 1280
-	Height = 720
+	windowTitle = "Engine Test"
+	Width       = 1280
+	Height      = 720
 
 	terminated chan bool
 )
@@ -177,6 +177,15 @@ func GameTime() time.Time {
 	return gameTime
 }
 
+func SetTitle(title string) {
+	glfw.SetWindowTitle(title)
+	windowTitle = title
+}
+
+func Title() string {
+	return windowTitle
+}
+
 func StartEngine() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	runtime.LockOSThread()
@@ -194,7 +203,7 @@ func StartEngine() {
 	}
 
 	glfw.SetSwapInterval(1) //0 to make FPS Maximum
-	glfw.SetWindowTitle(Title)
+	glfw.SetWindowTitle(windowTitle)
 	glfw.SetWindowSizeCallback(onResize)
 	glfw.SetKeyCallback(input.OnKey)
 	glfw.SetCharCallback(input.OnChar)
@@ -217,6 +226,8 @@ func StartEngine() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	initDefaultPlane()
 
 	gameTime = time.Time{}
 	lastTime = time.Now()
@@ -470,20 +481,31 @@ func Run() {
 }
 
 func Iter(objs []*GameObject, f func(*GameObject)) {
-	l := len(objs)
-	for i := l - 1; i >= 0; i-- {
-		f(objs[i])
-		arr2 := objs[i].Transform().Children()
-		Iter2(arr2, f)
+	for i := len(objs) - 1; i >= 0; i-- {
+		obj := objs[i]
+		f(obj)
+		//Checks if the objs array has been changed
+		if obj != objs[i] {
+			i++
+		} else {
+			Iter2(obj.Transform().children, f)
+		}
 	}
 }
 
 func Iter2(objs []*Transform, f func(*GameObject)) {
-	l := len(objs)
-	for i := l - 1; i >= 0; i-- {
-		f(objs[i].GameObject())
-		arr2 := objs[i].Children()
-		Iter2(arr2, f)
+	for i := len(objs) - 1; i >= 0; i-- {
+		obj := objs[i].GameObject()
+		if obj != nil {
+			obja := objs[i]
+			f(obj)
+			//Checks if the objs array has been changed
+			if obja != objs[i] {
+				i++
+			} else {
+				Iter2(obj.Transform().children, f)
+			}
+		}
 	}
 }
 
@@ -506,24 +528,36 @@ func drawGameObject(gameObject *GameObject) {
 }
 
 func IterExcept(objs []*GameObject, f func(*GameObject), except *GameObject) {
-	l := len(objs)
-	for i := l - 1; i >= 0; i-- {
-		if objs[i] != except {
-			f(objs[i])
+	for i := len(objs) - 1; i >= 0; i-- {
+		obj := objs[i]
+		if obj != except {
+			f(obj)
 		}
-		arr2 := objs[i].Transform().Children()
-		Iter2Except(arr2, f, except)
+		//Checks if the objs array has been changed
+		if obj != objs[i] {
+			i++
+		} else {
+			Iter2Except(obj.Transform().children, f, except)
+		}
 	}
 }
 
 func Iter2Except(objs []*Transform, f func(*GameObject), except *GameObject) {
-	l := len(objs)
-	for i := l - 1; i >= 0; i-- {
-		if objs[i].GameObject() != except {
-			f(objs[i].GameObject())
+	for i := len(objs) - 1; i >= 0; i-- {
+		obj := objs[i].GameObject()
+		if obj == nil {
+			continue
 		}
-		arr2 := objs[i].Children()
-		Iter2Except(arr2, f, except)
+		obja := objs[i]
+		if obj != except {
+			f(obj)
+		}
+		//Checks if the objs array has been changed
+		if obja != objs[i] {
+			i++
+		} else {
+			Iter2Except(obj.Transform().children, f, except)
+		}
 	}
 }
 
@@ -668,7 +702,7 @@ func lateudpateGameObject(gameObject *GameObject) {
 }
 
 func fixedUdpateGameObject(gameObject *GameObject) {
-	if !gameObject.active {
+	if !gameObject.active || gameObject.Physics == nil {
 		return
 	}
 

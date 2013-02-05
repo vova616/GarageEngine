@@ -7,7 +7,7 @@ import (
 	//"image/png"
 	//"image"
 	//"os"
-	//"fmt"
+	"log"
 
 	"github.com/vova616/chipmunk/vect"
 	//"glfw"
@@ -18,7 +18,7 @@ type OnAnimationEnd func(sprite *Sprite)
 type Sprite struct {
 	BaseComponent
 	*Texture
-	buffer               gl.Buffer
+	//buffer               gl.Buffer
 	AnimationSpeed       float32
 	texcoordsIndex       int
 	endAnimation         int
@@ -29,11 +29,11 @@ type Sprite struct {
 	currentAnim          interface{}
 	AnimationEndCallback OnAnimationEnd
 
+	Tiling Vector
+
 	Render bool
 
-	Border     bool
-	BorderSize float32
-	Color      Vector
+	Color Vector
 
 	align AlignType
 }
@@ -49,17 +49,18 @@ func NewSprite2(tex *Texture, uv UV) *Sprite {
 func NewSprite3(tex *Texture, uv AnimatedUV) *Sprite {
 
 	sp := &Sprite{
-		BaseComponent:  NewComponent(),
-		Texture:        tex,
-		buffer:         gl.GenBuffer(),
+		BaseComponent: NewComponent(),
+		Texture:       tex,
+		//buffer:         gl.GenBuffer(),
 		AnimationSpeed: 1,
 		endAnimation:   len(uv),
 		UVs:            uv,
 		Render:         true,
 		Color:          Vector{1, 1, 1},
 		align:          AlignCenter,
+		Tiling:         Vector{1, 1, 0},
 	}
-	sp.CreateVBO(uv...)
+	//sp.CreateVBO(uv...)
 
 	return sp
 }
@@ -95,8 +96,8 @@ func (sp *Sprite) OnComponentBind(binded *GameObject) {
 	binded.Sprite = sp
 }
 
+/*
 func (sp *Sprite) CreateVBO(uvs ...UV) {
-
 	l := len(uvs)
 
 	if l == 0 {
@@ -148,6 +149,7 @@ func (sp *Sprite) CreateVBO(uvs ...UV) {
 	sp.buffer.Bind(gl.ARRAY_BUFFER)
 	gl.BufferData(gl.ARRAY_BUFFER, len(data)*4, data, gl.STATIC_DRAW)
 }
+*/
 
 func (sp *Sprite) Start() {
 
@@ -161,18 +163,26 @@ func (sp *Sprite) SetAnimationIndex(index int) {
 	}
 }
 
-func (sp *Sprite) Update() {
-	if int(sp.animation) < sp.endAnimation {
-		sp.animation += float32(float64(sp.AnimationSpeed) * DeltaTime())
-	}
-	if sp.animation >= float32(sp.endAnimation) {
-		if sp.AnimationEndCallback != nil {
-			sp.AnimationEndCallback(sp)
-		}
-		sp.animation = float32(sp.startAnimation)
-	}
+var renders = 0
 
+func (sp *Sprite) Update() {
+	if sp.AnimationSpeed != 0 {
+		if int(sp.animation) < sp.endAnimation {
+			sp.animation += float32(float64(sp.AnimationSpeed) * DeltaTime())
+		}
+		if sp.animation >= float32(sp.endAnimation) {
+			if sp.AnimationEndCallback != nil {
+				sp.AnimationEndCallback(sp)
+			}
+			sp.animation = float32(sp.startAnimation)
+		}
+	}
 	sp.UpdateShape()
+	if renders != 0 && Debug && 1 == 2 {
+		camera := GetScene().SceneBase().Camera
+		log.Println(renders, camera.Transform().WorldPosition(), camera.Transform().Matrix())
+	}
+	renders = 0
 }
 
 /*
@@ -257,16 +267,15 @@ func Abs(val float32) float32 {
 func (sp *Sprite) Draw() {
 	if sp.Texture != nil && sp.Render {
 
-		camera := GetScene().SceneBase().Camera
-		cameraPos := camera.Transform().WorldPosition()
-		pos := sp.Transform().WorldPosition()
-		scale := sp.Transform().WorldScale()
-		if Abs(pos.X-cameraPos.X)-scale.X-float32(Width)/2 > float32(Width) {
+		/*
+			Temporal camera distance check
+		*/
+		currentUV := sp.UVs[int(sp.animation)]
+		if !InsideScreen(currentUV.Ratio, sp.Transform().WorldPosition(), sp.Transform().WorldScale()) {
 			return
 		}
-		if Abs(pos.Y-cameraPos.Y)-scale.Y-float32(Height)/2 > float32(Height) {
-			return
-		}
+
+		renders++
 
 		TextureMaterial.Begin(sp.GameObject())
 
@@ -275,59 +284,41 @@ func (sp *Sprite) Draw() {
 		mp := TextureMaterial.ProjMatrix
 		mv := TextureMaterial.ViewMatrix
 		mm := TextureMaterial.ModelMatrix
-		mc := TextureMaterial.BorderColor
 		tx := TextureMaterial.Texture
 		ac := TextureMaterial.AddColor
+		ti := TextureMaterial.Tiling
+		of := TextureMaterial.Offset
 
 		vert.EnableArray()
 		uv.EnableArray()
 
-		sp.buffer.Bind(gl.ARRAY_BUFFER)
+		defaultBuffer.Bind(gl.ARRAY_BUFFER)
 
-		vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(int(sp.animation)*12*4))
-		uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(sp.texcoordsIndex+(int(sp.animation)*8*4)))
+		vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
+		uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
 
 		v := Align(sp.align)
-		v.X *= float32(sp.Texture.Width()) / float32(sp.Texture.Height())
+		v.X *= currentUV.Ratio
 
-		view := camera.Transform().Matrix()
-		view = view.Invert()
+		camera := GetScene().SceneBase().Camera
+		view := camera.InvertedMatrix()
 		model := Identity()
+		model.Scale(currentUV.Ratio, 1, 1)
 		model.Translate(v.X, v.Y, 0)
 		model.Mul(sp.GameObject().Transform().Matrix())
 
 		mv.UniformMatrix4fv(false, view)
-		mp.UniformMatrix4fv(false, *camera.Projection)
+		mp.UniformMatrix4f(false, (*[16]float32)(camera.Projection))
 		mm.UniformMatrix4fv(false, model)
 
 		sp.Bind()
-		gl.ActiveTexture(gl.TEXTURE0)
 		tx.Uniform1i(0)
 
-		//ac.Uniform4f(1, 1, 1, 0) 
 		ac.Uniform4f(sp.Color.X, sp.Color.Y, sp.Color.Z, 1)
-
-		if sp.Border {
-			mc.Uniform4f(1, 1, 1, 0)
-
-			gl.DrawArrays(gl.QUADS, 0, 4)
-
-			scale := sp.Transform().Scale()
-			scalex := scale.Mul2(1 - (sp.BorderSize / 100))
-			sp.Transform().SetScale(scalex)
-			model = sp.GameObject().Transform().Matrix()
-
-			mm.UniformMatrix4fv(false, model)
-			sp.Transform().SetScale(scale)
-		}
-
-		mc.Uniform4f(0, 0, 0, 0)
+		ti.Uniform2f((currentUV.U2-currentUV.U1)*sp.Tiling.X, (currentUV.V2-currentUV.V1)*sp.Tiling.Y)
+		of.Uniform2f(currentUV.U1, currentUV.V1)
 
 		gl.DrawArrays(gl.QUADS, 0, 4)
-
-		sp.Unbind()
-		vert.DisableArray()
-		uv.DisableArray()
 
 		TextureMaterial.End(sp.GameObject())
 	}
@@ -347,27 +338,32 @@ func (sp *Sprite) DrawScreen() {
 		mp := TextureMaterial.ProjMatrix
 		mv := TextureMaterial.ViewMatrix
 		mm := TextureMaterial.ModelMatrix
-		mc := TextureMaterial.BorderColor
 		tx := TextureMaterial.Texture
 		ac := TextureMaterial.AddColor
+		ti := TextureMaterial.Tiling
+		of := TextureMaterial.Offset
 
 		vert.EnableArray()
 		uv.EnableArray()
 
-		sp.buffer.Bind(gl.ARRAY_BUFFER)
+		defaultBuffer.Bind(gl.ARRAY_BUFFER)
 
-		vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(int(sp.animation)*12*4))
-		uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(sp.texcoordsIndex+(int(sp.animation)*8*4)))
+		vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
+		uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
 
-		proj := camera.Projection
+		currentUV := sp.UVs[int(sp.animation)]
+
 		view := Identity()
 		model := Identity()
-		model.Scale(scale.X, scale.Y, 1)
+		model.Scale(scale.X*currentUV.Ratio, scale.Y, 1)
 		model.Translate((float32(Width)/2)+pos.X, (float32(Height)/2)+pos.Y, 1)
 
 		mv.UniformMatrix4fv(false, view)
-		mp.UniformMatrix4fv(false, *proj)
+		mp.UniformMatrix4f(false, (*[16]float32)(camera.Projection))
 		mm.UniformMatrix4fv(false, model)
+
+		ti.Uniform2f((currentUV.U2-currentUV.U1)*sp.Tiling.X, (currentUV.V2-currentUV.V1)*sp.Tiling.Y)
+		of.Uniform2f(currentUV.U1, currentUV.V1)
 
 		sp.Bind()
 		gl.ActiveTexture(gl.TEXTURE0)
@@ -375,22 +371,6 @@ func (sp *Sprite) DrawScreen() {
 
 		//ac.Uniform4f(1, 1, 1, 0) 
 		ac.Uniform4f(1, 1, 1, 1)
-
-		if sp.Border {
-			mc.Uniform4f(1, 1, 1, 0)
-
-			gl.DrawArrays(gl.QUADS, 0, 4)
-
-			scale := sp.Transform().Scale()
-			scalex := scale.Mul2(1 - (sp.BorderSize / 100))
-			sp.Transform().SetScale(scalex)
-			model = sp.GameObject().Transform().Matrix()
-
-			mm.UniformMatrix4fv(false, model)
-			sp.Transform().SetScale(scale)
-		}
-
-		mc.Uniform4f(0, 0, 0, 0)
 
 		gl.DrawArrays(gl.QUADS, 0, 4)
 

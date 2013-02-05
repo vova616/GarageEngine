@@ -16,8 +16,8 @@ type BasicMaterial struct {
 	vertexShader   string
 	fragmentShader string
 
-	ViewMatrix, ProjMatrix, ModelMatrix, BorderColor, AddColor, Texture gl.UniformLocation
-	Verts, UV                                                           gl.AttribLocation
+	ViewMatrix, ProjMatrix, ModelMatrix, AddColor, Texture, Tiling, Offset gl.UniformLocation
+	Verts, UV                                                              gl.AttribLocation
 }
 
 func NewBasicMaterial(vertexShader, fragmentShader string) *BasicMaterial {
@@ -54,9 +54,15 @@ func (b *BasicMaterial) Load() error {
 	b.ViewMatrix = program.GetUniformLocation("MView")
 	b.ProjMatrix = program.GetUniformLocation("MProj")
 	b.ModelMatrix = program.GetUniformLocation("MModel")
-	b.BorderColor = program.GetUniformLocation("bcolor")
 	b.Texture = program.GetUniformLocation("mytexture")
 	b.AddColor = program.GetUniformLocation("addcolor")
+	b.Tiling = program.GetUniformLocation("tiling")
+	b.Offset = program.GetUniformLocation("offset")
+
+	b.Offset.Uniform2f(0, 0)
+	b.Tiling.Uniform2f(1, 1)
+	b.AddColor.Uniform4f(1, 1, 1, 1)
+
 	return nil
 }
 
@@ -79,9 +85,12 @@ const spriteVertexShader = `
 uniform mat4 MProj;
 uniform mat4 MView;
 uniform mat4 MModel;
+uniform  vec2 tiling; 
+uniform  vec2 offset; 
+
 
 attribute  vec3 vertexPos;
-attribute  vec2 vertexUV; 
+attribute  vec2 vertexUV;
 varying vec2 UV;
 
 
@@ -89,7 +98,7 @@ varying vec2 UV;
 void main(void)
 {
 	gl_Position = MProj * MView * MModel * vec4(vertexPos, 1.0);
-	UV = vertexUV;
+	UV = (vertexUV * tiling) + offset;
 }
 `
 
@@ -98,23 +107,11 @@ const spriteFragmentShader = `
 
 varying vec2 UV; 
 uniform sampler2D mytexture;
-uniform vec4 bcolor;
 uniform vec4 addcolor;
 
 void main(void)
 { 
-  	vec4 tcolor = texture2D(mytexture, UV);
-	if (tcolor.a > 0.0) {
-		tcolor += bcolor;
-	}
-	tcolor = tcolor*addcolor;
-
-	//nice alpha detection
-	//vec4 t = addcolor;
-	//t.a = 0;
-	//tcolor = mix(tcolor, t, tcolor.a);
-
-	gl_FragColor = tcolor;
+	gl_FragColor =  texture2D(mytexture, UV)*addcolor;
 }
 `
 

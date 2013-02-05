@@ -8,6 +8,7 @@ import (
 	"github.com/vova616/garageEngine/spaceCookies/game"
 	"github.com/vova616/garageEngine/spaceCookies/login"
 	"github.com/vova616/garageEngine/spaceCookies/server"
+	"github.com/vova616/garageEngine/zumbies"
 	//"math"
 	//"github.com/vova616/gl"
 	"os"
@@ -63,6 +64,7 @@ func Start() {
 	_ = game.GameSceneGeneral
 	_ = networkOnline.GameSceneGeneral
 	_ = login.LoginSceneGeneral
+	_ = zumbies.GameSceneGeneral
 
 	/*
 		Running local server.
@@ -75,5 +77,5 @@ func Start() {
 	}
 }
 
-// 
+// 	
 // 

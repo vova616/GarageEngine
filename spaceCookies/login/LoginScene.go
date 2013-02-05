@@ -61,12 +61,8 @@ func LoadTextures() {
 	CheckError(e)
 }
 
-func init() {
-	engine.Title = "Space Cookies"
-}
-
 func (s *LoginScene) Load() {
-
+	engine.SetTitle("Space Cookies")
 	LoadTextures()
 
 	rand.Seed(time.Now().UnixNano())
