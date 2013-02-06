@@ -324,8 +324,6 @@ func (sp *Sprite) DrawScreen() {
 
 		TextureMaterial.Begin(sp.GameObject())
 
-		vert := TextureMaterial.Verts
-		uv := TextureMaterial.UV
 		mp := TextureMaterial.ProjMatrix
 		mv := TextureMaterial.ViewMatrix
 		mm := TextureMaterial.ModelMatrix
@@ -334,13 +332,7 @@ func (sp *Sprite) DrawScreen() {
 		ti := TextureMaterial.Tiling
 		of := TextureMaterial.Offset
 
-		vert.EnableArray()
-		uv.EnableArray()
-
-		defaultBuffer.Bind(gl.ARRAY_BUFFER)
-
-		vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
-		uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
+		defaultVAO.Bind()
 
 		currentUV := sp.UVs[int(sp.animation)]
 
@@ -364,10 +356,6 @@ func (sp *Sprite) DrawScreen() {
 		ac.Uniform4f(1, 1, 1, 1)
 
 		gl.DrawArrays(gl.QUADS, 0, 4)
-
-		sp.Unbind()
-		vert.DisableArray()
-		uv.DisableArray()
 
 		TextureMaterial.End(sp.GameObject())
 	}
