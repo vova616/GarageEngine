@@ -28,8 +28,7 @@ func (c *Camera) Update() {
 
 func (c *Camera) InvertedMatrix() Matrix {
 	c.Transform().updateMatrix()
-	invert := c.Transform().matrix.Invert()
-	return invert
+	return c.Transform().matrix.Invert()
 }
 
 func (c *Camera) UpdateResolution() {
