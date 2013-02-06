@@ -23,6 +23,7 @@ type UIText struct {
 	Font           *engine.Font
 	text           string
 	buffer         gl.Buffer
+	bufferVAO      gl.VertexArray
 	vertexCount    int
 	texcoordsIndex int
 
@@ -50,6 +51,7 @@ func NewUIText(font *engine.Font, text string) *UIText {
 		Font:      font,
 		text:      text,
 		buffer:    gl.GenBuffer(),
+		bufferVAO: gl.GenVertexArray(),
 		align:     engine.AlignCenter,
 		writeable: false,
 		tabSize:   4,
@@ -156,8 +158,16 @@ func (ui *UIText) setString(text string) {
 
 	ui.vertexCount = vertexCount
 	ui.texcoordsIndex = texcoordsIndex
+
+	ui.bufferVAO.Bind()
 	ui.buffer.Bind(gl.ARRAY_BUFFER)
 	gl.BufferData(gl.ARRAY_BUFFER, len(data)*4, data, gl.STATIC_DRAW)
+
+	gl.AttribLocation.EnableArray(0)
+	gl.AttribLocation.EnableArray(1)
+	gl.AttribLocation.AttribPointer(0, 3, gl.FLOAT, false, 0, uintptr(0))
+	gl.AttribLocation.AttribPointer(1, 2, gl.FLOAT, false, 0, uintptr(ui.texcoordsIndex))
+
 }
 
 func (ui *UIText) GetPixelSize(text string) (width float32, height float32) {
@@ -319,8 +329,6 @@ func (ui *UIText) Draw() {
 	}
 	mat.Begin(ui.GameObject())
 
-	vert := mat.Verts
-	uv := mat.UV
 	mp := mat.ProjMatrix
 	mv := mat.ViewMatrix
 	mm := mat.ModelMatrix
@@ -330,13 +338,7 @@ func (ui *UIText) Draw() {
 	color := mat.AddColor
 	_ = color
 
-	vert.EnableArray()
-	uv.EnableArray()
-
-	ui.buffer.Bind(gl.ARRAY_BUFFER)
-
-	vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
-	uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(ui.texcoordsIndex))
+	ui.bufferVAO.Bind()
 
 	camera := engine.GetScene().SceneBase().Camera
 

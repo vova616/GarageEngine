@@ -134,5 +134,4 @@ func (m *Map) Draw() {
 	}
 
 	engine.DrawSprites(m.Sprite.Texture, m.uvs[:index], m.positions[:index], m.scales[:index], m.rotations[:index], m.alings[:index], m.colors[:index])
-
 }

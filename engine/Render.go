@@ -5,7 +5,9 @@ import (
 )
 
 var (
-	defaultBuffer gl.Buffer
+	defaultBuffer      gl.Buffer
+	defaultIndexBuffer gl.Buffer
+	defaultVAO         gl.VertexArray
 )
 
 func initDefaultPlane() {
@@ -42,9 +44,17 @@ func initDefaultPlane() {
 	data[18] = 0
 	data[19] = 0
 
+	//Setup VAO
+	defaultVAO = gl.GenVertexArray()
+	defaultVAO.Bind()
+
 	defaultBuffer.Bind(gl.ARRAY_BUFFER)
 	gl.BufferData(gl.ARRAY_BUFFER, len(data)*4, data, gl.STATIC_DRAW)
 
+	gl.AttribLocation.EnableArray(0)
+	gl.AttribLocation.EnableArray(1)
+	gl.AttribLocation.AttribPointer(0, 3, gl.FLOAT, false, 0, uintptr(0))
+	gl.AttribLocation.AttribPointer(1, 2, gl.FLOAT, false, 0, uintptr(12*4))
 }
 
 func InsideScreen(ratio float32, position Vector, scale Vector) bool {
@@ -72,25 +82,17 @@ func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation flo
 		return
 	}
 
-	TextureMaterial.Begin(nil)
+	internalMaterial.Begin(nil)
 
-	vert := TextureMaterial.Verts
-	uvb := TextureMaterial.UV
-	mp := TextureMaterial.ProjMatrix
-	mv := TextureMaterial.ViewMatrix
-	mm := TextureMaterial.ModelMatrix
-	tx := TextureMaterial.Texture
-	ac := TextureMaterial.AddColor
-	ti := TextureMaterial.Tiling
-	of := TextureMaterial.Offset
+	mp := internalMaterial.ProjMatrix
+	mv := internalMaterial.ViewMatrix
+	mm := internalMaterial.ModelMatrix
+	tx := internalMaterial.Texture
+	ac := internalMaterial.AddColor
+	ti := internalMaterial.Tiling
+	of := internalMaterial.Offset
 
-	vert.EnableArray()
-	uvb.EnableArray()
-
-	defaultBuffer.Bind(gl.ARRAY_BUFFER)
-
-	vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
-	uvb.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
+	defaultVAO.Bind()
 
 	v := Align(aling)
 	v.X *= uv.Ratio
@@ -117,30 +119,22 @@ func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation flo
 
 	gl.DrawArrays(gl.QUADS, 0, 4)
 
-	TextureMaterial.End(nil)
+	internalMaterial.End(nil)
 }
 
 func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, rotations []float32, alings []AlignType, colors []Vector) {
 
-	TextureMaterial.Begin(nil)
+	internalMaterial.Begin(nil)
 
-	vert := TextureMaterial.Verts
-	uvb := TextureMaterial.UV
-	mp := TextureMaterial.ProjMatrix
-	mv := TextureMaterial.ViewMatrix
-	mm := TextureMaterial.ModelMatrix
-	tx := TextureMaterial.Texture
-	ac := TextureMaterial.AddColor
-	ti := TextureMaterial.Tiling
-	of := TextureMaterial.Offset
+	mp := internalMaterial.ProjMatrix
+	mv := internalMaterial.ViewMatrix
+	mm := internalMaterial.ModelMatrix
+	tx := internalMaterial.Texture
+	ac := internalMaterial.AddColor
+	ti := internalMaterial.Tiling
+	of := internalMaterial.Offset
 
-	vert.EnableArray()
-	uvb.EnableArray()
-
-	defaultBuffer.Bind(gl.ARRAY_BUFFER)
-
-	vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
-	uvb.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
+	defaultVAO.Bind()
 
 	camera := GetScene().SceneBase().Camera
 	view := camera.InvertedMatrix()
@@ -178,5 +172,5 @@ func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, ro
 		gl.DrawArrays(gl.QUADS, 0, 4)
 	}
 
-	TextureMaterial.End(nil)
+	internalMaterial.End(nil)
 }
