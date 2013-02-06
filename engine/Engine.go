@@ -227,6 +227,12 @@ func StartEngine() {
 		fmt.Println(err)
 	}
 
+	internalMaterial = NewBasicMaterial(spriteVertexShader, spriteFragmentShader)
+	err = internalMaterial.Load()
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	initDefaultPlane()
 
 	gameTime = time.Time{}

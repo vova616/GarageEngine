@@ -76,7 +76,7 @@ func (b *BasicMaterial) End(gobj *GameObject) {
 
 var TextureShader gl.Program
 var TextureMaterial *BasicMaterial
-
+var internalMaterial *BasicMaterial
 var SDFMaterial *BasicMaterial
 
 const spriteVertexShader = `

@@ -266,7 +266,6 @@ func Abs(val float32) float32 {
 
 func (sp *Sprite) Draw() {
 	if sp.Texture != nil && sp.Render {
-
 		/*
 			Temporal camera distance check
 		*/
@@ -279,8 +278,6 @@ func (sp *Sprite) Draw() {
 
 		TextureMaterial.Begin(sp.GameObject())
 
-		vert := TextureMaterial.Verts
-		uv := TextureMaterial.UV
 		mp := TextureMaterial.ProjMatrix
 		mv := TextureMaterial.ViewMatrix
 		mm := TextureMaterial.ModelMatrix
@@ -289,13 +286,7 @@ func (sp *Sprite) Draw() {
 		ti := TextureMaterial.Tiling
 		of := TextureMaterial.Offset
 
-		vert.EnableArray()
-		uv.EnableArray()
-
-		defaultBuffer.Bind(gl.ARRAY_BUFFER)
-
-		vert.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
-		uv.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
+		defaultVAO.Bind()
 
 		v := Align(sp.align)
 		v.X *= currentUV.Ratio
