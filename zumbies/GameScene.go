@@ -84,6 +84,7 @@ func (s *GameScene) Load() {
 	cam.Transform().SetScalef(1, 1)
 
 	gui := engine.NewGameObject("GUI")
+	gui.Transform().SetParent2(cam)
 
 	Layer1 := engine.NewGameObject("Layer1")
 	Layer2 := engine.NewGameObject("Layer2")
@@ -95,7 +96,7 @@ func (s *GameScene) Load() {
 
 	mouse := engine.NewGameObject("Mouse")
 	mouse.AddComponent(engine.NewMouse())
-	mouse.Transform().SetParent2(cam)
+	mouse.Transform().SetParent2(gui)
 
 	FPSDrawer := engine.NewGameObject("FPS")
 	txt := FPSDrawer.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
@@ -103,7 +104,7 @@ func (s *GameScene) Load() {
 	fps.SetAction(func(fps float64) {
 		txt.SetString("FPS: " + strconv.FormatFloat(fps, 'f', 2, 32))
 	})
-	FPSDrawer.Transform().SetParent2(cam)
+	FPSDrawer.Transform().SetParent2(gui)
 	FPSDrawer.Transform().SetPositionf(60, float32(engine.Height)-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
 
@@ -134,7 +135,6 @@ func (s *GameScene) Load() {
 	engine.Space.Iterations = 10
 
 	s.AddGameObject(cam)
-	s.AddGameObject(gui)
 	s.AddGameObject(playerObject)
 	s.AddGameObject(Layer1)
 	s.AddGameObject(Layer2)
