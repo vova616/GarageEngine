@@ -22,8 +22,8 @@ type UIText struct {
 	engine.BaseComponent
 	Font           *engine.Font
 	text           string
-	buffer         gl.Buffer
-	bufferVAO      gl.VertexArray
+	buffer         engine.VBO
+	bufferVAO      engine.VAO
 	vertexCount    int
 	texcoordsIndex int
 
@@ -50,8 +50,8 @@ func NewUIText(font *engine.Font, text string) *UIText {
 	uitext := &UIText{BaseComponent: engine.NewComponent(),
 		Font:      font,
 		text:      text,
-		buffer:    gl.GenBuffer(),
-		bufferVAO: gl.GenVertexArray(),
+		buffer:    engine.GenBuffer(),
+		bufferVAO: engine.GenVertexArray(),
 		align:     engine.AlignCenter,
 		writeable: false,
 		tabSize:   4,

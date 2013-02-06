@@ -44,6 +44,7 @@ const (
 
 var (
 	CustomColorModels = make(map[color.Model]*GLColorModel)
+	lastBindedTexture gl.Texture
 )
 
 type AlignType byte
@@ -442,7 +443,11 @@ func (t *Texture) SetReadOnly() {
 }
 
 func (t *Texture) Bind() {
-	t.handle.Bind(t.target)
+	if t.handle != lastBindedTexture {
+		t.handle.Bind(t.target)
+		lastBindedTexture = t.handle
+	}
+
 }
 
 func (t *Texture) Unbind() {

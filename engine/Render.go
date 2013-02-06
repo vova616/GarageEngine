@@ -5,13 +5,13 @@ import (
 )
 
 var (
-	defaultBuffer      gl.Buffer
-	defaultIndexBuffer gl.Buffer
-	defaultVAO         gl.VertexArray
+	defaultBuffer      VBO
+	defaultIndexBuffer VBO
+	defaultVAO         VAO
 )
 
 func initDefaultPlane() {
-	defaultBuffer = gl.GenBuffer()
+	defaultBuffer = GenBuffer()
 
 	//Triagles
 	data := make([]float32, 20)
@@ -45,7 +45,7 @@ func initDefaultPlane() {
 	data[19] = 0
 
 	//Setup VAO
-	defaultVAO = gl.GenVertexArray()
+	defaultVAO = GenVertexArray()
 	defaultVAO.Bind()
 
 	defaultBuffer.Bind(gl.ARRAY_BUFFER)
