@@ -346,7 +346,7 @@ func (ui *UIText) Draw() {
 	model := engine.Identity()
 	model.Translate(v.X, v.Y, 0)
 	model.Mul(ui.GameObject().Transform().Matrix())
-
+	model.Translate(0.75, 0.75, 0)
 	/*
 		view := camera.Transform().Matrix()
 		view = view.Invert()

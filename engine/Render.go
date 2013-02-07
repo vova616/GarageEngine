@@ -104,7 +104,7 @@ func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation flo
 
 	model.Scale(scale.X*uv.Ratio, scale.Y, scale.Z)
 	model.Rotate(rotation, 0, 0, -1)
-	model.Translate(position.X, position.Y, position.Z)
+	model.Translate(position.X+0.75, position.Y+0.75, position.Z)
 
 	mv.UniformMatrix4fv(false, view)
 	mp.UniformMatrix4f(false, (*[16]float32)(camera.Projection))
@@ -162,7 +162,7 @@ func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, ro
 
 		model.Scale(scale.X*uv.Ratio, scale.Y, scale.Z)
 		model.Rotate(rotation, 0, 0, -1)
-		model.Translate(position.X, position.Y, position.Z)
+		model.Translate(position.X+0.75, position.Y+0.75, position.Z)
 
 		mm.UniformMatrix4fv(false, model)
 		ac.Uniform4f(color.X, color.Y, color.Z, 1)
