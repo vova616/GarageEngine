@@ -297,6 +297,7 @@ func (sp *Sprite) Draw() {
 		model.Scale(currentUV.Ratio, 1, 1)
 		model.Translate(v.X, v.Y, 0)
 		model.Mul(sp.GameObject().Transform().Matrix())
+		model.Translate(0.75, 0.75, 0)
 
 		mv.UniformMatrix4fv(false, view)
 		mp.UniformMatrix4f(false, (*[16]float32)(camera.Projection))
@@ -339,7 +340,7 @@ func (sp *Sprite) DrawScreen() {
 		view := Identity()
 		model := Identity()
 		model.Scale(scale.X*currentUV.Ratio, scale.Y, 1)
-		model.Translate((float32(Width)/2)+pos.X, (float32(Height)/2)+pos.Y, 1)
+		model.Translate((float32(Width)/2)+pos.X+0.75, (float32(Height)/2)+pos.Y+0.75, 1)
 
 		mv.UniformMatrix4fv(false, view)
 		mp.UniformMatrix4f(false, (*[16]float32)(camera.Projection))
