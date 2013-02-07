@@ -29,6 +29,7 @@ func (this *Tweens) Update() {
 
 		if tween.updateProgress() {
 			this.RemoveTween(tween)
+			tween.EndCallback()
 		}
 		//fmt.Println(tween.progress, tween.reverse)
 
