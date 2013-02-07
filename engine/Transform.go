@@ -185,15 +185,13 @@ func (t *Transform) Scale() Vector {
 }
 
 func (t *Transform) SetPosition(vect Vector) {
-	if vect == t.position {
-		return
-	}
 	t.updatedMatrix = false
 	t.position = vect
 }
 
 func (t *Transform) SetPositionf(x, y float32) {
-	t.SetPosition(NewVector3(x, y, 1))
+	t.updatedMatrix = false
+	t.position.X, t.position.Y = x, y
 }
 
 func (t *Transform) SetRotation(vect Vector) {
@@ -202,7 +200,8 @@ func (t *Transform) SetRotation(vect Vector) {
 }
 
 func (t *Transform) SetRotationf(z float32) {
-	t.SetRotation(NewVector3(0, 0, z))
+	t.updatedMatrix = false
+	t.rotation.Z = z
 }
 
 func (t *Transform) SetScale(vect Vector) {
@@ -211,7 +210,8 @@ func (t *Transform) SetScale(vect Vector) {
 }
 
 func (t *Transform) SetScalef(x, y float32) {
-	t.SetScale(NewVector3(x, y, 1))
+	t.updatedMatrix = false
+	t.scale.X, t.scale.Y = x, y
 }
 
 func (t *Transform) WorldPosition() Vector {
