@@ -8,12 +8,15 @@ import (
 
 type Player struct {
 	engine.BaseComponent
+	Map *Map
 }
 
 func NewPlayer() *Player {
-	return &Player{engine.NewComponent()}
+	return &Player{BaseComponent: engine.NewComponent()}
 }
 
-func (sp *Player) Update() {
-
+func (p *Player) Start() {
+	if p.Map == nil {
+		p.Map = Layers[0]
+	}
 }

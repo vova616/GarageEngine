@@ -77,7 +77,7 @@ func InsideScreen(ratio float32, position Vector, scale Vector) bool {
 	return true
 }
 
-func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation float32, aling AlignType, color Vector) {
+func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation float32, aling AlignType, color Color) {
 	if !InsideScreen(uv.Ratio, position, scale) {
 		return
 	}
@@ -109,7 +109,7 @@ func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation flo
 	mv.UniformMatrix4fv(false, view)
 	mp.UniformMatrix4f(false, (*[16]float32)(camera.Projection))
 	mm.UniformMatrix4fv(false, model)
-	ac.Uniform4f(color.X, color.Y, color.Z, 1)
+	ac.Uniform4i(int(color.R), int(color.G), int(color.B), int(color.A))
 	ti.Uniform2f(uv.U2-uv.U1, uv.V2-uv.V1)
 	of.Uniform2f(uv.U1, uv.V1)
 
@@ -122,7 +122,7 @@ func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation flo
 	internalMaterial.End(nil)
 }
 
-func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, rotations []float32, alings []AlignType, colors []Vector) {
+func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, rotations []float32, alings []AlignType, colors []Color) {
 
 	internalMaterial.Begin(nil)
 
@@ -165,7 +165,7 @@ func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, ro
 		model.Translate(position.X+0.75, position.Y+0.75, position.Z)
 
 		mm.UniformMatrix4fv(false, model)
-		ac.Uniform4f(color.X, color.Y, color.Z, 1)
+		ac.Uniform4f(color.R, color.G, color.B, color.A)
 		ti.Uniform2f(uv.U2-uv.U1, uv.V2-uv.V1)
 		of.Uniform2f(uv.U1, uv.V1)
 

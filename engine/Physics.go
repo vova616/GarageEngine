@@ -48,6 +48,7 @@ func NewPhysics2(static bool, shape *chipmunk.Shape) *Physics {
 }
 
 func (p *Physics) Start() {
+	//p.Interpolate = true
 	pos := p.GameObject().Transform().WorldPosition()
 	p.Body.SetAngle(vect.Float(p.GameObject().Transform().WorldRotation().Z) * RadianConst)
 	p.Body.SetPosition(vect.Vect{vect.Float(pos.X), vect.Float(pos.Y)})

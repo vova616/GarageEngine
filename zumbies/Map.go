@@ -25,11 +25,13 @@ type Map struct {
 	scales    []engine.Vector
 	rotations []float32
 	alings    []engine.AlignType
-	colors    []engine.Vector
+	colors    []engine.Color
 
 	Disco       float32
 	DiscoStyle  int
 	EnableDisco bool
+
+	Layer int
 }
 
 func NewMap(tex *engine.Texture, uv engine.AnimatedUV) *Map {
@@ -38,30 +40,48 @@ func NewMap(tex *engine.Texture, uv engine.AnimatedUV) *Map {
 		Sprite: engine.NewSprite3(tex, uv)}
 }
 
-type Tile uint32
+type Tile int64
 
 const (
-	_ = iota
-	_ = iota
-	_ = iota
-	_ = iota
-	_ = iota
-	_ = iota
-	_ = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	_               = iota
+	SideRight       = Tile(1 << iota)
+	SideUp          = Tile(1 << iota)
+	SideRight2      = Tile(1 << iota)
+	SideUp2         = Tile(1 << iota)
+	CollisionLeft   = Tile(1 << iota)
+	CollisionRight  = Tile(1 << iota)
+	CollisionUp     = Tile(1 << iota)
+	CollisionDown   = Tile(1 << iota)
+	LayerConnection = Tile(1 << iota)
 
 	SideLeft  = Tile(0)
-	SideRight = Tile(1 << iota)
-	SideUp    = Tile(1 << iota)
 	SideDown  = SideRight | SideUp
 	SideReset = ^SideDown
 
+	SideLeft2  = Tile(0)
+	SideDown2  = SideRight2 | SideUp2
+	SideReset2 = ^SideDown2
+
 	CollisionNone  = Tile(0)
-	CollisionLeft  = Tile(1 << iota)
-	CollisionRight = Tile(1 << iota)
-	CollisionUp    = Tile(1 << iota)
-	CollisionDown  = Tile(1 << iota)
 	CollisionAll   = CollisionLeft | CollisionRight | CollisionUp | CollisionDown
 	CollitionReset = ^CollisionAll
+
+	LayerConnectionReset = ^LayerConnection
 )
 
 func test() {
@@ -74,14 +94,38 @@ func test() {
 	println(Tile.SetSide(1, SideDown).Side())
 	println(Tile.SetSide(1, SideDown).SetSide(SideLeft))
 	println(Tile.SetSide(255, SideDown).Type())
+
+	println(Tile.SetType2(255, 15).Type())
+	println(Tile.SetType2(12, 255).Type2())
+	println(Tile(4).SetSide2(SideRight).SetType2(6).Side2() == SideRight, SideRight, SideRight2)
+
+	println((SideRight << 2) == SideRight2)
 }
 
 func (t Tile) SetSide(side Tile) Tile {
-	return Tile((uint32(t) & uint32(SideReset)) | uint32(side))
+	return (t & SideReset) | side
+}
+
+func (t Tile) SetSide2(side Tile) Tile {
+	if side < SideRight2 {
+		side = side << 2
+	}
+	return (t & SideReset2) | side
 }
 
 func (t Tile) SetCollision(collision Tile) Tile {
-	return Tile((uint32(t) & uint32(CollitionReset)) | uint32(collision))
+	return (t & CollitionReset) | collision
+}
+
+func (t Tile) SetLayerConnection(on bool) Tile {
+	if on {
+		return t | LayerConnection
+	}
+	return t & LayerConnectionReset
+}
+
+func (t Tile) LayerConnected() bool {
+	return t&LayerConnection == LayerConnection
 }
 
 func (t Tile) Collision() Tile {
@@ -116,6 +160,19 @@ func (t Tile) Side() Tile {
 	return SideLeft
 }
 
+func (t Tile) Side2() Tile {
+	if t&SideDown2 == SideDown2 {
+		return SideDown
+	}
+	if t&SideUp2 == SideUp2 {
+		return SideUp
+	}
+	if t&SideRight2 == SideRight2 {
+		return SideRight
+	}
+	return SideLeft
+}
+
 func (t Tile) Angle() float32 {
 	if t&SideDown == SideDown {
 		return 90
@@ -129,8 +186,33 @@ func (t Tile) Angle() float32 {
 	return 0
 }
 
+func (t Tile) Angle2() float32 {
+	if t&SideDown2 == SideDown2 {
+		return 90
+	}
+	if t&SideUp2 == SideUp2 {
+		return -90
+	}
+	if t&SideRight2 == SideRight2 {
+		return 180
+	}
+	return 0
+}
+
 func (t Tile) Type() Tile {
 	return Tile(byte(t))
+}
+
+func (t Tile) Type2() Tile {
+	return Tile(uint16(t) >> 8)
+}
+
+func (t Tile) SetType(typ byte) Tile {
+	return (t & ^0xff) | Tile(typ)
+}
+
+func (t Tile) SetType2(typ2 byte) Tile {
+	return (t & ^0xff00) | (Tile(typ2) << 8) | Tile(byte(t))
 }
 
 func (m *Map) Start() {
@@ -141,18 +223,18 @@ func (m *Map) Start() {
 	//tW, tH := 1000, 1000
 	//m.Tiles = make([]Tile, int(tW*tH))
 
-	m.uvs = make([]engine.UV, int(w*h))
-	m.positions = make([]engine.Vector, int(w*h))
-	m.scales = make([]engine.Vector, int(w*h))
-	m.rotations = make([]float32, int(w*h))
-	m.colors = make([]engine.Vector, int(w*h))
-	m.alings = make([]engine.AlignType, int(w*h))
+	m.uvs = make([]engine.UV, int(w*h*2))
+	m.positions = make([]engine.Vector, int(w*h*2))
+	m.scales = make([]engine.Vector, int(w*h*2))
+	m.rotations = make([]float32, int(w*h*2))
+	m.colors = make([]engine.Color, int(w*h*2))
+	m.alings = make([]engine.AlignType, int(w*h*2))
 
 	for i, _ := range m.alings {
 		m.alings[i] = engine.AlignCenter
 	}
 	for i, _ := range m.colors {
-		m.colors[i] = engine.One
+		m.colors[i] = engine.Color_White
 	}
 
 	//for i, _ := range m.Tiles {
@@ -177,6 +259,17 @@ func (m *Map) GetTile(x, y int) (tile Tile, exists bool) {
 	return m.Tiles[x+(y*m.Width)], true
 }
 
+func (m *Map) IsTileWalkabke(x, y int) bool {
+	if x >= m.Width || y >= m.Height || x < 0 || y < 0 {
+		return false
+	}
+	t := m.Tiles[x+(y*m.Width)]
+	if t == 0 {
+		return false
+	}
+	return t.Collision() == CollisionNone
+}
+
 func (m *Map) PositionToTile(worldPosition engine.Vector) (tile Tile, x, y int) {
 
 	mapPos := m.Transform().WorldPosition()
@@ -194,14 +287,23 @@ func (m *Map) PositionToTile(worldPosition engine.Vector) (tile Tile, x, y int) 
 	//Calculate tile position in array
 	xx := (worldPosition.X / m.TileSize)
 	yy := (worldPosition.Y / m.TileSize)
+	if xx < 0 {
+		x = -1
+	} else {
+		x = int(xx)
+	}
+	if yy < 0 {
+		y = -1
+	} else {
+		y = int(yy)
+	}
 
 	//Check if outside of map
 	if xx < 0 || yy < 0 || xx >= float32(m.Width) || yy >= float32(m.Height) {
-		return 0, -1, -1
+		return 0, x, y
 	}
 
-	//return the tile
-	x, y = int(xx), int(yy)
+	//return the tile	
 	return m.Tiles[x+(y*m.Width)], int(x), int(y)
 }
 
@@ -230,6 +332,9 @@ func (m *Map) GetTilePos(x, y int) (pos engine.Vector, exists bool) {
 }
 
 func (m *Map) Draw() {
+	if m.Layer < MainPlayer.Map.Layer {
+		return
+	}
 	camera := engine.GetScene().SceneBase().Camera
 	cameraPos := camera.Transform().WorldPosition()
 
@@ -250,19 +355,28 @@ func (m *Map) Draw() {
 			tileType, tx, ty := m.PositionToTile(tilePos)
 
 			//Check if visible/exists
-			if tileType != 0 {
+			if tileType.Type() != 0 {
 				//Add to draw list
-				tile := Tile(tileType - 1)
-				m.uvs[index] = m.Sprite.UVs[tile.Type()]
+				m.uvs[index] = m.Sprite.UVs[tileType.Type()-1]
 				pos, e := m.GetTilePos(tx, ty)
 				if !e {
 					panic("Does not exists")
 				}
-				//Pixel fix
-				//pos.X += 0.75
-				//pos.Y += 0.75
 				m.positions[index] = pos
-				m.rotations[index] = tile.Angle() + m.Disco
+				m.rotations[index] = tileType.Angle() + m.Disco
+				m.scales[index] = engine.NewVector2(m.TileSize+float32(int(m.Disco)%52), m.TileSize+float32(int(m.Disco)%52))
+				index++
+				//engine.DrawSprite(m.Sprite.Texture, m.Sprite.UVs[int(m.Tiles[tileIndex])], tilePos, engine.NewVector2(m.TileSize, m.TileSize), 0, engine.AlignCenter, engine.One)
+			}
+			if tileType.Type2() != 0 {
+				//Add to draw list
+				m.uvs[index] = m.Sprite.UVs[tileType.Type2()-1]
+				pos, e := m.GetTilePos(tx, ty)
+				if !e {
+					panic("Does not exists")
+				}
+				m.positions[index] = pos
+				m.rotations[index] = tileType.Angle2() + m.Disco
 				m.scales[index] = engine.NewVector2(m.TileSize+float32(int(m.Disco)%52), m.TileSize+float32(int(m.Disco)%52))
 				index++
 				//engine.DrawSprite(m.Sprite.Texture, m.Sprite.UVs[int(m.Tiles[tileIndex])], tilePos, engine.NewVector2(m.TileSize, m.TileSize), 0, engine.AlignCenter, engine.One)

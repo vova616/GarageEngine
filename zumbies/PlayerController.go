@@ -38,35 +38,62 @@ func (this *PlayerController) FixedUpdate() {
 		speed.Y += float32(this.WalkSpeed)
 	}
 
-	tpos := this.Transform().WorldPosition()
-	pos := tpos
-	tpos.Y -= 32
-	_, x, y := Map1.PositionToTile(tpos)
-
-	t, exists := Map1.GetTile(x, y)
-	if !exists || t.Collision() != CollisionNone {
-
-		dir := pos.Sub(this.LastPosition)
-		if dir.X != 0 {
-			speed.X = 0
-		}
-		if dir.Y != 0 {
-			speed.Y = 0
-		}
-
-		this.GameObject().Transform().SetWorldPosition(this.LastPosition)
-	}
-
 	this.GameObject().Physics.Body.SetVelocity(speed.X, speed.Y)
-	this.LastPosition = this.GameObject().Transform().WorldPosition()
 }
 
 func (this *PlayerController) Update() {
 	pos := this.Transform().WorldPosition()
+	cmap := this.Player.Map
+	Player := this.Player
+	myPos := pos
+
 	pos.Y -= 32
-	_, x, y := Map1.PositionToTile(pos)
-	t, exists := Map1.GetTile(x, y)
-	if !exists || t.Collision() != CollisionNone {
-		this.GameObject().Transform().SetWorldPosition(this.LastPosition)
+	newTile, x, y := cmap.PositionToTile(pos)
+	_ = newTile
+	if !cmap.IsTileWalkabke(x, y) {
+		p := this.LastPosition
+		p.Y -= 32
+		oldTile, x2, y2 := cmap.PositionToTile(p)
+
+		if oldTile.LayerConnected() {
+			//println("Layer Move", Player.Map.Layer)
+			movedLayer := false
+			if Player.Map.Layer+1 < len(Layers) {
+				newLayer := Layers[Player.Map.Layer+1]
+				//println("Trying to go up")
+				if newLayer.IsTileWalkabke(x, y) {
+					movedLayer = true
+					Player.Map = newLayer
+					return
+				}
+			}
+			if Player.Map.Layer-1 >= 0 && !movedLayer {
+				newLayer := Layers[Player.Map.Layer-1]
+				//println("Trying to go down")
+				if newLayer.IsTileWalkabke(x, y) {
+					Player.Map = newLayer
+					return
+				}
+			}
+		}
+
+		p.Y += 32
+		//println(x, y, x2, y2)
+
+		dx := x - x2
+		dy := y - y2
+		xw := cmap.IsTileWalkabke(x2+dx, y2)
+		yw := cmap.IsTileWalkabke(x2, y2+dy)
+		//println(x2, y2, dx, dy, xw, yw)
+		//xyw := Map1.IsTileWalkabke(x2+dx, y2+dy)
+		if xw {
+			p.X = myPos.X
+		}
+		if yw {
+			p.Y = myPos.Y
+		}
+
+		this.GameObject().Transform().SetWorldPosition(p)
 	}
+	this.LastPosition = this.GameObject().Transform().WorldPosition()
 }
