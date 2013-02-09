@@ -193,7 +193,7 @@ func (s *LoginScene) Load() {
 	errLabelTxt.SetFocus(false)
 	errLabelTxt.SetWritable(false)
 	errLabelTxt.SetAlign(engine.AlignCenter)
-	errLabelTxt.Color = engine.Vector{1, 1, 1}
+	errLabelTxt.Color = engine.Color_White
 	//
 	LoginButton := engine.NewGameObject("LoginButton")
 	LoginButton.Transform().SetParent2(cam)
@@ -202,7 +202,7 @@ func (s *LoginScene) Load() {
 	LoginButton.AddComponent(engine.NewPhysics(false, 1, 1))
 	LoginButton.Physics.Shape.IsSensor = true
 	LoginButton.Transform().SetScalef(50, 50)
-	LoginButton.Sprite.Color = engine.Vector{0.5, 0.5, 0.5}
+	LoginButton.Sprite.Color = engine.Color{0.5, 0.5, 0.5, 1}
 	/*
 		{
 			LoginButton := engine.NewGameObject("LoginButton")
@@ -254,9 +254,9 @@ func (s *LoginScene) Load() {
 		}
 	}, func(enter bool) {
 		if enter {
-			LoginButton.Sprite.Color = engine.Vector{0.4, 0.4, 0.4}
+			LoginButton.Sprite.Color = engine.Color{0.4, 0.4, 0.4, 1}
 		} else {
-			LoginButton.Sprite.Color = engine.Vector{0.5, 0.5, 0.5}
+			LoginButton.Sprite.Color = engine.Color{0.5, 0.5, 0.5, 1}
 		}
 	}))
 
@@ -264,7 +264,7 @@ func (s *LoginScene) Load() {
 	txt2.SetFocus(false)
 	txt2.SetWritable(false)
 	txt2.SetAlign(engine.AlignCenter)
-	txt2.Color = engine.Vector{1, 1, 1}
+	txt2.Color = engine.Color{1, 1, 1, 1}
 	//	
 
 	engine.StartCoroutine(func() {

@@ -33,7 +33,7 @@ type Sprite struct {
 
 	Render bool
 
-	Color Vector
+	Color Color
 
 	align AlignType
 }
@@ -56,7 +56,7 @@ func NewSprite3(tex *Texture, uv AnimatedUV) *Sprite {
 		endAnimation:   len(uv),
 		UVs:            uv,
 		Render:         true,
-		Color:          Vector{1, 1, 1},
+		Color:          Color_White,
 		align:          AlignCenter,
 		Tiling:         Vector{1, 1, 0},
 	}
@@ -306,7 +306,7 @@ func (sp *Sprite) Draw() {
 		sp.Bind()
 		tx.Uniform1i(0)
 
-		ac.Uniform4f(sp.Color.X, sp.Color.Y, sp.Color.Z, 1)
+		ac.Uniform4f(sp.Color.R, sp.Color.G, sp.Color.B, sp.Color.A)
 		ti.Uniform2f((currentUV.U2-currentUV.U1)*sp.Tiling.X, (currentUV.V2-currentUV.V1)*sp.Tiling.Y)
 		of.Uniform2f(currentUV.U1, currentUV.V1)
 
@@ -354,7 +354,7 @@ func (sp *Sprite) DrawScreen() {
 		tx.Uniform1i(0)
 
 		//ac.Uniform4f(1, 1, 1, 0) 
-		ac.Uniform4f(1, 1, 1, 1)
+		ac.Uniform4f(sp.Color.R, sp.Color.G, sp.Color.B, sp.Color.A)
 
 		gl.DrawArrays(gl.QUADS, 0, 4)
 

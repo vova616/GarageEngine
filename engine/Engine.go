@@ -189,12 +189,12 @@ func Title() string {
 func StartEngine() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	runtime.LockOSThread()
-	println("Enginge started!")
+	fmt.Println("Enginge started!")
 	var err error
 	if err = glfw.Init(); err != nil {
 		panic(err)
 	}
-	println("GLFW Initialized!")
+	fmt.Println("GLFW Initialized!")
 
 	glfw.OpenWindowHint(glfw.Accelerated, 1)
 
@@ -213,7 +213,7 @@ func StartEngine() {
 	if err = initGL(); err != nil {
 		panic(err)
 	}
-	println("Opengl Initialized!")
+	fmt.Println("Opengl Initialized!")
 
 	TextureMaterial = NewBasicMaterial(spriteVertexShader, spriteFragmentShader)
 	err = TextureMaterial.Load()

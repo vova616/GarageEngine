@@ -39,7 +39,7 @@ type UIText struct {
 
 	autoFocus bool //This will go away
 
-	Color engine.Vector
+	Color engine.Color
 }
 
 func NewUIText(font *engine.Font, text string) *UIText {
@@ -55,7 +55,7 @@ func NewUIText(font *engine.Font, text string) *UIText {
 		align:     engine.AlignCenter,
 		writeable: false,
 		tabSize:   4,
-		Color:     engine.Vector{1, 1, 1}}
+		Color:     engine.Color_White}
 
 	uitext.setString(text)
 	input.AddCharCallback(func(rn rune) { uitext.charCallback(rn) })
@@ -362,7 +362,7 @@ func (ui *UIText) Draw() {
 	ui.Font.Bind()
 	tx.Uniform1i(0)
 
-	color.Uniform4f(ui.Color.X, ui.Color.Y, ui.Color.Z, 1)
+	color.Uniform4f(ui.Color.R, ui.Color.G, ui.Color.B, ui.Color.A)
 
 	gl.DrawArrays(gl.QUADS, 0, ui.vertexCount)
 
