@@ -155,19 +155,11 @@ func (sp *Sprite) Start() {
 
 }
 
-func (sp *Sprite) CurrentAnimationIndex() int {
-	return int(sp.animation) - sp.startAnimation
-}
-
-func (sp *Sprite) AnimationLength() int {
-	return sp.endAnimation - sp.startAnimation
-}
-
 func (sp *Sprite) SetAnimationIndex(index int) {
 	if index <= 0 {
-		sp.animation = float32(sp.startAnimation)
+		sp.animation = 0
 	} else {
-		sp.animation = float32((index % (sp.endAnimation - sp.startAnimation)) + sp.startAnimation)
+		sp.animation = float32(index % sp.endAnimation)
 	}
 }
 
@@ -178,11 +170,11 @@ func (sp *Sprite) Update() {
 		if int(sp.animation) < sp.endAnimation {
 			sp.animation += float32(float64(sp.AnimationSpeed) * DeltaTime())
 		}
-		for sp.animation >= float32(sp.endAnimation) {
+		if sp.animation >= float32(sp.endAnimation) {
 			if sp.AnimationEndCallback != nil {
 				sp.AnimationEndCallback(sp)
 			}
-			sp.animation = float32(sp.startAnimation) + (sp.animation - float32(sp.endAnimation))
+			sp.animation = float32(sp.startAnimation)
 		}
 	}
 	sp.UpdateShape()

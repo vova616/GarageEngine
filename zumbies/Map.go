@@ -237,8 +237,6 @@ func (m *Map) Start() {
 		m.colors[i] = engine.Color_White
 	}
 
-	m.GenerateCollision()
-
 	//for i, _ := range m.Tiles {
 	//m.Tiles[i] = rand.Uint32() % 2 //uint32(len(m.Sprite.UVs))
 	//	m.Tiles[i] = 1
@@ -270,58 +268,6 @@ func (m *Map) IsTileWalkabke(x, y int) bool {
 		return false
 	}
 	return t.Collision() == CollisionNone
-}
-
-func (m *Map) CheckCollision(worldPosition engine.Vector, width, height float32) bool {
-	_, x1, y1 := m.PositionToTile(worldPosition.Add(engine.Vector{width / 2, height / 2, 0}))
-	_, x2, y2 := m.PositionToTile(worldPosition.Add(engine.Vector{-width / 2, -height / 2, 0}))
-	if x1 > x2 {
-		x1, x2 = x2, x1
-	}
-	if y1 > y2 {
-		y1, y2 = y2, y1
-	}
-
-	for ; y1 <= y2; y1++ {
-		for x := x1; x <= x2; x++ {
-			if !m.IsTileWalkabke(x, y1) {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-func (m *Map) GetCollisions(worldPosition engine.Vector, width, height float32) (x, y []int) {
-	return m.GetCollisions2(worldPosition, width, height, nil, nil)
-}
-
-func (m *Map) GetCollisions2(worldPosition engine.Vector, width, height float32, xCollisions, yCollisions []int) (x, y []int) {
-	_, x1, y1 := m.PositionToTile(worldPosition.Add(engine.Vector{width / 2, height / 2, 0}))
-	_, x2, y2 := m.PositionToTile(worldPosition.Add(engine.Vector{-width / 2, -height / 2, 0}))
-	if x1 > x2 {
-		x1, x2 = x2, x1
-	}
-	if y1 > y2 {
-		y1, y2 = y2, y1
-	}
-	for ; y1 <= y2; y1++ {
-		for x := x1; x <= x2; x++ {
-			if !m.IsTileWalkabke(x, y1) {
-				if xCollisions == nil {
-					xCollisions = make([]int, 0, 4)
-				}
-				if yCollisions == nil {
-					yCollisions = make([]int, 0, 4)
-				}
-				xCollisions = append(xCollisions, x)
-				yCollisions = append(yCollisions, y1)
-			}
-		}
-	}
-
-	return xCollisions, yCollisions
 }
 
 func (m *Map) PositionToTile(worldPosition engine.Vector) (tile Tile, x, y int) {
@@ -383,22 +329,6 @@ func (m *Map) GetTilePos(x, y int) (pos engine.Vector, exists bool) {
 	pos.Y += mapPos.Y
 
 	return pos, true
-}
-
-func (m *Map) GenerateCollision() {
-	type point struct {
-		X, Y int
-	}
-	tiles := make(map[point]Tile)
-	for x := 0; x < m.Width; x++ {
-		for y := 0; y < m.Height; y++ {
-			if t, e := m.GetTile(x, y); e {
-				if t.Collision() != CollisionNone {
-					tiles[point{x, y}] = t
-				}
-			}
-		}
-	}
 }
 
 func (m *Map) Draw() {
