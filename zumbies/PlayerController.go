@@ -1,8 +1,6 @@
 package zumbies
 
 import (
-	"github.com/vova616/chipmunk"
-	"github.com/vova616/chipmunk/vect"
 	"github.com/vova616/garageEngine/engine"
 	"github.com/vova616/garageEngine/engine/input"
 	//"log"
@@ -10,59 +8,21 @@ import (
 
 type PlayerController struct {
 	engine.BaseComponent
-	Player    *Player
-	WalkSpeed float64
+	Player       *Player
+	WalkSpeed    float64
+	LastPosition engine.Vector
 }
 
 func NewPlayerController(player *Player) *PlayerController {
-	return &PlayerController{engine.NewComponent(), player, 100}
+	return &PlayerController{engine.NewComponent(), player, 100, engine.Zero}
 }
 
 func (this *PlayerController) Start() {
-	this.GameObject().Physics.Body.UpdatePositionFunc = func(body *chipmunk.Body, dt vect.Float) {
-
-		v := body.Velocity()
-		newPos := vect.Add(body.Position(), vect.Mult(vect.Add(v, body.VBias()), dt))
-		cmap := this.Player.Map
-		p := engine.Vector{float32(newPos.X), float32(newPos.Y - 22), 0}
-		xc, yc := cmap.GetCollisions(p, 25, 10)
-		if xc != nil {
-
-			oldPos := body.Position()
-			worldPosition := engine.Vector{float32(oldPos.X), float32(oldPos.Y - 22), 0}
-
-			_, x1, y1 := cmap.PositionToTile(worldPosition.Add(engine.Vector{25 / 2, 10 / 2, 0}))
-			_, x2, y2 := cmap.PositionToTile(worldPosition.Add(engine.Vector{-25 / 2, -10 / 2, 0}))
-			if x1 > x2 {
-				x1, x2 = x2, x1
-			}
-			if y1 > y2 {
-				y1, y2 = y2, y1
-			}
-
-			for i := 0; i < len(xc); i++ {
-				x, y := xc[i], yc[i]
-				if !(y >= y1 && y2 >= y) && (x >= x1 && x2 >= x) {
-					v.Y = 0
-				}
-				if !(x >= x1 && x2 >= x) && (y >= y1 && y2 >= y) {
-					v.X = 0
-				}
-			}
-
-			newPos = vect.Add(body.Position(), vect.Mult(vect.Add(v, body.VBias()), dt))
-		}
-
-		body.SetPosition(newPos)
-
-		body.SetAngle(body.Angle() + vect.Float(body.AngularVelocity()+body.WBias())*dt)
-
-		body.SetVBias(vect.Vector_Zero)
-		body.SetWBias(0)
-	}
+	this.LastPosition = this.GameObject().Transform().WorldPosition()
 }
 
 func (this *PlayerController) FixedUpdate() {
+	//t := this.GameObject().Transform()
 	var speed engine.Vector
 
 	if input.KeyDown('A') {
@@ -81,8 +41,59 @@ func (this *PlayerController) FixedUpdate() {
 	this.GameObject().Physics.Body.SetVelocity(speed.X, speed.Y)
 }
 
-/*
-	if newPosition is bad disable walking
-	else move to newPosition
+func (this *PlayerController) Update() {
+	pos := this.Transform().WorldPosition()
+	cmap := this.Player.Map
+	Player := this.Player
+	myPos := pos
 
-*/
+	pos.Y -= 32
+	newTile, x, y := cmap.PositionToTile(pos)
+	_ = newTile
+	if !cmap.IsTileWalkabke(x, y) {
+		p := this.LastPosition
+		p.Y -= 32
+		oldTile, x2, y2 := cmap.PositionToTile(p)
+
+		if oldTile.LayerConnected() {
+			//println("Layer Move", Player.Map.Layer)
+			movedLayer := false
+			if Player.Map.Layer+1 < len(Layers) {
+				newLayer := Layers[Player.Map.Layer+1]
+				//println("Trying to go up")
+				if newLayer.IsTileWalkabke(x, y) {
+					movedLayer = true
+					Player.Map = newLayer
+					return
+				}
+			}
+			if Player.Map.Layer-1 >= 0 && !movedLayer {
+				newLayer := Layers[Player.Map.Layer-1]
+				//println("Trying to go down")
+				if newLayer.IsTileWalkabke(x, y) {
+					Player.Map = newLayer
+					return
+				}
+			}
+		}
+
+		p.Y += 32
+		//println(x, y, x2, y2)
+
+		dx := x - x2
+		dy := y - y2
+		xw := cmap.IsTileWalkabke(x2+dx, y2)
+		yw := cmap.IsTileWalkabke(x2, y2+dy)
+		//println(x2, y2, dx, dy, xw, yw)
+		//xyw := Map1.IsTileWalkabke(x2+dx, y2+dy)
+		if xw {
+			p.X = myPos.X
+		}
+		if yw {
+			p.Y = myPos.Y
+		}
+
+		this.GameObject().Transform().SetWorldPosition(p)
+	}
+	this.LastPosition = this.GameObject().Transform().WorldPosition()
+}

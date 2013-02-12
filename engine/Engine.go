@@ -312,7 +312,7 @@ func Run() {
 				timer.StartCustom("Physics time")
 
 				setPosition := func(g *GameObject) {
-					if g.Physics != nil && !g.Physics.Body.IsStatic() && g.Physics.started() {
+					if g.Physics != nil && g.Physics.started() {
 						pos := g.Transform().WorldPosition()
 
 						var pAngle vect.Float
@@ -362,7 +362,7 @@ func Run() {
 				}
 
 				updatePosition := func(g *GameObject) {
-					if g.Physics != nil && !g.Physics.Body.IsStatic() && g.Physics.started() {
+					if g.Physics != nil && g.Physics.started() {
 
 						/*
 							When parent changes his position/rotation it changes his children position/rotation too but the physics engine thinks its in different position
