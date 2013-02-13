@@ -36,13 +36,14 @@ func Rotation(t *Tween, arr []float32) []float32 {
 	t.Target.Transform().SetRotation(rot)
 	return []float32{rot.X, rot.Y, rot.Z}
 }
-func Alpha(t *Tween, arr []float32) []float32 {
-	spr := t.Target.Sprite
+func Color(t *Tween, arr []float32) []float32 {
+	col := t.Target.Sprite.Color
 	if arr == nil || len(arr) == 0 {
-		return []float32{spr.Color.A}
+		return []float32{col.R, col.G, col.B, col.A}
 	}
-	spr.Color.A = arr[0]
-	return []float32{spr.Color.A}
+	col = ColorFmt(col, arr, t.Format)
+	t.Target.Sprite.Color = col
+	return []float32{col.R, col.G, col.B, col.A}
 }
 func WorldScale(t *Tween, arr []float32) []float32 {
 	scale := t.Target.Transform().WorldScale()
@@ -72,6 +73,58 @@ func WorldRotation(t *Tween, arr []float32) []float32 {
 	rot = VectorFmtRotation(rot, arr, t.Format)
 	t.Target.Transform().SetWorldRotation(rot)
 	return []float32{rot.X, rot.Y, rot.Z}
+}
+
+func ColorFmt(v engine.Color, arr []float32, s string) engine.Color {
+	if len(s) == 0 {
+		if len(arr) > 3 {
+			v.R = arr[0]
+			v.G = arr[1]
+			v.B = arr[2]
+			v.A = arr[3]
+		} else if len(arr) > 2 {
+			v.R = arr[0]
+			v.G = arr[1]
+			v.B = arr[2]
+		} else if len(arr) > 1 {
+			v.R = arr[0]
+			v.G = arr[1]
+		} else {
+			v.R = arr[0]
+		}
+		return v
+	}
+	if (len(s) <= 4 && len(s) >= 1) && len(arr) == 1 {
+		for _, r := range s {
+			switch r {
+			case 'r', 'R':
+				v.R = arr[0]
+			case 'g', 'G':
+				v.G = arr[0]
+			case 'b', 'B':
+				v.B = arr[0]
+			case 'a', 'A':
+				v.A = arr[0]
+			}
+		}
+		return v
+	}
+	for i, r := range s {
+		if i >= len(arr) {
+			break
+		}
+		switch r {
+		case 'r', 'R':
+			v.R = arr[i]
+		case 'g', 'G':
+			v.G = arr[i]
+		case 'b', 'B':
+			v.B = arr[i]
+		case 'a', 'A':
+			v.A = arr[i]
+		}
+	}
+	return v
 }
 
 func VectorFmt(v engine.Vector, arr []float32, s string) engine.Vector {
