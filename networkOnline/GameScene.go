@@ -148,7 +148,7 @@ func (s *GameScene) Load() {
 		phx.Body.SetMass(1)
 	}
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 200; i++ {
 		sprite3 := ball.Clone()
 		sprite3.Transform().SetParent2(Layer2)
 		sprite3.Transform().SetPositionf(200+float32(i%4)*25, float32(i*30)+120)
@@ -215,6 +215,17 @@ func (s *GameScene) Load() {
 	cam.AddComponent(sShadow)
 
 	//sShadow.Sprite = bbBox
+	//
+	{
+		sprite3 := ball.Clone()
+		sprite3.Transform().SetParent2(Layer2)
+		sprite3.Transform().SetPositionf(200, 120)
+
+		joint := chipmunk.NewPivotJoint(mouse.Physics.Body, sprite3.Physics.Body)
+		joint.MaxForce = 5000000
+		//mouseJoint->errorBias = cpfpow(1.0f - 0.15f, 60.0f);
+		engine.Space.AddConstraint(joint)
+	}
 
 	s.AddGameObject(cam)
 	s.AddGameObject(gui)
