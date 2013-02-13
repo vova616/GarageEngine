@@ -7,11 +7,7 @@ import (
 
 type TypeFunc func(*Tween, []float32) []float32
 type Algorithm func(float32, float32, float32) float32
-<<<<<<< HEAD
-type LoopFunc func(*Tween) bool
-=======
 type LoopFunc func(t *Tween, progress float32) (newProgress float32, destroy bool)
->>>>>>> upstream/master
 
 type Tween struct {
 	Target *engine.GameObject
@@ -48,13 +44,9 @@ func (t *Tween) updateProgress() bool {
 	} else {
 		t.progress = float32(float64(delta) / float64(t.Time))
 	}
-<<<<<<< HEAD
-	return t.Loop(t)
-=======
 	destroy := false
 	t.progress, destroy = t.Loop(t, t.progress)
 	return destroy
->>>>>>> upstream/master
 }
 
 func (t *Tween) Value() []float32 {
