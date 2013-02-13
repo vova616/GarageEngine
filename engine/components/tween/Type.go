@@ -38,6 +38,9 @@ func Rotation(t *Tween, arr []float32) []float32 {
 }
 func Color(t *Tween, arr []float32) []float32 {
 	col := t.Target.Sprite.Color
+	if t.Target.Sprite == nil {
+		panic("Cannot run Color tween on none Sprite GameObjects")
+	}
 	if arr == nil || len(arr) == 0 {
 		return []float32{col.R, col.G, col.B, col.A}
 	}
