@@ -386,7 +386,7 @@ func (m *Map) GetTilePos(x, y int) (pos engine.Vector, exists bool) {
 	return pos, true
 }
 
-func (m *Map) GenerateCollision() {
+func (m *Map) GenerateCollision2() {
 	tilesy := make(map[int][]int)
 	tilesx := make(map[int][]int)
 	for x := 0; x < m.Width; x++ {
@@ -467,10 +467,33 @@ func (m *Map) GenerateCollision() {
 		}
 
 	}
+	println("Map end")
+	m.GameObject().AddComponent(engine.NewPhysicsShapes(true, shapes))
+
+}
+
+func (m *Map) GenerateCollision() {
+
+	var shapes []*chipmunk.Shape
+
+	for x := 0; x < m.Width; x++ {
+		for y := 0; y < m.Height; y++ {
+			if t, e := m.GetTile(x, y); e {
+				if t.Collision() != CollisionNone {
+					p, _ := m.GetTilePos(x, y)
+					shape := chipmunk.NewBox(vect.Vect{vect.Float(p.X), vect.Float(p.Y)},
+						vect.Float(m.TileSize), vect.Float(m.TileSize))
+
+					shape.Layer = chipmunk.Layer(m.Layer)
+					shape.SetFriction(0)
+					shapes = append(shapes, shape)
+				}
+			}
+		}
+	}
 
 	m.GameObject().AddComponent(engine.NewPhysicsShapes(true, shapes))
 
-	println("Map end")
 }
 
 func (m *Map) Draw() {

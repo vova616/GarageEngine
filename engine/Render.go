@@ -160,7 +160,7 @@ func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, ro
 		model := Identity()
 		model.Translate(v.X, v.Y, 0)
 
-		model.Scale(scale.X*uv.Ratio, scale.Y, scale.Z)
+		model.Scale((scale.X * uv.Ratio), scale.Y, scale.Z)
 		model.Rotate(rotation, 0, 0, -1)
 		model.Translate(position.X+0.75, position.Y+0.75, position.Z)
 

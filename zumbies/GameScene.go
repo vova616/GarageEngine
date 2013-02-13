@@ -44,7 +44,7 @@ func CheckError(err error) bool {
 }
 
 func (s *GameScene) LoadTextures() {
-	TileAtlas = engine.NewManagedAtlas(1024, 1024)
+	TileAtlas = engine.NewManagedAtlas(512, 512)
 
 	e, TileID := TileAtlas.LoadImage("./data/zumbies/tiles/tile.png")
 	CheckError(e)
@@ -70,7 +70,7 @@ func (s *GameScene) LoadTextures() {
 	CheckError(e)
 	TileIDs = append(TileIDs, TileID)
 
-	e, PlayerID = TileAtlas.LoadImage("./data/zumbies/player.png")
+	e, PlayerID = TileAtlas.LoadImage("./data/zumbies/zombie.png")
 	CheckError(e)
 
 	TileAtlas.BuildAtlas()
@@ -102,6 +102,7 @@ func (s *GameScene) Load() {
 
 	cam := engine.NewGameObject("Camera")
 	cam.AddComponent(s.Camera)
+	cam.AddComponent(NewCameraCtl(100))
 
 	cam.Transform().SetScalef(1, 1)
 
@@ -230,12 +231,12 @@ func (s *GameScene) Load() {
 		m.Width = int(60)
 		m.Height = int(23)
 
-		//Layers = append(Layers, m)
+		Layers = append(Layers, m)
 
 	}
 
 	for i := len(Layers) - 1; i >= 0; i-- {
-		Layers[i].Layer = i
+		Layers[i].Layer = int(1 << uint(i))
 		Layers[i].Transform().SetParent2(Layer1)
 	}
 
@@ -245,7 +246,7 @@ func (s *GameScene) Load() {
 	playerObject.AddComponent(player)
 	playerObject.AddComponent(NewPlayerController(player))
 	playerObject.AddComponent(components.NewSmoothFollow(nil, 0, 200))
-	playerObject.AddComponent(engine.NewPhysics(false, 1, 1))
+	playerObject.AddComponent(engine.NewPhysicsCir(false, 1))
 	playerObject.Physics.Interpolate = true
 	playerObject.Physics.Body.SetMoment(engine.Inf)
 	playerObject.Transform().SetScalef(64, 64)

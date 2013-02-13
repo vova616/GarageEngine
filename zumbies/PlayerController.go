@@ -82,7 +82,7 @@ func (this *PlayerController) Start() {
 */
 
 func (this *PlayerController) FixedUpdate() {
-
+	this.GameObject().Physics.Shape.Layer = chipmunk.Layer(this.Player.Map.Layer)
 	t := this.JointGameObject.Transform()
 
 	var move engine.Vector = this.Transform().WorldPosition()

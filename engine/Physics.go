@@ -47,6 +47,21 @@ func NewPhysics2(static bool, shape *chipmunk.Shape) *Physics {
 	return p
 }
 
+func NewPhysicsCir(static bool, radius float32) *Physics {
+	var body *chipmunk.Body
+	shape := chipmunk.NewCircle(vect.Vector_Zero, radius)
+	if static {
+		body = chipmunk.NewBodyStatic()
+	} else {
+		body = chipmunk.NewBody(1, shape.ShapeClass.Moment(1))
+	}
+
+	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: shape.GetAsBox(), Shape: shape}
+
+	body.AddShape(shape)
+	return p
+}
+
 func NewPhysicsShapes(static bool, shapes []*chipmunk.Shape) *Physics {
 	var body *chipmunk.Body
 	if static {
