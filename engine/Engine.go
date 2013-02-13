@@ -89,7 +89,7 @@ var (
 
 	steps          = float64(1)
 	stepTime       = float64(1) / float64(60) / steps
-	maxPhysicsTime = float64(1) / float64(30)
+	maxPhysicsTime = float64(1) / float64(40)
 
 	lastTime time.Time = time.Now()
 
@@ -286,7 +286,11 @@ func Run() {
 		endPhysicsDelta time.Duration
 
 	if mainScene != nil {
-		fixedTime += deltaTime
+		d := deltaTime
+		if d > maxPhysicsTime {
+			d = maxPhysicsTime
+		}
+		fixedTime += d
 		sd := mainScene.SceneBase()
 
 		arr := sd.gameObjects
@@ -304,6 +308,7 @@ func Run() {
 		timer.StartCustom("Physics time")
 		if EnablePhysics {
 			timer.StartCustom("Physics step time")
+
 			for fixedTime >= stepTime {
 				timer.StartCustom("FixedUpdate routines")
 				Iter(arr, fixedUdpateGameObject)
@@ -351,16 +356,16 @@ func Run() {
 				Space.Step(vect.Float(stepTime))
 				fixedTime -= stepTime
 
-				physicsStepDelta := timer.StopCustom("Physics step time")
-
-				physicsBreak := false
-				//break if its taking too much time
-				if float64(physicsStepDelta.Nanoseconds())/float64(time.Second) > maxPhysicsTime {
-					physicsBreak = true
-					//println("physics taking too much ", physicsStepDelta.Nanoseconds())
-					//fmt.Println("physics taking too much", float64(physicsStepDelta.Nanoseconds())/float64(time.Second))
-				}
-
+				_ = timer.StopCustom("Physics step time")
+				/*
+					physicsBreak := false
+					//break if its taking too much time
+					if float64(physicsStepDelta.Nanoseconds())/float64(time.Second) > maxPhysicsTime {
+						physicsBreak = true
+						//println("physics taking too much ", physicsStepDelta.Nanoseconds())
+						//fmt.Println("physics taking too much", float64(physicsStepDelta.Nanoseconds())/float64(time.Second))
+					}
+				*/
 				updatePosition := func(g *GameObject) {
 					if g.Physics != nil && !g.Physics.Body.IsStatic() && g.Physics.started() {
 
@@ -385,7 +390,7 @@ func Run() {
 							g.Physics.lastPosition = vect.Vect{vect.Float(objPos.X), vect.Float(objPos.Y)}
 							g.Physics.lastAngle = vect.Float(a)
 
-							if (fixedTime > 0 && fixedTime < stepTime) || physicsBreak {
+							if fixedTime > 0 && fixedTime < stepTime {
 								fTime := fixedTime
 								for fTime > stepTime {
 									fTime -= stepTime
@@ -406,10 +411,6 @@ func Run() {
 				timer.StartCustom("End Physics Delta")
 				Iter(arr, updatePosition)
 				endPhysicsDelta = timer.StopCustom("End Physics Delta")
-
-				if physicsBreak {
-					break
-				}
 			}
 		}
 		physicsDelta = timer.StopCustom("Physics time")
