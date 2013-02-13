@@ -10,14 +10,32 @@ import (
 
 type PlayerController struct {
 	engine.BaseComponent
-	Player    *Player
-	WalkSpeed float64
+	Player          *Player
+	Joint           *chipmunk.PivotJoint
+	JointGameObject *engine.GameObject
+	WalkSpeed       float32
 }
 
 func NewPlayerController(player *Player) *PlayerController {
-	return &PlayerController{engine.NewComponent(), player, 100}
+	return &PlayerController{engine.NewComponent(), player, nil, nil, 200}
 }
 
+func (this *PlayerController) Start() {
+	j := engine.NewGameObject("Joint")
+	j.Transform().SetParent2(GameSceneGeneral.Layer1)
+	j.Transform().SetWorldPosition(this.Transform().WorldPosition())
+	j.AddComponent(engine.NewPhysics(false, 1, 1))
+	j.Physics.Body.SetMass(engine.Inf)
+	j.Physics.Body.SetMoment(engine.Inf)
+	this.Joint = chipmunk.NewPivotJoint(j.Physics.Body, this.GameObject().Physics.Body)
+	engine.Space.AddConstraint(this.Joint)
+	j.Physics.Shape.IsSensor = true
+	this.Joint.MaxBias = vect.Float(this.WalkSpeed)
+	this.Joint.MaxForce = 3000
+	this.JointGameObject = j
+}
+
+/*
 func (this *PlayerController) Start() {
 	this.GameObject().Physics.Body.UpdatePositionFunc = func(body *chipmunk.Body, dt vect.Float) {
 
@@ -61,24 +79,28 @@ func (this *PlayerController) Start() {
 		body.SetWBias(0)
 	}
 }
+*/
 
 func (this *PlayerController) FixedUpdate() {
-	var speed engine.Vector
 
-	if input.KeyDown('A') {
-		speed.X -= float32(this.WalkSpeed)
-	}
-	if input.KeyDown('D') {
-		speed.X += float32(this.WalkSpeed)
+	t := this.JointGameObject.Transform()
+
+	var move engine.Vector = this.Transform().WorldPosition()
+
+	if input.KeyDown('W') {
+		move.Y += 100
 	}
 	if input.KeyDown('S') {
-		speed.Y -= float32(this.WalkSpeed)
+		move.Y += -100
 	}
-	if input.KeyDown('W') {
-		speed.Y += float32(this.WalkSpeed)
+	if input.KeyDown('A') {
+		move.X += -100
+	}
+	if input.KeyDown('D') {
+		move.X += 100
 	}
 
-	this.GameObject().Physics.Body.SetVelocity(speed.X, speed.Y)
+	t.SetWorldPosition(move)
 }
 
 /*

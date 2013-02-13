@@ -15,6 +15,12 @@ func NewMouse() *Mouse {
 
 func (m *Mouse) OnComponentBind(gameObject *GameObject) {
 	gameObject.Tag = MouseTag
+	gameObject.AddComponent(NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 0.5)))
+	ph := gameObject.Physics
+	ph.Body.SetMass(Inf)
+	ph.Body.SetMoment(Inf)
+	ph.Body.IgnoreGravity = true
+	ph.Shape.IsSensor = true
 }
 
 func (m *Mouse) Update() {
@@ -22,10 +28,7 @@ func (m *Mouse) Update() {
 }
 
 func (m *Mouse) Start() {
-	m.GameObject().AddComponent(NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 0.5)))
-	ph := m.GameObject().Physics
-	ph.Body.IgnoreGravity = true
-	ph.Shape.IsSensor = true
+
 }
 
 func (m *Mouse) OnCollisionEnter(arbiter Arbiter) bool {

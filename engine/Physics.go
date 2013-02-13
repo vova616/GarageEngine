@@ -47,6 +47,26 @@ func NewPhysics2(static bool, shape *chipmunk.Shape) *Physics {
 	return p
 }
 
+func NewPhysicsShapes(static bool, shapes []*chipmunk.Shape) *Physics {
+	var body *chipmunk.Body
+	if static {
+		body = chipmunk.NewBodyStatic()
+	} else {
+		moment := vect.Float(0)
+		for _, shape := range shapes {
+			moment += shape.Moment(1)
+		}
+		body = chipmunk.NewBody(1, moment)
+	}
+
+	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: nil, Shape: nil}
+
+	for _, shape := range shapes {
+		body.AddShape(shape)
+	}
+	return p
+}
+
 func (p *Physics) Start() {
 	//p.Interpolate = true
 	pos := p.GameObject().Transform().WorldPosition()

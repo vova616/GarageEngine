@@ -6,9 +6,10 @@ import (
 	//"log" 
 	//"fmt"
 	//"github.com/go-gl/glfw"
-	//c "github.com/vova616/chipmunk"
-	//. "github.com/vova616/chipmunk/vect"
+	"github.com/vova616/chipmunk"
+	"github.com/vova616/chipmunk/vect"
 	//"math/rand"
+	"sort"
 )
 
 type Map struct {
@@ -129,7 +130,7 @@ func (t Tile) LayerConnected() bool {
 }
 
 func (t Tile) Collision() Tile {
-	if t&CollisionAll == CollisionAll {
+	if t&CollisionAll == CollisionAll || t == 0 {
 		return CollisionAll
 	}
 	if t&CollisionDown == CollisionDown {
@@ -370,7 +371,7 @@ func (m *Map) GetTilePos(x, y int) (pos engine.Vector, exists bool) {
 	mapPos.X -= (m.TileSize * float32(m.Width) / 2)
 	mapPos.Y -= (m.TileSize * float32(m.Height) / 2)
 
-	//Sprites are drawn from center, lets reposition them to the corner
+	//Sprites are drawn from center, lets reposition them to the center from the corner
 	mapPos.X += (m.TileSize / 2)
 	mapPos.Y -= (m.TileSize / 2)
 
@@ -386,19 +387,90 @@ func (m *Map) GetTilePos(x, y int) (pos engine.Vector, exists bool) {
 }
 
 func (m *Map) GenerateCollision() {
-	type point struct {
-		X, Y int
-	}
-	tiles := make(map[point]Tile)
+	tilesy := make(map[int][]int)
+	tilesx := make(map[int][]int)
 	for x := 0; x < m.Width; x++ {
 		for y := 0; y < m.Height; y++ {
 			if t, e := m.GetTile(x, y); e {
 				if t.Collision() != CollisionNone {
-					tiles[point{x, y}] = t
+					tilesy[y] = append(tilesy[y], x)
+					tilesx[x] = append(tilesx[x], y)
 				}
 			}
 		}
 	}
+
+	var shapes []*chipmunk.Shape
+
+	centerx := vect.Float(m.TileSize * float32(m.Width) / 2)
+	centery := vect.Float(m.TileSize * float32(m.Height) / 2)
+
+	println("Map layer", m.Layer)
+	for y, xarr := range tilesy {
+		minx := xarr[0]
+		maxx := xarr[0]
+		sort.Ints(xarr)
+
+		for i := 1; i < len(xarr); i++ {
+			x := xarr[i]
+			if maxx+1 == x {
+				maxx = x
+			} else {
+				if maxx-minx > 1 {
+					shapes = append(shapes, chipmunk.NewSegment(
+						vect.Vect{vect.Float(float32(minx)*m.TileSize) - centerx, -vect.Float(float32(y)*m.TileSize) + centery},
+						vect.Vect{vect.Float(float32(maxx)*m.TileSize) - centerx, -vect.Float(float32(y)*m.TileSize) + centery},
+						1))
+					println(y, minx, maxx)
+				}
+				minx = x
+				maxx = x
+			}
+		}
+		if maxx-minx > 1 {
+			shapes = append(shapes, chipmunk.NewSegment(
+				vect.Vect{vect.Float(float32(minx)*m.TileSize) - centerx, -vect.Float(float32(y)*m.TileSize) + centery},
+				vect.Vect{vect.Float(float32(maxx)*m.TileSize) - centerx, -vect.Float(float32(y)*m.TileSize) + centery},
+				1))
+			println(y, minx, maxx)
+		}
+
+	}
+
+	for x, yarr := range tilesx {
+		miny := yarr[0]
+		maxy := yarr[0]
+		sort.Ints(yarr)
+		println(len(yarr))
+		for i := 1; i < len(yarr); i++ {
+			y := yarr[i]
+			if maxy+1 == y {
+				maxy = y
+			} else {
+				if maxy-miny > 1 {
+					shapes = append(shapes, chipmunk.NewSegment(
+						vect.Vect{vect.Float(float32(x)*m.TileSize) - centerx, -vect.Float(float32(miny)*m.TileSize) + centery},
+						vect.Vect{vect.Float(float32(x)*m.TileSize) - centerx, -vect.Float(float32(maxy)*m.TileSize) + centery},
+						1))
+					println(x, miny, maxy)
+				}
+				miny = y
+				maxy = y
+			}
+		}
+		if maxy-miny > 1 {
+			shapes = append(shapes, chipmunk.NewSegment(
+				vect.Vect{vect.Float(float32(x)*m.TileSize) - centerx, -vect.Float(float32(miny)*m.TileSize) + centery},
+				vect.Vect{vect.Float(float32(x)*m.TileSize) - centerx, -vect.Float(float32(maxy)*m.TileSize) + centery},
+				1))
+			println(x, miny, maxy)
+		}
+
+	}
+
+	m.GameObject().AddComponent(engine.NewPhysicsShapes(true, shapes))
+
+	println("Map end")
 }
 
 func (m *Map) Draw() {

@@ -32,6 +32,7 @@ var (
 
 	MainPlayer *Player
 	Layers     []*Map
+	Mouse      *engine.GameObject
 )
 
 func CheckError(err error) bool {
@@ -115,9 +116,9 @@ func (s *GameScene) Load() {
 	s.Layer2 = Layer2
 	s.Layer3 = Layer3
 
-	mouse := engine.NewGameObject("Mouse")
-	mouse.AddComponent(engine.NewMouse())
-	mouse.Transform().SetParent2(gui)
+	Mouse = engine.NewGameObject("Mouse")
+	Mouse.AddComponent(engine.NewMouse())
+	Mouse.Transform().SetParent2(gui)
 
 	FPSDrawer := engine.NewGameObject("FPS")
 	txt := FPSDrawer.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
@@ -229,7 +230,7 @@ func (s *GameScene) Load() {
 		m.Width = int(60)
 		m.Height = int(23)
 
-		Layers = append(Layers, m)
+		//Layers = append(Layers, m)
 
 	}
 
@@ -246,6 +247,7 @@ func (s *GameScene) Load() {
 	playerObject.AddComponent(components.NewSmoothFollow(nil, 0, 200))
 	playerObject.AddComponent(engine.NewPhysics(false, 1, 1))
 	playerObject.Physics.Interpolate = true
+	playerObject.Physics.Body.SetMoment(engine.Inf)
 	playerObject.Transform().SetScalef(64, 64)
 	playerObject.Transform().SetWorldPositionf(159.99995, 32)
 	MainPlayer = player
