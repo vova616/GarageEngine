@@ -36,7 +36,14 @@ func Rotation(t *Tween, arr []float32) []float32 {
 	t.Target.Transform().SetRotation(rot)
 	return []float32{rot.X, rot.Y, rot.Z}
 }
-
+func Alpha(t *Tween, arr []float32) []float32 {
+	spr := t.Target.Sprite
+	if arr == nil || len(arr) == 0 {
+		return []float32{spr.Color.A}
+	}
+	spr.Color.A = arr[0]
+	return []float32{spr.Color.A}
+}
 func WorldScale(t *Tween, arr []float32) []float32 {
 	scale := t.Target.Transform().WorldScale()
 	if arr == nil || len(arr) == 0 {
