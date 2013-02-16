@@ -151,10 +151,11 @@ type Transform struct {
 	matrix        *Matrix
 	parentMatrix  *Matrix
 	updatedMatrix bool
+	childOfScene  bool
 }
 
 func NewTransform(g *GameObject) *Transform {
-	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, NewIdentity(), NewIdentity(), false}
+	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, NewIdentity(), NewIdentity(), false, false}
 }
 
 func (t *Transform) Position() Vector {
@@ -308,6 +309,15 @@ func (t *Transform) Translatef(x, y float32) {
 }
 
 func (t *Transform) SetParent(parent *Transform) {
+	if t.childOfScene {
+		if parent != nil {
+			//Remove from scene
+			GetScene().SceneBase().removeGameObject(t.gameObject)
+			t.childOfScene = false
+		} else {
+			return
+		}
+	}
 	if t.parent != nil {
 		for i, c := range t.parent.children {
 			if t == c {
@@ -316,13 +326,28 @@ func (t *Transform) SetParent(parent *Transform) {
 			}
 		}
 	}
-	t.scale = t.WorldScale()
-	t.position = t.WorldPosition()
-	t.rotation = t.WorldRotation()
+	b := t.parent == nil && !t.childOfScene
+
+	//Keep the position after changing parents
+	scale := t.WorldScale()
+	position := t.WorldPosition()
+	rotation := t.WorldRotation()
 	t.parent = parent
 	t.updatedMatrix = false
+	t.SetWorldPosition(position)
+	t.SetWorldRotation(rotation)
+	t.SetWorldScale(scale)
+
 	if parent != nil {
 		parent.children = append(parent.children, t)
+	} else {
+		//If parent is nil add to scene
+		GetScene().SceneBase().addGameObject(t.gameObject)
+		t.childOfScene = true
+	}
+
+	if b {
+		t.gameObject.setActiveRecursiveSilent(true)
 	}
 }
 

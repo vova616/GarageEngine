@@ -150,6 +150,7 @@ func SpawnMainPlayer(spawnPlayer server.SpawnPlayer) {
 	HealthGUI := engine.NewGameObject("HPGUI")
 	HealthGUI.AddComponent(engine.NewSprite2(atlas.Texture, engine.IndexUV(atlas, HPGUI_A)))
 	HealthGUI.Transform().SetParent2(Health)
+	HealthGUI.Transform().SetPositionf(0, 0)
 	HealthGUI.Transform().SetScalef(50, 50)
 
 	HealthBar := engine.NewGameObject("HealthBar")

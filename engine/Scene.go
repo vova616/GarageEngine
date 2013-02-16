@@ -30,15 +30,32 @@ func (s *SceneData) SceneBase() *SceneData {
 	return s
 }
 
-func (s *SceneData) AddGameObject(gameObject ...*GameObject) {
+func (s *SceneData) addGameObject(gameObject ...*GameObject) {
 	s.gameObjects = append(s.gameObjects, gameObject...)
 }
 
-func (s *SceneData) RemoveGameObject(g *GameObject) {
+func (s *SceneData) AddGameObject(gameObject ...*GameObject) {
+	for _, obj := range gameObject {
+		obj.AddToScene()
+	}
+}
+
+func (s *SceneData) removeGameObject(g *GameObject) {
+	if g == nil {
+		return
+	}
 	for i, c := range s.gameObjects {
 		if g == c {
-			s.gameObjects = append(s.gameObjects[:i], s.gameObjects[i+1:]...)
+			s.gameObjects[i] = nil
+			s.gameObjects = s.gameObjects[:i+copy(s.gameObjects[i:], s.gameObjects[i+1:])]
 			break
 		}
 	}
+}
+
+func (s *SceneData) RemoveGameObject(g *GameObject) {
+	if g == nil {
+		return
+	}
+	g.RemoveFromScene()
 }

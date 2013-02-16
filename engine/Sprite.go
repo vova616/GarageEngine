@@ -182,7 +182,10 @@ func (sp *Sprite) Update() {
 			if sp.AnimationEndCallback != nil {
 				sp.AnimationEndCallback(sp)
 			}
-			sp.animation = float32(sp.startAnimation) + (sp.animation - float32(sp.endAnimation))
+			//If something has been changed in callback
+			if sp.animation >= float32(sp.endAnimation) {
+				sp.animation = float32(sp.startAnimation) + (sp.animation - float32(sp.endAnimation))
+			}
 		}
 	}
 	sp.UpdateShape()

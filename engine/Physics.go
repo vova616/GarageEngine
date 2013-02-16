@@ -14,6 +14,8 @@ type Physics struct {
 	lastPosition vect.Vect
 	lastAngle    vect.Float
 	Interpolate  bool
+
+	lastLayers map[chipmunk.HashValue]chipmunk.Layer
 }
 
 func NewPhysics(static bool, w, h float32) *Physics {
@@ -27,7 +29,7 @@ func NewPhysics(static bool, w, h float32) *Physics {
 		body = chipmunk.NewBody(1, box.Moment(1))
 	}
 
-	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: box.GetAsBox(), Shape: box}
+	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: box.GetAsBox(), Shape: box, lastLayers: make(map[chipmunk.HashValue]chipmunk.Layer)}
 
 	body.AddShape(box)
 	return p
@@ -41,8 +43,7 @@ func NewPhysics2(static bool, shape *chipmunk.Shape) *Physics {
 		body = chipmunk.NewBody(1, shape.ShapeClass.Moment(1))
 	}
 
-	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: shape.GetAsBox(), Shape: shape}
-
+	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: shape.GetAsBox(), Shape: shape, lastLayers: make(map[chipmunk.HashValue]chipmunk.Layer)}
 	body.AddShape(shape)
 	return p
 }
@@ -56,8 +57,7 @@ func NewPhysicsCir(static bool, radius float32) *Physics {
 		body = chipmunk.NewBody(1, shape.ShapeClass.Moment(1))
 	}
 
-	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: shape.GetAsBox(), Shape: shape}
-
+	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: shape.GetAsBox(), Shape: shape, lastLayers: make(map[chipmunk.HashValue]chipmunk.Layer)}
 	body.AddShape(shape)
 	return p
 }
@@ -74,8 +74,7 @@ func NewPhysicsShapes(static bool, shapes []*chipmunk.Shape) *Physics {
 		body = chipmunk.NewBody(1, moment)
 	}
 
-	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: nil, Shape: nil}
-
+	p := &Physics{BaseComponent: NewComponent(), Body: body, Box: nil, Shape: nil, lastLayers: make(map[chipmunk.HashValue]chipmunk.Layer)}
 	for _, shape := range shapes {
 		body.AddShape(shape)
 	}
@@ -95,6 +94,26 @@ func (p *Physics) Start() {
 
 	//p.Body.UpdateShapes()
 	Space.AddBody(p.Body)
+}
+
+func (p *Physics) OnEnable() {
+	for _, shape := range p.Body.Shapes {
+		if shape.Layer == 0 {
+			layer, exists := p.lastLayers[shape.Hash()]
+			if exists {
+				shape.Layer = layer
+			} else {
+				//Warning
+			}
+		}
+	}
+}
+
+func (p *Physics) OnDisable() {
+	for _, shape := range p.Body.Shapes {
+		p.lastLayers[shape.Hash()] = shape.Layer
+		shape.Layer = 0
+	}
 }
 
 func (p *Physics) OnComponentBind(gobj *GameObject) {
@@ -140,6 +159,12 @@ func (p *Physics) Clone() {
 	p.Body = p.Body.Clone()
 	p.Box = p.Body.Shapes[0].GetAsBox()
 	p.Shape = p.Body.Shapes[0]
+	newLayer := make(map[chipmunk.HashValue]chipmunk.Layer)
+	for id, layer := range p.lastLayers {
+		newLayer[id] = layer
+	}
+	p.lastLayers = newLayer
+
 	//p.Body.UserData = p
 	//p.Body.UpdateShapes()
 	//p.GameObject().Physics = nil

@@ -48,6 +48,9 @@ type Component interface {
 	Clone()
 	LateUpdate()
 
+	OnEnable()
+	OnDisable()
+
 	OnCollisionEnter(arbiter Arbiter) bool
 	OnCollisionPreSolve(arbiter Arbiter) bool
 	OnCollisionPostSolve(arbiter Arbiter)
@@ -89,6 +92,14 @@ func (c *BaseComponent) Update() {
 }
 
 func (c *BaseComponent) FixedUpdate() {
+
+}
+
+func (c *BaseComponent) OnEnable() {
+
+}
+
+func (c *BaseComponent) OnDisable() {
 
 }
 

@@ -97,6 +97,15 @@ func (g *GameObject) IsValid() bool {
 
 func (g *GameObject) SetActive(active bool) {
 	g.active = active
+	if active {
+		for _, c := range g.components {
+			c.OnEnable()
+		}
+	} else {
+		for _, c := range g.components {
+			c.OnDisable()
+		}
+	}
 }
 
 func (g *GameObject) SetActiveRecursive(active bool) {
@@ -104,6 +113,50 @@ func (g *GameObject) SetActiveRecursive(active bool) {
 	childen := g.Transform().Children()
 	for _, c := range childen {
 		c.GameObject().SetActiveRecursive(active)
+	}
+}
+
+//Used to call OnEnable & OnDisable on object which leave the scene
+func (g *GameObject) setActiveRecursiveSilent(active bool) {
+	g.setActiveSilent(active)
+	childen := g.Transform().Children()
+	for _, c := range childen {
+		c.GameObject().setActiveRecursiveSilent(active)
+	}
+}
+
+//Used to call OnEnable & OnDisable on object which leave the scene
+func (g *GameObject) setActiveSilent(active bool) {
+	if !g.active {
+		return
+	}
+	if active {
+		for _, c := range g.components {
+			if c != nil {
+				c.OnEnable()
+			}
+		}
+	} else {
+		for _, c := range g.components {
+			if c != nil {
+				c.OnDisable()
+			}
+		}
+	}
+}
+
+func (g *GameObject) RemoveFromScene() {
+	g.transform.SetParent(nil)
+	if g.transform.childOfScene {
+		GetScene().SceneBase().removeGameObject(g)
+		g.transform.childOfScene = false
+		g.setActiveRecursiveSilent(false)
+	}
+}
+
+func (g *GameObject) AddToScene() {
+	if !g.transform.childOfScene {
+		g.transform.SetParent(nil)
 	}
 }
 
@@ -125,14 +178,14 @@ func (g *GameObject) destroy() {
 		g.components[i].OnDestroy()
 		g.components[i] = nil
 	}
-	/*
-		chs := g.transform.children
-		l = len(chs)
-		for i := l - 1; i >= 0; i-- {
-			//chs[i].GameObject().destroy()
-		}
-	*/
-	g.Transform().SetParent(nil)
+
+	chs := g.transform.children
+	l = len(chs)
+	for i := l - 1; i >= 0; i-- {
+		chs[i].GameObject().destroy()
+	}
+
+	g.RemoveFromScene()
 	g.name = ""
 	//g.transform = nil
 	g.components = nil

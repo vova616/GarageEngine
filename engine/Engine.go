@@ -139,13 +139,12 @@ func LoadScene(scene Scene) {
 	input.ClearInput()
 
 	sn := scene.New()
+	mainScene = sn
 	sn.Load()
 
 	internalFPS := NewGameObject("InternalFPS")
 	internalFPS.AddComponent(NewFPS())
 	sn.SceneBase().AddGameObject(internalFPS)
-
-	mainScene = sn
 }
 
 func GetScene() Scene {
@@ -317,7 +316,7 @@ func Run() {
 				timer.StartCustom("Physics time")
 
 				setPosition := func(g *GameObject) {
-					if g.Physics != nil && !g.Physics.Body.IsStatic() && g.Physics.started() {
+					if g.Physics != nil && g.active && !g.Physics.Body.IsStatic() && g.Physics.started() {
 						pos := g.Transform().WorldPosition()
 
 						var pAngle vect.Float
@@ -367,7 +366,7 @@ func Run() {
 					}
 				*/
 				updatePosition := func(g *GameObject) {
-					if g.Physics != nil && !g.Physics.Body.IsStatic() && g.Physics.started() {
+					if g.Physics != nil && g.active && !g.Physics.Body.IsStatic() && g.Physics.started() {
 
 						/*
 							When parent changes his position/rotation it changes his children position/rotation too but the physics engine thinks its in different position
@@ -490,21 +489,23 @@ func Run() {
 func Iter(objs []*GameObject, f func(*GameObject)) {
 	for i := len(objs) - 1; i >= 0; i-- {
 		obj := objs[i]
-		f(obj)
-		//Checks if the objs array has been changed
-		if obj != objs[i] {
-			i++
-		} else {
-			Iter2(obj.Transform().children, f)
+		if obj != nil {
+			f(obj)
+			//Checks if the objs array has been changed
+			if obj != objs[i] {
+				i++
+			} else {
+				Iter2(obj.Transform().children, f)
+			}
 		}
 	}
 }
 
 func Iter2(objs []*Transform, f func(*GameObject)) {
 	for i := len(objs) - 1; i >= 0; i-- {
-		obj := objs[i].GameObject()
-		if obj != nil {
+		if objs[i] != nil {
 			obja := objs[i]
+			obj := obja.GameObject()
 			f(obj)
 			//Checks if the objs array has been changed
 			if obja != objs[i] {
