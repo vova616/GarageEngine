@@ -329,14 +329,25 @@ func (t *Transform) SetParent(parent *Transform) {
 	b := t.parent == nil && !t.childOfScene
 
 	//Keep the position after changing parents
-	scale := t.WorldScale()
-	position := t.WorldPosition()
-	rotation := t.WorldRotation()
-	t.parent = parent
-	t.updatedMatrix = false
-	t.SetWorldPosition(position)
-	t.SetWorldRotation(rotation)
-	t.SetWorldScale(scale)
+	if t.parent != nil {
+		scale := t.WorldScale()
+		position := t.WorldPosition()
+		rotation := t.WorldRotation()
+		t.parent = parent
+		t.updatedMatrix = false
+		t.SetWorldPosition(position)
+		t.SetWorldRotation(rotation)
+		t.SetWorldScale(scale)
+	} else {
+		scale := t.Scale()
+		position := t.Position()
+		rotation := t.Rotation()
+		t.parent = parent
+		t.updatedMatrix = false
+		t.SetRotation(position)
+		t.SetRotation(rotation)
+		t.SetScale(scale)
+	}
 
 	if parent != nil {
 		parent.children = append(parent.children, t)
