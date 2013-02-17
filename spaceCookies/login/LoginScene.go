@@ -83,6 +83,7 @@ func (s *LoginScene) Load() {
 	//background.Transform().SetScalef(float32(backgroung.Height()), float32(backgroung.Height()), 1)
 	background.Transform().SetScalef(800, 800)
 	background.Transform().SetPositionf(0, 0)
+	background.Transform().SetDepth(-1)
 
 	gui := engine.NewGameObject("GUI")
 	gui.Transform().SetParent2(cam)
@@ -139,6 +140,7 @@ func (s *LoginScene) Load() {
 	txt2.SetFocus(false)
 	txt2.SetWritable(false)
 	txt2.SetAlign(engine.AlignLeft)
+	txt2.Transform().SetDepth(1)
 
 	tBox.Transform().SetPositionf(float32(engine.Width)/2-txt2.Width()*20, float32(engine.Height)/2)
 	tBox.Transform().SetScalef(20, 20)
@@ -149,6 +151,7 @@ func (s *LoginScene) Load() {
 	p.X += txt2.Width() * 20
 	input.Transform().SetPosition(p)
 	input.Transform().SetScalef(20, 20)
+	input.Transform().SetDepth(1)
 
 	name := input.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
 	name.SetFocus(true)
@@ -203,6 +206,8 @@ func (s *LoginScene) Load() {
 	LoginButton.Physics.Shape.IsSensor = true
 	LoginButton.Transform().SetScalef(50, 50)
 	LoginButton.Sprite.Color = engine.Color{0.5, 0.5, 0.5, 1}
+	LoginButton.Transform().SetDepth(0)
+
 	/*
 		{
 			LoginButton := engine.NewGameObject("LoginButton")
@@ -245,6 +250,7 @@ func (s *LoginScene) Load() {
 	loginText.Transform().SetParent2(LoginButton)
 	loginText.Transform().SetWorldScalef(24, 24)
 	loginText.Transform().SetPositionf(0, 0.1)
+	loginText.Transform().SetDepth(1)
 
 	var errChan chan error
 	LoginButton.AddComponent(components.NewUIButton(func() {

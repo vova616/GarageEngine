@@ -173,10 +173,21 @@ func (t *Transform) SetDepth(depth int8) {
 
 func (t *Transform) SetDepthRecursive(depth int8) {
 	t.SetDepth(depth)
-	if t.parent != nil {
-		for _, c := range t.parent.children {
-			c.SetDepthRecursive(depth)
-		}
+	for _, c := range t.children {
+		c.SetDepthRecursive(depth)
+	}
+}
+
+func (t *Transform) checkDepth() {
+	if t.depthIndex == -1 {
+		t.depthIndex = depthMapAdd(t.depth, t.gameObject)
+	}
+}
+
+func (t *Transform) checkDepthRecursive() {
+	t.checkDepth()
+	for _, c := range t.children {
+		c.checkDepthRecursive()
 	}
 }
 
@@ -395,6 +406,7 @@ func (t *Transform) SetParent(parent *Transform) {
 
 	if b {
 		t.gameObject.setActiveRecursiveSilent(true)
+		t.checkDepthRecursive()
 	}
 }
 

@@ -403,6 +403,7 @@ func (s *GameScene) Load() {
 	//background.Transform().SetScalef(float32(backgroung.Height()), float32(backgroung.Height()), 1)
 	background.Transform().SetScalef(800, 800)
 	background.Transform().SetPositionf(0, 0)
+	background.Transform().SetDepth(-6)
 
 	for i := 0; i < 300; i++ {
 		c := Background.Clone()

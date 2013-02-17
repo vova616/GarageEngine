@@ -470,7 +470,7 @@ func Run() {
 		for i := int8(-127); ; i++ {
 			drawArr, exists := depthMap[i]
 			if exists && len(drawArr) > 0 {
-				Iter(drawArr, drawGameObject)
+				IterNoChildren(drawArr, drawGameObject)
 			}
 			if i == 127 {
 				break
@@ -564,6 +564,19 @@ func Iter2(objs []*Transform, f func(*GameObject)) {
 				i++
 			} else {
 				Iter2(obj.Transform().children, f)
+			}
+		}
+	}
+}
+
+func IterNoChildren(objs []*GameObject, f func(*GameObject)) {
+	for i := len(objs) - 1; i >= 0; i-- {
+		obj := objs[i]
+		if obj != nil {
+			f(obj)
+			//Checks if the objs array has been changed
+			if obj != objs[i] {
+				i++
 			}
 		}
 	}
