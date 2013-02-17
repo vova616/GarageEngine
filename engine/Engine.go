@@ -103,8 +103,33 @@ var (
 	Width       = 1280
 	Height      = 720
 
+	depthMap = make(map[int8][]*GameObject)
+
 	terminated chan bool
 )
+
+func depthMapAdd(depth int8, object *GameObject) (index int) {
+	arr := depthMap[depth]
+	for i, obj := range arr {
+		if obj == nil {
+			index = i
+			arr[i] = object
+			return
+		}
+	}
+	arr = append(arr, object)
+	depthMap[depth] = arr
+	return len(arr) - 1
+}
+
+func depthMapRemove(depth int8, index int) {
+	if index >= 0 {
+		arr := depthMap[depth]
+		if index < len(arr) {
+			arr[index] = nil
+		}
+	}
+}
 
 func init() {
 	terminated = make(chan bool)
@@ -423,7 +448,15 @@ func Run() {
 		lateUpdateDelta = timer.StopCustom("LateUpdate routines")
 
 		timer.StartCustom("Draw routines")
-		Iter(arr, drawGameObject)
+		for i := int8(-127); ; i++ {
+			drawArr, exists := depthMap[i]
+			if exists && len(drawArr) > 0 {
+				Iter(drawArr, drawGameObject)
+			}
+			if i == 127 {
+				break
+			}
+		}
 		drawDelta = timer.StopCustom("Draw routines")
 
 		timer.StartCustom("coroutines")

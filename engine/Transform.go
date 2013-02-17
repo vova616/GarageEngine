@@ -152,10 +152,33 @@ type Transform struct {
 	parentMatrix  *Matrix
 	updatedMatrix bool
 	childOfScene  bool
+
+	depth      int8
+	depthIndex int
 }
 
 func NewTransform(g *GameObject) *Transform {
-	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, NewIdentity(), NewIdentity(), false, false}
+	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, NewIdentity(), NewIdentity(), false, false, 0, -1}
+}
+
+func (t *Transform) SetDepth(depth int8) {
+	depthMapRemove(t.depth, t.depthIndex)
+	t.depth = depth
+	//If object is in scene add to depth map
+	if t.InScene() {
+		t.depthIndex = depthMapAdd(t.depth, t.gameObject)
+	}
+}
+
+/*
+Checking if object is somewhere in scene.
+*/
+func (t *Transform) InScene() bool {
+	return t.childOfScene || (t.parent != nil && t.parent.InScene())
+}
+
+func (t *Transform) Depth() int8 {
+	return t.depth
 }
 
 func (t *Transform) Position() Vector {
@@ -326,6 +349,9 @@ func (t *Transform) SetParent(parent *Transform) {
 			}
 		}
 	}
+	if t.depthIndex == -1 {
+		t.depthIndex = depthMapAdd(t.depth, t.gameObject)
+	}
 	b := t.parent == nil && !t.childOfScene
 
 	//Keep the position after changing parents
@@ -430,5 +456,6 @@ func (t *Transform) clone(parent *GameObject) *Transform {
 	for _, c := range t.children {
 		c.gameObject.Clone().transform.SetParent(tn)
 	}
+	tn.depth = t.depth
 	return tn
 }

@@ -150,6 +150,7 @@ func SpawnMainPlayer(spawnPlayer server.SpawnPlayer) {
 	HealthGUI := engine.NewGameObject("HPGUI")
 	HealthGUI.AddComponent(engine.NewSprite2(atlas.Texture, engine.IndexUV(atlas, HPGUI_A)))
 	HealthGUI.Transform().SetParent2(Health)
+	HealthGUI.Transform().SetDepth(3)
 	//HealthGUI.Transform().SetPositionf(0, 0)
 	HealthGUI.Transform().SetScalef(50, 50)
 
@@ -157,13 +158,13 @@ func SpawnMainPlayer(spawnPlayer server.SpawnPlayer) {
 	HealthBar.Transform().SetParent2(Health)
 	HealthBar.Transform().SetPositionf(-82, 0)
 	HealthBar.Transform().SetScalef(100, 50)
-
 	uvHP := engine.IndexUV(atlas, HP_A)
 
 	HealthBarGUI := engine.NewGameObject("HealthBarGUI")
 	HealthBarGUI.Transform().SetParent2(HealthBar)
 	HealthBarGUI.AddComponent(engine.NewSprite2(atlas.Texture, uvHP))
 	HealthBarGUI.Transform().SetScalef(0.52, 1)
+	HealthBarGUI.Transform().SetDepth(2)
 	HealthBarGUI.Transform().SetPositionf((uvHP.Ratio/2)*HealthBarGUI.Transform().Scale().X, 0)
 
 	JetFire := engine.NewGameObject("Jet")
@@ -267,6 +268,7 @@ func (s *GameScene) Load() {
 		sprite.GameObject().Destroy()
 	}
 	Explosion.Transform().SetScalef(30, 30)
+	Explosion.Transform().SetDepth(1)
 
 	missleGameObject := engine.NewGameObject("Missle")
 	missleGameObject.AddComponent(engine.NewSprite2(atlas.Texture, engine.IndexUV(atlas, Missle_A)))
@@ -405,6 +407,7 @@ func (s *GameScene) Load() {
 	for i := 0; i < 300; i++ {
 		c := Background.Clone()
 		c.Transform().SetParent2(Layer4)
+		c.Transform().SetDepth(-5)
 		size := 20 + rand.Float32()*50
 		p := engine.Vector{(rand.Float32() * 5000) - 1000, (rand.Float32() * 5000) - 1000, 1}
 

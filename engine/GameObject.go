@@ -152,6 +152,7 @@ func (g *GameObject) RemoveFromScene() {
 		g.transform.childOfScene = false
 		g.setActiveRecursiveSilent(false)
 	}
+	depthMapRemove(g.transform.depth, g.transform.depthIndex)
 }
 
 func (g *GameObject) AddToScene() {
