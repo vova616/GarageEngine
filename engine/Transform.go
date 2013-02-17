@@ -170,6 +170,15 @@ func (t *Transform) SetDepth(depth int8) {
 	}
 }
 
+func (t *Transform) SetDepthRecursive(depth int8) {
+	t.SetDepth(depth)
+	if t.parent != nil {
+		for _, c := range t.parent.children {
+			c.SetDepthRecursive(depth)
+		}
+	}
+}
+
 /*
 Checking if object is somewhere in scene.
 */
