@@ -7,7 +7,6 @@ import (
 var (
 	defaultBuffer      VBO
 	defaultIndexBuffer VBO
-	defaultVAO         VAO
 )
 
 func initDefaultPlane() {
@@ -44,17 +43,8 @@ func initDefaultPlane() {
 	data[18] = 0
 	data[19] = 0
 
-	//Setup VAO
-	defaultVAO = GenVertexArray()
-	defaultVAO.Bind()
-
 	defaultBuffer.Bind(gl.ARRAY_BUFFER)
 	gl.BufferData(gl.ARRAY_BUFFER, len(data)*4, data, gl.STATIC_DRAW)
-
-	gl.AttribLocation.EnableArray(0)
-	gl.AttribLocation.EnableArray(1)
-	gl.AttribLocation.AttribPointer(0, 3, gl.FLOAT, false, 0, uintptr(0))
-	gl.AttribLocation.AttribPointer(1, 2, gl.FLOAT, false, 0, uintptr(12*4))
 }
 
 func InsideScreen(ratio float32, position Vector, scale Vector) bool {
@@ -92,7 +82,11 @@ func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation flo
 	ti := internalMaterial.Tiling
 	of := internalMaterial.Offset
 
-	defaultVAO.Bind()
+	defaultBuffer.Bind(gl.ARRAY_BUFFER)
+	internalMaterial.Verts.EnableArray()
+	internalMaterial.Verts.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
+	internalMaterial.UV.EnableArray()
+	internalMaterial.UV.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
 
 	v := Align(aling)
 	v.X *= uv.Ratio
@@ -134,7 +128,11 @@ func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, ro
 	ti := internalMaterial.Tiling
 	of := internalMaterial.Offset
 
-	defaultVAO.Bind()
+	defaultBuffer.Bind(gl.ARRAY_BUFFER)
+	internalMaterial.Verts.EnableArray()
+	internalMaterial.Verts.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
+	internalMaterial.UV.EnableArray()
+	internalMaterial.UV.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
 
 	camera := GetScene().SceneBase().Camera
 	view := camera.InvertedMatrix()

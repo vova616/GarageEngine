@@ -46,7 +46,6 @@ type Batch interface {
 
 type StaticBatch struct {
 	Tex          *Texture
-	VAO          VAO
 	Vertices     VBO
 	UVs          VBO
 	Indecies     VBO
@@ -58,7 +57,6 @@ type StaticBatch struct {
 func NewStaticBatch(tex *Texture) *StaticBatch {
 	return &StaticBatch{
 		Tex:          tex,
-		VAO:          GenVertexArray(),
 		Vertices:     GenBuffer(),
 		UVs:          GenBuffer(),
 		Indecies:     GenBuffer(),

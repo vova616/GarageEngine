@@ -297,7 +297,11 @@ func (sp *Sprite) Draw() {
 		ti := TextureMaterial.Tiling
 		of := TextureMaterial.Offset
 
-		defaultVAO.Bind()
+		defaultBuffer.Bind(gl.ARRAY_BUFFER)
+		TextureMaterial.Verts.EnableArray()
+		TextureMaterial.Verts.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
+		TextureMaterial.UV.EnableArray()
+		TextureMaterial.UV.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
 
 		v := Align(sp.align)
 		v.X *= currentUV.Ratio
@@ -344,7 +348,11 @@ func (sp *Sprite) DrawScreen() {
 		ti := TextureMaterial.Tiling
 		of := TextureMaterial.Offset
 
-		defaultVAO.Bind()
+		defaultBuffer.Bind(gl.ARRAY_BUFFER)
+		TextureMaterial.Verts.EnableArray()
+		TextureMaterial.Verts.AttribPointer(3, gl.FLOAT, false, 0, uintptr(0))
+		TextureMaterial.UV.EnableArray()
+		TextureMaterial.UV.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
 
 		currentUV := sp.UVs[int(sp.animation)]
 
