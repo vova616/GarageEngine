@@ -162,8 +162,7 @@ func NewTransform(g *GameObject) *Transform {
 }
 
 func (t *Transform) SetDepth(depth int8) {
-	depthMapRemove(t.depth, t.depthIndex)
-	t.depthIndex = -1
+	t.removeFromDepthMap()
 	t.depth = depth
 	//If object is in scene add to depth map
 	if t.InScene() {
@@ -188,6 +187,18 @@ func (t *Transform) checkDepthRecursive() {
 	t.checkDepth()
 	for _, c := range t.children {
 		c.checkDepthRecursive()
+	}
+}
+
+func (t *Transform) removeFromDepthMap() {
+	depthMapRemove(t.depth, t.depthIndex)
+	t.depthIndex = -1
+}
+
+func (t *Transform) removeFromDepthMapRecursive() {
+	t.removeFromDepthMap()
+	for _, c := range t.children {
+		c.removeFromDepthMapRecursive()
 	}
 }
 
@@ -373,6 +384,7 @@ func (t *Transform) SetParent(parent *Transform) {
 	if t.depthIndex == -1 {
 		t.depthIndex = depthMapAdd(t.depth, t.gameObject)
 	}
+	//check if object was outside of scene
 	b := t.parent == nil && !t.childOfScene
 
 	//Keep the position after changing parents
