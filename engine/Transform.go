@@ -163,6 +163,7 @@ func NewTransform(g *GameObject) *Transform {
 
 func (t *Transform) SetDepth(depth int8) {
 	depthMapRemove(t.depth, t.depthIndex)
+	t.depthIndex = -1
 	t.depth = depth
 	//If object is in scene add to depth map
 	if t.InScene() {
