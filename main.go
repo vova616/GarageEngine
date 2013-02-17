@@ -83,5 +83,6 @@ func Start() {
 	Need to destroy children of gameobject (already did this, just check it again)
 	When removing object from scene we need to let the physics engine know about it (done need checking)
 	or disable completly removal of objects from scene because we already have active/inactive (nope)
-
+	Make depth test scene.  also consider adding Z Buffer.
+	Make Arbiter to return the correct shapes when swapped.
 */

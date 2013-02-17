@@ -52,6 +52,25 @@ func (arbiter *Arbiter) GameObjectB() *GameObject {
 	return arbiter.gameObjectB
 }
 
+/*
+func (arbiter *Arbiter) ShapeA() *chipmunk.Shape {
+	if arbiter.Swapped {
+		return arbiter.Arbiter.ShapeB
+	}
+	return arbiter.Arbiter.ShapeA
+}
+
+func (arbiter *Arbiter) ShapeB() *chipmunk.Shape {
+	if arbiter.Swapped {
+		return arbiter.Arbiter.ShapeA
+	}
+	return arbiter.Arbiter.ShapeB
+}
+*/
+func (arbiter *Arbiter) ShapeB() *GameObject {
+	return arbiter.gameObjectB
+}
+
 func (arbiter *Arbiter) Normal(contact *chipmunk.Contact) Vector {
 	normal := contact.Normal()
 	if arbiter.Swapped {
