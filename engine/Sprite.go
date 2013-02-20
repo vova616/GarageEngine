@@ -155,6 +155,20 @@ func (sp *Sprite) Start() {
 
 }
 
+func (sp *Sprite) RealWorldSize() (s Vector) {
+	currentUV := sp.UVs[int(sp.animation)]
+	s = sp.Transform().WorldScale()
+	s.X *= currentUV.Ratio
+	return
+}
+
+func (sp *Sprite) RealSize() (s Vector) {
+	currentUV := sp.UVs[int(sp.animation)]
+	s = sp.Transform().Scale()
+	s.X *= currentUV.Ratio
+	return
+}
+
 func (sp *Sprite) CurrentAnimationIndex() int {
 	return int(sp.animation) - sp.startAnimation
 }
