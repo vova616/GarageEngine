@@ -189,7 +189,19 @@ func (g *GameObject) destroy() {
 		chs[i].GameObject().destroy()
 	}
 
-	g.RemoveFromScene()
+	if g.transform.childOfScene {
+		g.RemoveFromScene()
+	} else if g.transform.parent != nil {
+		t := g.transform
+		for i, c := range t.parent.children {
+			if t == c {
+				t.parent.children = append(t.parent.children[:i], t.parent.children[i+1:]...)
+				break
+			}
+		}
+		g.transform.parent = nil
+	}
+
 	g.name = ""
 	//g.transform = nil
 	g.components = nil
@@ -208,10 +220,6 @@ func (g *GameObject) Clone() *GameObject {
 	ng.Tag = g.Tag
 	ng.components = make([]Component, 0)
 
-	/*
-		It might be possible to make this a little faster by storing size of each Component in a map and use unsafe to copy the values instead of reflect. 
-		(but this is already done by reflect package so I think it will be waste of time)
-	*/
 	for _, c := range g.components {
 		v := reflect.ValueOf(c).Elem()
 		n := reflect.New(v.Type())
