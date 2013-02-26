@@ -245,7 +245,6 @@ func (t *Transform) SetParent(parent *Transform) {
 	//Remove from scene if needed
 	if t.childOfScene && parent != nil {
 		GetScene().SceneBase().removeGameObject(t.gameObject)
-		t.childOfScene = false
 	}
 
 	//if parent is not nil, remove this transform from parent
@@ -291,7 +290,6 @@ func (t *Transform) SetParent(parent *Transform) {
 		parent.children = append(parent.children, t)
 	} else {
 		GetScene().SceneBase().addGameObject(t.gameObject)
-		t.childOfScene = true
 	}
 
 	//If object was outside of scene active it silencly and check if depth needs to be updated

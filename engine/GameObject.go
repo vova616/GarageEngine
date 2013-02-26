@@ -152,11 +152,8 @@ func (g *GameObject) setActiveSilent(active bool) {
 func (g *GameObject) RemoveFromScene() {
 	if g.transform.InScene() {
 		g.transform.SetParent(nil)
-		if g.transform.childOfScene {
-			GetScene().SceneBase().removeGameObject(g)
-			g.transform.childOfScene = false
-			g.setActiveRecursiveSilent(false)
-		}
+		GetScene().SceneBase().removeGameObject(g)
+		g.setActiveRecursiveSilent(false)
 		g.transform.removeFromDepthMapRecursive()
 	}
 }
