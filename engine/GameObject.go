@@ -8,12 +8,13 @@ import (
 )
 
 type GameObject struct {
-	name        string
-	transform   *Transform
-	components  []Component
-	valid       bool
-	active      bool
-	destoryMark bool
+	name         string
+	transform    *Transform
+	components   []Component
+	valid        bool
+	active       bool
+	silentActive bool
+	destoryMark  bool
 
 	Tag     string
 	Physics *Physics
@@ -97,6 +98,7 @@ func (g *GameObject) IsValid() bool {
 
 func (g *GameObject) SetActive(active bool) {
 	g.active = active
+	g.silentActive = active
 	if active {
 		for _, c := range g.components {
 			c.OnEnable()
@@ -127,9 +129,10 @@ func (g *GameObject) setActiveRecursiveSilent(active bool) {
 
 //Used to call OnEnable & OnDisable on object which leave the scene
 func (g *GameObject) setActiveSilent(active bool) {
-	if !g.active {
+	if !g.active || g.silentActive == active {
 		return
 	}
+	g.silentActive = active
 	if active {
 		for _, c := range g.components {
 			if c != nil {
@@ -145,14 +148,17 @@ func (g *GameObject) setActiveSilent(active bool) {
 	}
 }
 
+//Removed object from Scene if hes in one
 func (g *GameObject) RemoveFromScene() {
-	g.transform.SetParent(nil)
-	if g.transform.childOfScene {
-		GetScene().SceneBase().removeGameObject(g)
-		g.transform.childOfScene = false
-		g.setActiveRecursiveSilent(false)
+	if g.transform.InScene() {
+		g.transform.SetParent(nil)
+		if g.transform.childOfScene {
+			GetScene().SceneBase().removeGameObject(g)
+			g.transform.childOfScene = false
+			g.setActiveRecursiveSilent(false)
+		}
+		g.transform.removeFromDepthMapRecursive()
 	}
-	g.transform.removeFromDepthMapRecursive()
 }
 
 func (g *GameObject) AddToScene() {

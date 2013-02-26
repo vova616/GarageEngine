@@ -275,7 +275,7 @@ func (s *GameScene) Load() {
 	missleGameObject.AddComponent(engine.NewPhysics(false, 10, 10))
 	missleGameObject.Transform().SetScalef(20, 20)
 	missleGameObject.AddComponent(NewDamageDealer(50))
-
+	missleGameObject.Physics.Shape.IsSensor = true
 	missle = NewMissle(30000)
 	missleGameObject.AddComponent(missle)
 	missle.Explosion = Explosion
