@@ -189,6 +189,7 @@ func StartEngine() {
 	}
 
 	initDefaultPlane()
+	glfw.SwapBuffers()
 
 	gameTime = time.Time{}
 	lastTime = time.Now()
@@ -448,7 +449,6 @@ func preStepGameObject(g *GameObject) {
 		}
 		g.Physics.lastPosition = g.Physics.Body.Position()
 		g.Physics.lastAngle = g.Physics.Body.Angle()
-		fmt.Println(g.Physics.lastPosition, g.Name())
 	}
 }
 
@@ -499,10 +499,6 @@ func postStepGameObject(g *GameObject) {
 
 func interpolateGameObject(g *GameObject) {
 	if g.Physics != nil && g.Physics.Interpolate && g.active && !g.Physics.Body.IsStatic() && g.Physics.started() {
-		/*
-			When parent changes his position/rotation it changes his children position/rotation too but the physics engine thinks its in different position
-			so we need to check how much it changed and apply to the new position/rotation so we wont fuck up things too much.
-		*/
 		nextPos := g.Physics.Body.Position()
 		currPos := g.Physics.lastPosition
 
