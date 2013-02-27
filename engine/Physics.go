@@ -86,6 +86,8 @@ func (p *Physics) Start() {
 	pos := p.GameObject().Transform().WorldPosition()
 	p.Body.SetAngle(vect.Float(p.GameObject().Transform().WorldRotation().Z) * RadianConst)
 	p.Body.SetPosition(vect.Vect{vect.Float(pos.X), vect.Float(pos.Y)})
+	p.lastPosition = p.Body.Position()
+	p.lastAngle = p.Body.Angle()
 
 	if p.GameObject().Sprite != nil {
 		p.GameObject().Sprite.UpdateShape()
