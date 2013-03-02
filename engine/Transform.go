@@ -174,31 +174,33 @@ func (t *Transform) SetWorldPosition(vect Vector) {
 }
 
 func (t *Transform) SetWorldPositionf(x, y float32) {
-	t.SetWorldPosition(NewVector3(x, y, 1))
+	t.SetWorldPosition(NewVector3(x, y, t.worldPosition.Z))
 }
 
 func (t *Transform) SetWorldRotation(vect Vector) {
 	if t.parent == nil {
 		t.SetRotation(vect)
 	} else {
+		t.worldRotation = vect
 		t.SetRotation(vect.Sub(t.parent.WorldRotation()))
 	}
 }
 
 func (t *Transform) SetWorldRotationf(z float32) {
-	t.SetWorldRotation(NewVector3(0, 0, z))
+	t.SetWorldRotation(NewVector3(t.worldRotation.X, t.worldRotation.Y, z))
 }
 
 func (t *Transform) SetWorldScale(vect Vector) {
 	if t.parent == nil {
 		t.SetScale(vect)
 	} else {
+		t.worldScale = vect
 		t.SetScale(vect.Div(t.parent.WorldScale()))
 	}
 }
 
 func (t *Transform) SetWorldScalef(x, y float32) {
-	t.SetWorldScale(NewVector3(x, y, 1))
+	t.SetWorldScale(NewVector3(x, y, t.worldScale.Z))
 }
 
 func (t *Transform) Parent() *Transform {

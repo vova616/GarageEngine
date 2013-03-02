@@ -110,7 +110,6 @@ func (p *Physics) OnDisable() {
 
 func (p *Physics) OnComponentBind(gobj *GameObject) {
 	gobj.Physics = p
-	//p.Body.UserData = &gobj.name
 	p.Body.CallbackHandler = p
 }
 
@@ -151,8 +150,4 @@ func (p *Physics) Clone() {
 	p.Body = p.Body.Clone()
 	p.Box = p.Body.Shapes[0].GetAsBox()
 	p.Shape = p.Body.Shapes[0]
-
-	//p.Body.UserData = p
-	//p.Body.UpdateShapes()
-	//p.GameObject().Physics = nil
 }
