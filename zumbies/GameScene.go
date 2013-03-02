@@ -246,7 +246,7 @@ func (s *GameScene) Load() {
 	playerObject.AddComponent(player)
 	playerObject.AddComponent(NewPlayerController(player))
 	playerObject.AddComponent(components.NewSmoothFollow(nil, 0, 200))
-	playerObject.AddComponent(engine.NewPhysicsCir(false, 1))
+	playerObject.AddComponent(engine.NewPhysicsCircle(false))
 	playerObject.Physics.Interpolate = true
 	playerObject.Physics.Body.SetMoment(engine.Inf)
 	playerObject.Transform().SetScalef(64, 64)

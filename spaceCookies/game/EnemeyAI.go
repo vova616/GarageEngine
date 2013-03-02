@@ -229,7 +229,7 @@ func (sp *EnemeyAI) OnDie(byTimer bool) {
 		n.Transform().SetWorldPosition(sp.Transform().WorldPosition())
 		s := n.Transform().Scale()
 		n.Transform().SetScale(s.Mul2((rand.Float32() * 3) + size))
-		n.AddComponent(engine.NewPhysics(false, 1, 1))
+		n.AddComponent(engine.NewPhysics(false))
 
 		n.Transform().SetRotationf(rand.Float32() * 360)
 		rot := n.Transform().Direction()

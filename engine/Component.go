@@ -15,7 +15,7 @@ func NewComponent() BaseComponent {
 
 func (c *BaseComponent) onAdd(component Component, gameObject *GameObject) {
 	c.gameObject = gameObject
-	component.OnComponentBind(gameObject)
+	component.OnComponentAdd()
 }
 
 func (c *BaseComponent) GameObject() *GameObject {
@@ -59,7 +59,7 @@ type Component interface {
 	OnMouseEnter(arbiter Arbiter) bool
 	OnMouseExit(arbiter Arbiter)
 
-	OnComponentBind(binded *GameObject)
+	OnComponentAdd()
 	OnDestroy()
 	started() bool
 	setStarted(b bool)
@@ -143,7 +143,7 @@ func (c *BaseComponent) OnCollisionPostSolve(arbiter Arbiter) {
 
 }
 
-func (c *BaseComponent) OnComponentBind(binded *GameObject) {
+func (c *BaseComponent) OnComponentAdd() {
 
 }
 

@@ -60,9 +60,9 @@ func NewUIText(font *engine.Font, text string) *UIText {
 	return uitext
 }
 
-func (ui *UIText) OnComponentBind(binded *engine.GameObject) {
-	ph := binded.AddComponent(engine.NewPhysics(false, 1, 1)).(*engine.Physics)
-	_ = ph
+func (ui *UIText) OnComponentAdd() {
+	ui.GameObject().AddComponent(engine.NewPhysics(false))
+	ph := ui.GameObject().Physics
 	ph.Body.IgnoreGravity = true
 	ph.Shape.IsSensor = true
 }

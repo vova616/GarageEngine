@@ -8,8 +8,6 @@ import (
 	//"log"
 	//"fmt"
 	//
-	"github.com/vova616/chipmunk"
-	"github.com/vova616/chipmunk/vect"
 	"math"
 	"math/rand"
 	"time"
@@ -47,9 +45,8 @@ func NewShipController() *ShipController {
 		time.Now(), nil, nil, true, nil, nil, nil, []engine.Vector{{-0.1, -0.51, 0}, {0.1, -0.51, 0}}}
 }
 
-func (sp *ShipController) OnComponentBind(binded *engine.GameObject) {
-
-	sp.GameObject().AddComponent(engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15)))
+func (sp *ShipController) OnComponentAdd() {
+	sp.GameObject().AddComponent(engine.NewPhysicsCircle(false))
 }
 
 func (sp *ShipController) Start() {
@@ -110,7 +107,7 @@ func (sp *ShipController) OnDie(byTimer bool) {
 		n.Transform().SetWorldPosition(sp.Transform().WorldPosition())
 		s := n.Transform().Scale()
 		n.Transform().SetScale(s.Mul2(rand.Float32() * 8))
-		n.AddComponent(engine.NewPhysics(false, 1, 1))
+		n.AddComponent(engine.NewPhysics(false))
 
 		n.Transform().SetRotationf(rand.Float32() * 360)
 		rot := n.Transform().Direction()

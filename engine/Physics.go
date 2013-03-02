@@ -20,10 +20,10 @@ type Physics struct {
 	Interpolate bool
 }
 
-func NewPhysics(static bool, w, h float32) *Physics {
+func NewPhysics(static bool) *Physics {
 	var body *chipmunk.Body
 
-	box := chipmunk.NewBox(vect.Vect{0, 0}, vect.Float(w), vect.Float(h))
+	box := chipmunk.NewBox(vect.Vect{0, 0}, vect.Float(1), vect.Float(1))
 
 	if static {
 		body = chipmunk.NewBodyStatic()
@@ -37,8 +37,9 @@ func NewPhysics(static bool, w, h float32) *Physics {
 	return p
 }
 
-func NewPhysics2(static bool, shape *chipmunk.Shape) *Physics {
+func NewPhysicsCircle(static bool) *Physics {
 	var body *chipmunk.Body
+	shape := chipmunk.NewCircle(vect.Vector_Zero, 1)
 	if static {
 		body = chipmunk.NewBodyStatic()
 	} else {
@@ -50,9 +51,8 @@ func NewPhysics2(static bool, shape *chipmunk.Shape) *Physics {
 	return p
 }
 
-func NewPhysicsCir(static bool, radius float32) *Physics {
+func NewPhysicsShape(static bool, shape *chipmunk.Shape) *Physics {
 	var body *chipmunk.Body
-	shape := chipmunk.NewCircle(vect.Vector_Zero, radius)
 	if static {
 		body = chipmunk.NewBodyStatic()
 	} else {
@@ -108,8 +108,8 @@ func (p *Physics) OnDisable() {
 	p.Body.Enabled = false
 }
 
-func (p *Physics) OnComponentBind(gobj *GameObject) {
-	gobj.Physics = p
+func (p *Physics) OnComponentAdd() {
+	p.gameObject.Physics = p
 	p.Body.CallbackHandler = p
 }
 

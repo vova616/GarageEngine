@@ -272,7 +272,7 @@ func (s *GameScene) Load() {
 
 	missleGameObject := engine.NewGameObject("Missle")
 	missleGameObject.AddComponent(engine.NewSprite2(atlas.Texture, engine.IndexUV(atlas, Missle_A)))
-	missleGameObject.AddComponent(engine.NewPhysics(false, 10, 10))
+	missleGameObject.AddComponent(engine.NewPhysics(false))
 	missleGameObject.Transform().SetScalef(20, 20)
 	missleGameObject.AddComponent(NewDamageDealer(50))
 	missleGameObject.Physics.Shape.IsSensor = true
@@ -332,7 +332,7 @@ func (s *GameScene) Load() {
 	cookie.AddComponent(NewEnemeyAI(Player, Enemey_Cookie))
 	cookie.Transform().SetScalef(50, 50)
 	cookie.Transform().SetPositionf(400, 400)
-	cookie.AddComponent(engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
+	cookie.AddComponent(engine.NewPhysicsShape(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
 	cookie.Tag = CookieTag
 
 	defender = engine.NewGameObject("Box")
@@ -343,7 +343,7 @@ func (s *GameScene) Load() {
 	defender.Tag = CookieTag
 	defender.Transform().SetScalef(50, 50)
 
-	phx := defender.AddComponent(engine.NewPhysics(false, 50, 50)).(*engine.Physics)
+	phx := defender.AddComponent(engine.NewPhysics(false)).(*engine.Physics)
 	phx.Body.SetMass(2.5)
 	phx.Body.SetMoment(phx.Shape.Moment(2.5))
 	phx.Shape.SetFriction(0.5)
@@ -358,7 +358,7 @@ func (s *GameScene) Load() {
 	//QueenCookie.Transform().SetParent2(Layer2)
 	QueenCookie.Transform().SetScalef(300, 300)
 	QueenCookie.Transform().SetPositionf(999999, 999999)
-	QueenCookie.AddComponent(engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
+	QueenCookie.AddComponent(engine.NewPhysicsShape(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
 	QueenCookie.Tag = CookieTag
 
 	staticCookie := engine.NewGameObject("Cookie")
@@ -366,7 +366,7 @@ func (s *GameScene) Load() {
 	staticCookie.Transform().SetScalef(400, 400)
 	staticCookie.Transform().SetPositionf(400, 400)
 	staticCookie.AddComponent(NewDestoyable(float32(engine.Inf), 2))
-	staticCookie.AddComponent(engine.NewPhysics2(true, chipmunk.NewCircle(vect.Vect{0, 0}, 200)))
+	staticCookie.AddComponent(engine.NewPhysicsShape(true, chipmunk.NewCircle(vect.Vect{0, 0}, 200)))
 
 	staticCookie.Physics.Shape.SetElasticity(0)
 	staticCookie.Physics.Body.SetMass(999999999999)
@@ -386,7 +386,7 @@ func (s *GameScene) Load() {
 	PowerUpGO = engine.NewGameObject("Background")
 	//PowerUpGO.Transform().SetParent2(Layer2)
 	PowerUpGO.AddComponent(engine.NewSprite3(atlasPowerUp.Texture, uvs))
-	PowerUpGO.AddComponent(engine.NewPhysics(false, 61, 61))
+	PowerUpGO.AddComponent(engine.NewPhysics(false))
 	PowerUpGO.Physics.Shape.IsSensor = true
 	PowerUpGO.Sprite.BindAnimations(ind)
 	PowerUpGO.Sprite.SetAnimation(PowerUps_ID)
@@ -630,7 +630,7 @@ func (s *GameScene) OldLoad() {
 
 	missle := engine.NewGameObject("Missle")
 	missle.AddComponent(engine.NewSprite2(atlas.Texture, engine.IndexUV(atlas, Missle_A)))
-	missle.AddComponent(engine.NewPhysics(false, 10, 10))
+	missle.AddComponent(engine.NewPhysics(false))
 	missle.Transform().SetScalef(20, 20)
 	missle.AddComponent(NewDamageDealer(50))
 
@@ -649,7 +649,7 @@ func (s *GameScene) OldLoad() {
 	cookie.AddComponent(NewEnemeyAI(Player, Enemey_Cookie))
 	cookie.Transform().SetScalef(50, 50)
 	cookie.Transform().SetPositionf(400, 400)
-	cookie.AddComponent(engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
+	cookie.AddComponent(engine.NewPhysicsShape(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
 	cookie.Tag = CookieTag
 
 	defender = engine.NewGameObject("Box")
@@ -660,7 +660,7 @@ func (s *GameScene) OldLoad() {
 	defender.Tag = CookieTag
 	defender.Transform().SetScalef(50, 50)
 
-	phx := defender.AddComponent(engine.NewPhysics(false, 50, 50)).(*engine.Physics)
+	phx := defender.AddComponent(engine.NewPhysics(false)).(*engine.Physics)
 	phx.Body.SetMass(2.5)
 	phx.Body.SetMoment(phx.Shape.Moment(2.5))
 	phx.Shape.SetFriction(0.5)
@@ -675,7 +675,7 @@ func (s *GameScene) OldLoad() {
 	QueenCookie.Transform().SetParent2(Layer2)
 	QueenCookie.Transform().SetScalef(300, 300)
 	QueenCookie.Transform().SetPositionf(999999, 999999)
-	QueenCookie.AddComponent(engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
+	QueenCookie.AddComponent(engine.NewPhysicsShape(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
 	QueenCookie.Tag = CookieTag
 
 	staticCookie := engine.NewGameObject("Cookie")
@@ -683,7 +683,7 @@ func (s *GameScene) OldLoad() {
 	staticCookie.Transform().SetScalef(400, 400)
 	staticCookie.Transform().SetPositionf(400, 400)
 	staticCookie.AddComponent(NewDestoyable(float32(engine.Inf), 2))
-	staticCookie.AddComponent(engine.NewPhysics2(true, chipmunk.NewCircle(vect.Vect{0, 0}, 200)))
+	staticCookie.AddComponent(engine.NewPhysicsShape(true, chipmunk.NewCircle(vect.Vect{0, 0}, 200)))
 
 	staticCookie.Physics.Shape.SetElasticity(0)
 	staticCookie.Physics.Body.SetMass(999999999999)
@@ -703,7 +703,7 @@ func (s *GameScene) OldLoad() {
 	PowerUpGO = engine.NewGameObject("Background")
 	//PowerUpGO.Transform().SetParent2(Layer2)
 	PowerUpGO.AddComponent(engine.NewSprite3(atlasPowerUp.Texture, uvs))
-	PowerUpGO.AddComponent(engine.NewPhysics(false, 61, 61))
+	PowerUpGO.AddComponent(engine.NewPhysics(false))
 	PowerUpGO.Physics.Shape.IsSensor = true
 	PowerUpGO.Sprite.BindAnimations(ind)
 	PowerUpGO.Sprite.SetAnimation(PowerUps_ID)

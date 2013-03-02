@@ -92,8 +92,8 @@ func (p *Sprite) CurrentAnimation() interface{} {
 	return p.currentAnim
 }
 
-func (sp *Sprite) OnComponentBind(binded *GameObject) {
-	binded.Sprite = sp
+func (sp *Sprite) OnComponentAdd() {
+	sp.gameObject.Sprite = sp
 }
 
 /*

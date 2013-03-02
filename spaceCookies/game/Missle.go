@@ -17,8 +17,8 @@ func NewMissle(speed float32) *Missle {
 	return &Missle{BaseComponent: engine.NewComponent(), Speed: speed}
 }
 
-func (ms *Missle) OnComponentBind(gameObject *engine.GameObject) {
-	gameObject.Tag = MissleTag
+func (ms *Missle) OnComponentAdd() {
+	ms.GameObject().Tag = MissleTag
 }
 
 func (ms *Missle) OnHit(enemey *engine.GameObject, damager *DamageDealer) {
@@ -40,7 +40,7 @@ func (ms *Missle) OnDie(byTimer bool) {
 			n.Transform().SetWorldPosition(ms.Transform().WorldPosition())
 			s := n.Transform().Scale()
 			n.Transform().SetScale(s.Mul2(rand.Float32() + 0.5))
-			n.AddComponent(engine.NewPhysics(false, 1, 1))
+			n.AddComponent(engine.NewPhysics(false))
 			n.Transform().SetRotationf(rand.Float32() * 360)
 			rot := n.Transform().Direction()
 			n.Physics.Body.SetVelocity(-rot.X*10, -rot.Y*10)

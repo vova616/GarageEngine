@@ -202,7 +202,7 @@ func (s *LoginScene) Load() {
 	LoginButton.Transform().SetParent2(cam)
 	LoginButton.Transform().SetPositionf(float32(engine.Width)/2, float32(engine.Height)/2-50)
 	LoginButton.AddComponent(engine.NewSprite(button))
-	LoginButton.AddComponent(engine.NewPhysics(false, 1, 1))
+	LoginButton.AddComponent(engine.NewPhysics(false))
 	LoginButton.Physics.Shape.IsSensor = true
 	LoginButton.Transform().SetScalef(50, 50)
 	LoginButton.Sprite.Color = engine.Color{0.5, 0.5, 0.5, 1}

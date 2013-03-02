@@ -24,7 +24,7 @@ func (this *PlayerController) Start() {
 	j := engine.NewGameObject("Joint")
 	j.Transform().SetParent2(GameSceneGeneral.Layer1)
 	j.Transform().SetWorldPosition(this.Transform().WorldPosition())
-	j.AddComponent(engine.NewPhysics(false, 1, 1))
+	j.AddComponent(engine.NewPhysics(false))
 	j.Physics.Body.SetMass(engine.Inf)
 	j.Physics.Body.SetMoment(engine.Inf)
 	this.Joint = chipmunk.NewPivotJoint(j.Physics.Body, this.GameObject().Physics.Body)

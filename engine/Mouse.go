@@ -13,9 +13,10 @@ func NewMouse() *Mouse {
 	return &Mouse{NewComponent()}
 }
 
-func (m *Mouse) OnComponentBind(gameObject *GameObject) {
+func (m *Mouse) OnComponentAdd() {
+	gameObject := m.GameObject()
 	gameObject.Tag = MouseTag
-	gameObject.AddComponent(NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 0.5)))
+	gameObject.AddComponent(NewPhysicsShape(false, chipmunk.NewCircle(vect.Vect{0, 0}, 0.5)))
 	ph := gameObject.Physics
 	ph.Body.SetMass(Inf)
 	ph.Body.SetMoment(Inf)

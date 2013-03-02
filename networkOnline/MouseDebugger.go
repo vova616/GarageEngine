@@ -29,7 +29,7 @@ func (m *MouseDebugger) Update() {
 
 		sprite3.Transform().SetScale(engine.NewVector2(30, 30))
 
-		phx := sprite3.AddComponent(engine.NewPhysics2(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15))).(*engine.Physics)
+		phx := sprite3.AddComponent(engine.NewPhysicsShape(false, chipmunk.NewCircle(vect.Vect{0, 0}, 15))).(*engine.Physics)
 		phx.Shape.SetFriction(0.5)
 		//phx.Shape.Group = 1
 		phx.Shape.SetElasticity(0.5)
@@ -44,7 +44,7 @@ func (m *MouseDebugger) Update() {
 		sprite3.Transform().SetWorldPosition(mousePosition)
 
 		sprite3.Transform().SetScale(engine.NewVector2(30, 30))
-		phx := sprite3.AddComponent(engine.NewPhysics(false, 50, 50)).(*engine.Physics)
+		phx := sprite3.AddComponent(engine.NewPhysics(false)).(*engine.Physics)
 		phx.Shape.SetFriction(0.5)
 		//phx.Shape.Group = 2
 		phx.Shape.SetElasticity(0.5)
