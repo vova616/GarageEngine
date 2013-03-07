@@ -251,6 +251,7 @@ func (s *GameScene) Load() {
 	playerObject.Physics.Body.SetMoment(engine.Inf)
 	playerObject.Transform().SetScalef(64, 64)
 	playerObject.Transform().SetWorldPositionf(159.99995, 32)
+	playerObject.Transform().SetDepth(1)
 	MainPlayer = player
 
 	//SPACCCEEEEE
