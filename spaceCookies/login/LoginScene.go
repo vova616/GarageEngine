@@ -78,8 +78,6 @@ func (s *LoginScene) Load() {
 
 	background := engine.NewGameObject("Background")
 	background.AddComponent(engine.NewSprite(backgroundTexture))
-	background.AddComponent(game.NewBackground(background.Sprite))
-	background.Sprite.Render = false
 	//background.Transform().SetScalef(float32(backgroung.Height()), float32(backgroung.Height()), 1)
 	background.Transform().SetScalef(800, 800)
 	background.Transform().SetPositionf(0, 0)
@@ -101,7 +99,7 @@ func (s *LoginScene) Load() {
 	})
 	txt.SetAlign(engine.AlignLeft)
 
-	FPSDrawer.Transform().SetPositionf(20, float32(engine.Height)-20)
+	FPSDrawer.Transform().SetPositionf((float32(-engine.Width)/2)+20, (float32(engine.Height)/2)-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
 
 	/*
@@ -142,7 +140,7 @@ func (s *LoginScene) Load() {
 	txt2.SetAlign(engine.AlignLeft)
 	txt2.Transform().SetDepth(1)
 
-	tBox.Transform().SetPositionf(float32(engine.Width)/2-txt2.Width()*20, float32(engine.Height)/2)
+	tBox.Transform().SetPositionf(-txt2.Width()*20, 0)
 	tBox.Transform().SetScalef(20, 20)
 	//
 	input := engine.NewGameObject("TextBoxInput")
@@ -189,7 +187,7 @@ func (s *LoginScene) Load() {
 	//
 	errLabel := engine.NewGameObject("TextBoxInput")
 	errLabel.Transform().SetParent2(gui)
-	errLabel.Transform().SetPositionf(float32(engine.Width)/2, float32(engine.Height)/2-100)
+	errLabel.Transform().SetPositionf(0, -100)
 	errLabel.Transform().SetScalef(24, 24)
 
 	errLabelTxt := errLabel.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
@@ -200,7 +198,7 @@ func (s *LoginScene) Load() {
 	//
 	LoginButton := engine.NewGameObject("LoginButton")
 	LoginButton.Transform().SetParent2(cam)
-	LoginButton.Transform().SetPositionf(float32(engine.Width)/2, float32(engine.Height)/2-50)
+	LoginButton.Transform().SetPositionf(0, -50)
 	LoginButton.AddComponent(engine.NewSprite(button))
 	LoginButton.AddComponent(engine.NewPhysics(false))
 	LoginButton.Physics.Shape.IsSensor = true
@@ -296,6 +294,8 @@ func (s *LoginScene) Load() {
 	//SPACCCEEEEE
 	engine.Space.Gravity.Y = 0
 	engine.Space.Iterations = 1
+
+	//cam.Transform().SetPositionf(float32(engine.Width)/2, float32(engine.Height)/2)
 
 	s.AddGameObject(cam)
 	s.AddGameObject(background)

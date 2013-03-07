@@ -48,23 +48,7 @@ func initDefaultPlane() {
 }
 
 func InsideScreen(ratio float32, position Vector, scale Vector) bool {
-	cameraPos := GetScene().SceneBase().Camera.Transform().WorldPosition()
-
-	bigScale := scale.X * ratio
-	if scale.Y > bigScale {
-		bigScale = scale.Y
-	}
-	bigScale = -bigScale
-
-	x := (position.X - cameraPos.X) + (bigScale / 2)
-	y := (position.Y - cameraPos.Y) + (bigScale / 2)
-	if x > float32(Width) || x < bigScale {
-		return false
-	}
-	if y > float32(Height) || y < bigScale {
-		return false
-	}
-	return true
+	return CurrentCamera().InsideScreen(ratio, position, scale)
 }
 
 func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation float32, aling AlignType, color Color) {

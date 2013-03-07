@@ -24,9 +24,9 @@ func (sp *SmoothFollow) Start() {
 }
 
 func (sp *SmoothFollow) LateUpdate() {
-	camera := engine.GetScene().SceneBase().Camera
+	camera := engine.CurrentCamera()
 	if camera != nil {
-		myPos := engine.Vector{sp.Target.Transform().Position().X - float32(engine.Width/2), sp.Target.Transform().Position().Y - float32(engine.Height/2), 0}
+		myPos := sp.Target.Transform().Position()
 		camPos := camera.Transform().Position()
 
 		if sp.Speed > 0 {

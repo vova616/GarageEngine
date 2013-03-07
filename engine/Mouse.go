@@ -25,7 +25,7 @@ func (m *Mouse) OnComponentAdd() {
 }
 
 func (m *Mouse) Update() {
-	m.Transform().SetPosition(mainScene.SceneBase().Camera.MouseLocalPosition())
+	m.Transform().SetPosition(CurrentCamera().MouseLocalPosition())
 }
 
 func (m *Mouse) Start() {

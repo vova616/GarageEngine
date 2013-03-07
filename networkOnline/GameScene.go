@@ -74,7 +74,7 @@ func (s *GameScene) Load() {
 		txt.SetString("FPS: " + strconv.FormatFloat(fps, 'f', 2, 32))
 	})
 	FPSDrawer.Transform().SetParent2(cam)
-	FPSDrawer.Transform().SetPositionf(60, float32(engine.Height)-20)
+	FPSDrawer.Transform().SetPositionf(-float32(engine.Width)/2+60, +float32(engine.Height)/2-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
 
 	//SPACCCEEEEE
@@ -221,6 +221,8 @@ func (s *GameScene) Load() {
 		//mouseJoint->errorBias = cpfpow(1.0f - 0.15f, 60.0f);
 		engine.Space.AddConstraint(joint)
 	}
+
+	cam.Transform().SetWorldPosition(player.Transform().WorldPosition())
 
 	s.AddGameObject(cam)
 	s.AddGameObject(gui)

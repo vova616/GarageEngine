@@ -31,21 +31,18 @@ func (sp *CameraController) Update() {
 		t.Translatef(0, float32(sp.Speed*engine.DeltaTime()))
 	}
 	if input.KeyDown('E') {
-		s := t.Scale()
-		s.X -= 0.05
-		s.Y -= 0.05
-		if s.X <= 0.2 {
-			s.X = 0.2
-		}
-		if s.Y <= 0.2 {
-			s.Y = 0.2
-		}
-		t.SetScale(s)
+		engine.CurrentCamera().SetSize(engine.CurrentCamera().Size() + float32(engine.DeltaTime()))
 	}
 	if input.KeyDown('Q') {
-		s := t.Scale()
-		s.X += 0.05
-		s.Y += 0.05
-		t.SetScale(s)
+		engine.CurrentCamera().SetSize(engine.CurrentCamera().Size() - float32(engine.DeltaTime()))
+	}
+
+	if input.KeyDown('Z') {
+		a := t.Angle()
+		t.SetWorldRotationf(a + float32(engine.DeltaTime())*10)
+	}
+	if input.KeyDown('X') {
+		a := t.Angle()
+		t.SetWorldRotationf(a - float32(engine.DeltaTime())*10)
 	}
 }

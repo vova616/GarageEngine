@@ -145,7 +145,7 @@ func LoadTextures() {
 func SpawnMainPlayer(spawnPlayer server.SpawnPlayer) {
 	Health := engine.NewGameObject("HP")
 	Health.Transform().SetParent2(GameSceneGeneral.Camera.GameObject())
-	Health.Transform().SetPositionf(150, 50)
+	Health.Transform().SetPositionf(-float32(engine.Width)/2+150, -float32(engine.Height)/2+50)
 
 	HealthGUI := engine.NewGameObject("HPGUI")
 	HealthGUI.AddComponent(engine.NewSprite2(atlas.Texture, engine.IndexUV(atlas, HPGUI_A)))
@@ -242,7 +242,7 @@ func (s *GameScene) Load() {
 	})
 	txt.SetAlign(engine.AlignLeft)
 
-	FPSDrawer.Transform().SetPositionf(20, float32(engine.Height)-20)
+	FPSDrawer.Transform().SetPositionf(-float32(engine.Width)/2+20, +float32(engine.Height)/2-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
 	/*
 		label := engine.NewGameObject("Label")
@@ -398,12 +398,10 @@ func (s *GameScene) Load() {
 
 	background := engine.NewGameObject("Background")
 	background.AddComponent(engine.NewSprite(backgroung))
-	background.AddComponent(NewBackground(background.Sprite))
-	background.Sprite.Render = false
-	//background.Transform().SetScalef(float32(backgroung.Height()), float32(backgroung.Height()), 1)
 	background.Transform().SetScalef(800, 800)
 	background.Transform().SetPositionf(0, 0)
 	background.Transform().SetDepth(-6)
+	background.Transform().SetParent2(cam)
 
 	for i := 0; i < 300; i++ {
 		c := Background.Clone()
@@ -476,7 +474,6 @@ func (s *GameScene) Load() {
 	s.AddGameObject(Layer2)
 	s.AddGameObject(Layer3)
 	s.AddGameObject(Layer4)
-	s.AddGameObject(background)
 	//s.AddGameObject(shadowShader)
 
 	fmt.Println("GameScene loaded")

@@ -106,6 +106,10 @@ func GetScene() Scene {
 	return mainScene
 }
 
+func CurrentCamera() *Camera {
+	return mainScene.SceneBase().Camera
+}
+
 func AddScene(scene Scene) {
 	scenes = append(scenes, scene)
 }
