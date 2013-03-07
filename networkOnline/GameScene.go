@@ -208,11 +208,6 @@ func (s *GameScene) Load() {
 		//phx.Shape.Friction = 1
 		_ = phx
 	*/
-	shadowShader := engine.NewGameObject("Shadow")
-	sCam := engine.NewCamera()
-	shadowShader.AddComponent(sCam)
-	sShadow := engine.NewShadowShader(s.Camera)
-	cam.AddComponent(sShadow)
 
 	//sShadow.Sprite = bbBox
 	//
