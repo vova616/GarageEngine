@@ -19,13 +19,14 @@ type Camera struct {
 
 	size        float32
 	rect        Rect
-	realRect    Rect
-	center      Vector
-	sizeIsScale bool
+	realRect    Rect   //
+	center      Vector //Center of scale
+	sizeIsScale bool   //Size is also the scale
+	autoScale   bool   //Scale together with window size
 }
 
 func NewCamera() *Camera {
-	c := &Camera{BaseComponent: NewComponent(), Projection: NewIdentity(), size: 1, sizeIsScale: true}
+	c := &Camera{BaseComponent: NewComponent(), Projection: NewIdentity(), size: 1, sizeIsScale: true, autoScale: true}
 
 	/*
 		c.rect.Min.X - left
@@ -45,15 +46,19 @@ func NewCamera() *Camera {
 }
 
 func (c *Camera) Update() {
-	/*
-		w := float32(Width)/2
-		h := float32(Height)/2
-		proj := NewIdentity()
-		proj.Ortho(-w, w, -h, h, -1000, 1000) 
-		c.Projection = proj
-	*/
+	c.LateUpdate()
 }
 
+func (c *Camera) LateUpdate() {
+	if c.sizeIsScale {
+		s := c.Transform().Scale()
+		if s.X != c.size || s.Y != c.size {
+			c.Transform().SetScalef(c.size, c.size)
+		}
+	}
+}
+
+//Setting the size and also scale if sizeIsScale is true
 func (c *Camera) SetSize(size float32) {
 	c.size = size
 	if c.sizeIsScale {
@@ -62,14 +67,21 @@ func (c *Camera) SetSize(size float32) {
 	c.UpdateResolution()
 }
 
+//Size of the camera screen
 func (c *Camera) Size() float32 {
 	return c.size
 }
 
+//InvertedMatrix of the camera, this is needed because we will optimize it someday
 func (c *Camera) InvertedMatrix() Matrix {
+	return c.Matrix().Invert()
+}
+
+//Matrix of the camera, this is needed because sometimes we control the matrix
+func (c *Camera) Matrix() Matrix {
 	if c.sizeIsScale {
 		c.Transform().updateMatrix()
-		return c.Transform().matrix.Invert()
+		return c.Transform().matrix
 	}
 
 	m := Identity()
@@ -79,11 +91,10 @@ func (c *Camera) InvertedMatrix() Matrix {
 	m.Rotate(r.Y, 0, 1, 0)
 	m.Rotate(r.Z, 0, 0, -1)
 	m.Translate(pos.X, pos.Y, pos.Z)
-
-	return m.Invert()
-
+	return m
 }
 
+//Checks if box is in the screen
 func (c *Camera) InsideScreen(ratio float32, position Vector, scale Vector) bool {
 	cameraPos := c.Transform().WorldPosition()
 
@@ -93,9 +104,11 @@ func (c *Camera) InsideScreen(ratio float32, position Vector, scale Vector) bool
 	}
 	//bigScale = -bigScale
 
-	r := c.rect
-	r.Min = r.Min.Mul2(c.size)
-	r.Max = r.Max.Mul2(c.size)
+	r := c.realRect
+	if c.sizeIsScale {
+		r.Min = r.Min.Mul2(c.size)
+		r.Max = r.Max.Mul2(c.size)
+	}
 	r.Min = r.Min.Add(cameraPos)
 	r.Max = r.Max.Add(cameraPos)
 
@@ -108,12 +121,14 @@ func (c *Camera) InsideScreen(ratio float32, position Vector, scale Vector) bool
 	return r.Overlaps(r2)
 }
 
+//Updates the Projection
 func (c *Camera) UpdateResolution() {
-
-	c.rect.Min.X = -float32(Width) / 2
-	c.rect.Max.X = float32(Width) / 2
-	c.rect.Min.Y = -float32(Height) / 2
-	c.rect.Max.Y = float32(Height) / 2
+	if c.autoScale {
+		c.rect.Min.X = -float32(Width) / 2
+		c.rect.Max.X = float32(Width) / 2
+		c.rect.Min.Y = -float32(Height) / 2
+		c.rect.Max.Y = float32(Height) / 2
+	}
 
 	if c.sizeIsScale {
 		c.realRect.Min.X = c.center.X - (c.center.X - c.rect.Min.X)
@@ -130,17 +145,18 @@ func (c *Camera) UpdateResolution() {
 
 }
 
+//Mouse world position
 func (c *Camera) MouseWorldPosition() Vector {
 	v := c.MouseLocalPosition()
-
 	return c.ScreenToWorld(v.X, v.Y)
 }
 
+//Mouse local position
 func (c *Camera) MouseLocalPosition() Vector {
 	xx, yy := input.MousePosition()
 	x, y := float32(xx), float32(yy)
 	if c.sizeIsScale {
-		x, y = x+c.rect.Min.X, c.rect.Max.Y-y
+		x, y = x+c.realRect.Min.X, c.realRect.Max.Y-y
 	} else {
 		x, y = (x*c.size)+c.realRect.Min.X, c.realRect.Max.Y-(y*c.size)
 	}
@@ -148,8 +164,8 @@ func (c *Camera) MouseLocalPosition() Vector {
 	return NewVector2(x, y)
 }
 
+//Takes a point on the screen and turns it into point on world
 func (c *Camera) ScreenToWorld(x, y float32) Vector {
-
 	m := Identity()
 	if c.sizeIsScale {
 		m.Translate(float32(x), float32(y), 0)
@@ -163,15 +179,16 @@ func (c *Camera) ScreenToWorld(x, y float32) Vector {
 		m.Rotate(r.Z, 0, 0, -1)
 		m.Translate(pos.X, pos.Y, pos.Z)
 	}
-
 	return m.Translation()
 }
 
+//Forcing all the objects to render
 func (c *Camera) Render() {
 	s := GetScene()
 	if s != nil {
 		tcam := s.SceneBase().Camera
 		s.SceneBase().Camera = c
+
 		arr := s.SceneBase().gameObjects
 		if arr == nil {
 			println("arr")
@@ -181,6 +198,7 @@ func (c *Camera) Render() {
 		}
 
 		IterExcept(arr, drawGameObject, c.GameObject())
+
 		s.SceneBase().Camera = tcam
 	}
 }
