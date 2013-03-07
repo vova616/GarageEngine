@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/vova616/garageEngine/engine"
+	"github.com/vova616/garageEngine/engine/input"
 	"github.com/vova616/garageEngine/networkOnline"
 	"github.com/vova616/garageEngine/spaceCookies/game"
 	"github.com/vova616/garageEngine/spaceCookies/login"
@@ -71,9 +72,22 @@ func Start() {
 	*/
 	go server.StartServer()
 
+	scene := 0
+
 	engine.LoadScene(login.LoginSceneGeneral)
 	for engine.MainLoop() {
+		if input.KeyPress('`') {
+			scene = (scene + 1) % 3
+			switch scene {
+			case 0:
+				engine.LoadScene(login.LoginSceneGeneral)
+			case 1:
+				engine.LoadScene(networkOnline.GameSceneGeneral)
+			case 2:
+				engine.LoadScene(zumbies.GameSceneGeneral)
+			}
 
+		}
 	}
 }
 
