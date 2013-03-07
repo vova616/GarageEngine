@@ -74,14 +74,15 @@ func (c *Camera) Size() float32 {
 
 //InvertedMatrix of the camera, this is needed because we will optimize it someday
 func (c *Camera) InvertedMatrix() Matrix {
-	return c.Matrix().Invert()
+	x := c.Matrix()
+	return x.Invert()
 }
 
 //Matrix of the camera, this is needed because sometimes we control the matrix
 func (c *Camera) Matrix() Matrix {
 	if c.sizeIsScale {
 		c.Transform().updateMatrix()
-		return c.Transform().matrix
+		return *c.Transform().matrix
 	}
 
 	m := Identity()
@@ -189,15 +190,15 @@ func (c *Camera) Render() {
 		tcam := s.SceneBase().Camera
 		s.SceneBase().Camera = c
 
-		arr := s.SceneBase().gameObjects
-		if arr == nil {
-			println("arr")
+		for i := int8(-127); ; i++ {
+			drawArr, exists := depthMap[i]
+			if exists && len(drawArr) > 0 {
+				IterNoChildren(drawArr, drawGameObject)
+			}
+			if i == 127 {
+				break
+			}
 		}
-		if c.GameObject() == nil {
-			println("c.GameObject()")
-		}
-
-		IterExcept(arr, drawGameObject, c.GameObject())
 
 		s.SceneBase().Camera = tcam
 	}
