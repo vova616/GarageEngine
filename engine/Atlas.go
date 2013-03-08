@@ -27,6 +27,26 @@ type UV struct {
 	U1, V1, U2, V2, Ratio float32
 }
 
+type ManagedAtlas struct {
+	*Texture
+	image  *image.RGBA
+	uvs    map[ID]image.Rectangle
+	groups map[ID][]ID
+	images map[ID]image.Image
+	Tree   *AtlasNode
+}
+
+func NewManagedAtlas(width, height int) *ManagedAtlas {
+	m := &ManagedAtlas{
+		image:  image.NewRGBA(image.Rect(0, 0, width, height)),
+		uvs:    make(map[ID]image.Rectangle),
+		groups: make(map[ID][]ID),
+		images: make(map[ID]image.Image),
+		Tree:   NewAtlasNode(width, height)}
+	ResourceManager.Add(m)
+	return m
+}
+
 func NewUV(u1, v1, u2, v2, ratio float32) UV {
 	return UV{u1, v1, u2, v2, ratio}
 }
@@ -115,36 +135,6 @@ func RenderAtlas(a Atlas) {
 	gl.End()
 }
 
-type ManagedAtlas struct {
-	*Texture
-	image  *image.RGBA
-	uvs    map[ID]image.Rectangle
-	groups map[ID][]ID
-	images map[ID]image.Image
-	Tree   *AtlasNode
-}
-
-type AtlasNode struct {
-	Child   [2]*AtlasNode
-	Rect    image.Rectangle
-	ImageID ID
-}
-
-func NewAtlasNode(width, height int) *AtlasNode {
-	return &AtlasNode{Rect: image.Rect(0, 0, width, height)}
-}
-
-func NewManagedAtlas(width, height int) *ManagedAtlas {
-	m := &ManagedAtlas{
-		image:  image.NewRGBA(image.Rect(0, 0, width, height)),
-		uvs:    make(map[ID]image.Rectangle),
-		groups: make(map[ID][]ID),
-		images: make(map[ID]image.Image),
-		Tree:   NewAtlasNode(width, height)}
-	ResourceManager.Add(m)
-	return m
-}
-
 /*
 func NewRGBA(r image.Rectangle) (*image.RGBA, *MemHandle) {
 	w, h := r.Dx(), r.Dy()
@@ -226,59 +216,6 @@ func (atlas *ManagedAtlas) Release() {
 	atlas.groups = nil
 	atlas.images = nil
 	atlas.Tree = nil
-}
-
-func (node *AtlasNode) Insert(img image.Image, id ID) *AtlasNode {
-	if node.Child[0] != nil {
-		newNode := node.Child[1].Insert(img, id)
-		if newNode != nil {
-			return newNode
-		}
-		newNode = node.Child[0].Insert(img, id)
-		if newNode != nil {
-			return newNode
-		}
-	} else {
-		if node.ImageID != nil {
-			return nil
-		}
-
-		dw := node.Rect.Dx() - (img.Bounds().Dx() + Padding)
-		dh := node.Rect.Dy() - (img.Bounds().Dy() + Padding)
-
-		if dw < 0 ||
-			dh < 0 {
-			return nil
-		}
-
-		if dw == 0 && dh == 0 {
-			return node
-		}
-
-		node.Child[0] = &AtlasNode{}
-		node.Child[1] = &AtlasNode{}
-
-		if dw > dh {
-			node.Child[0].Rect = image.Rect(
-				node.Rect.Min.X, node.Rect.Min.Y,
-				node.Rect.Min.X+dw, node.Rect.Max.Y)
-
-			node.Child[1].Rect = image.Rect(
-				node.Rect.Min.X+dw, node.Rect.Min.Y,
-				node.Rect.Max.X, node.Rect.Max.Y)
-		} else {
-			node.Child[0].Rect = image.Rect(
-				node.Rect.Min.X, node.Rect.Min.Y,
-				node.Rect.Max.X, node.Rect.Min.Y+dh)
-
-			node.Child[1].Rect = image.Rect(
-				node.Rect.Min.X, node.Rect.Min.Y+dh,
-				node.Rect.Max.X, node.Rect.Max.Y)
-		}
-		//log.Println(node.Child[0].Rect, node.Child[1].Rect, id)
-		return node.Child[1].Insert(img, id)
-	}
-	return nil
 }
 
 func (atlas *ManagedAtlas) LoadGIF(path string) (err error, groupID ID) {
@@ -598,13 +535,9 @@ func (ma *ManagedAtlas) BuildAtlas() error {
 		node := ma.Tree.Insert(bigImage, bigID)
 		var rect image.Rectangle
 		if node != nil {
-			rect = node.Rect
-			//rect.Min.X += Padding
-			//rect.Min.Y += Padding
-			rect.Max.X -= Padding
-			rect.Max.Y -= Padding
+			rect = node.ImageRect()
 			node.ImageID = bigID
-			draw.Draw(ma.image, rect, bigImage, image.ZP, draw.Src)
+			draw.Draw(ma.image, bigImage.Bounds().Add(rect.Min), bigImage, image.ZP, draw.Src)
 		} else {
 			return errors.New("not enough space in atlas")
 		}
