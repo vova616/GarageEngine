@@ -314,15 +314,7 @@ func Run() {
 		lateUpdateDelta = timer.StopCustom("LateUpdate routines")
 
 		timer.StartCustom("Draw routines")
-		for i := int8(-127); ; i++ {
-			drawArr, exists := depthMap[i]
-			if exists && len(drawArr) > 0 {
-				IterNoChildren(drawArr, drawGameObject)
-			}
-			if i == 127 {
-				break
-			}
-		}
+		depthMap.Iter(drawGameObject)
 		drawDelta = timer.StopCustom("Draw routines")
 
 		timer.StartCustom("coroutines")
