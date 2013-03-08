@@ -92,7 +92,7 @@ func PowerUpShip(p Power) {
 			}
 		case Range:
 			var dst *Destoyable
-			dst = PlayerShip.Missle.GameObject().ComponentTypeOfi(dst).(*Destoyable)
+			dst = PlayerShip.Missle.GameObject().ComponentTypeOf(dst).(*Destoyable)
 			dst.aliveDuration += time.Millisecond * 100
 		case HP:
 			PlayerShip.Destoyable.HP = PlayerShip.Destoyable.FullHP

@@ -41,17 +41,8 @@ func (g *GameObject) Components() []Component {
 	return arr
 }
 
-func (g *GameObject) ComponentTypeOf(typ reflect.Type) Component {
-	for _, c := range g.components {
-		if typ == reflect.TypeOf(c) {
-			return c
-		}
-	}
-	return nil
-}
-
-func (g *GameObject) ComponentTypeOfi(intrfce interface{}) Component {
-	typ := reflect.TypeOf(intrfce)
+func (g *GameObject) ComponentTypeOf(component Component) Component {
+	typ := reflect.TypeOf(component)
 	for _, c := range g.components {
 		if typ == reflect.TypeOf(c) {
 			return c

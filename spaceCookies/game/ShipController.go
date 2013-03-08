@@ -53,7 +53,7 @@ func (sp *ShipController) Start() {
 	ph := sp.GameObject().Physics
 	ph.Body.SetMass(50)
 	ph.Shape.Group = 1
-	sp.Destoyable = sp.GameObject().ComponentTypeOfi(sp.Destoyable).(*Destoyable)
+	sp.Destoyable = sp.GameObject().ComponentTypeOf(sp.Destoyable).(*Destoyable)
 	sp.OnHit(nil, nil)
 
 	sp.JetFireParent = engine.NewGameObject("JetFireParent")

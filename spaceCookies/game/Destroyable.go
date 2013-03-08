@@ -63,8 +63,8 @@ func (ds *Destoyable) OnCollisionEnter(arbiter engine.Arbiter) bool {
 		return true
 	}
 
-	dmg, _ = enemy.ComponentTypeOfi(dmg).(*DamageDealer)
-	enemyDestoyable, _ = enemy.ComponentTypeOfi(enemyDestoyable).(*Destoyable)
+	dmg, _ = enemy.ComponentTypeOf(dmg).(*DamageDealer)
+	enemyDestoyable, _ = enemy.ComponentTypeOf(enemyDestoyable).(*Destoyable)
 
 	if enemyDestoyable == nil || enemyDestoyable.Team == ds.Team {
 		return true
