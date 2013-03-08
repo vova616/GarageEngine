@@ -532,14 +532,14 @@ func (ma *ManagedAtlas) BuildAtlas() error {
 			break
 		}
 
-		node := ma.Tree.Insert(bigImage, bigID)
+		node, e := ma.Tree.Insert(bigImage.Bounds(), bigID)
 		var rect image.Rectangle
-		if node != nil {
+		if e == nil {
 			rect = node.ImageRect()
 			node.ImageID = bigID
 			draw.Draw(ma.image, bigImage.Bounds().Add(rect.Min), bigImage, image.ZP, draw.Src)
 		} else {
-			return errors.New("not enough space in atlas")
+			return e
 		}
 
 		ma.uvs[bigID] = rect
