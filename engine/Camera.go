@@ -78,6 +78,19 @@ func (c *Camera) InvertedMatrix() Matrix {
 	return x.Invert()
 }
 
+//Returns Screen Size
+func (c *Camera) ScreenSize() (Width, Height float32) {
+	if c.sizeIsScale {
+		return (c.realRect.Max.X - c.realRect.Min.X) * c.size, (c.realRect.Max.Y - c.realRect.Min.Y) * c.size
+	}
+	return c.realRect.Max.X - c.realRect.Min.X, c.realRect.Max.Y - c.realRect.Min.Y
+}
+
+//Screen resolution
+func (c *Camera) ScreenResolution() (Width, Height float32) {
+	return c.rect.Max.X - c.rect.Min.X, c.rect.Max.Y - c.rect.Min.Y
+}
+
 //Matrix of the camera, this is needed because sometimes we control the matrix
 func (c *Camera) Matrix() Matrix {
 	if c.sizeIsScale {
