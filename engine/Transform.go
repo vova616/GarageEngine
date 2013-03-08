@@ -34,7 +34,7 @@ func (t *Transform) SetDepth(depth int8) {
 	t.depth = depth
 	//If object is in scene add to depth map
 	if t.InScene() {
-		t.depthIndex = depthMap.Add(int(t.depth), t.gameObject)
+		t.checkDepth()
 	}
 }
 
@@ -59,7 +59,9 @@ func (t *Transform) checkDepthRecursive() {
 }
 
 func (t *Transform) removeFromDepthMap() {
-	depthMap.Remove(int(t.depth), t.depthIndex)
+	if t.depthIndex != -1 {
+		depthMap.Remove(int(t.depth), t.depthIndex)
+	}
 	t.depthIndex = -1
 }
 
@@ -260,9 +262,8 @@ func (t *Transform) SetParent(parent *Transform) {
 	}
 
 	//if depth is not updated, update it
-	if t.depthIndex == -1 {
-		t.depthIndex = depthMap.Add(int(t.depth), t.gameObject)
-	}
+	t.checkDepth()
+
 	//check if object was outside of scene
 	wasOutsideScene := !t.InScene()
 
