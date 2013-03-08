@@ -21,8 +21,6 @@ type GameObject struct {
 	Sprite  *Sprite
 }
 
-var Nil = &BaseComponent{}
-
 func init() {
 	fmt.Print()
 }
@@ -49,7 +47,7 @@ func (g *GameObject) ComponentTypeOf(typ reflect.Type) Component {
 			return c
 		}
 	}
-	return Nil
+	return nil
 }
 
 func (g *GameObject) ComponentTypeOfi(intrfce interface{}) Component {
@@ -59,7 +57,7 @@ func (g *GameObject) ComponentTypeOfi(intrfce interface{}) Component {
 			return c
 		}
 	}
-	return Nil
+	return nil
 }
 
 func (g *GameObject) ComponentImplements(intrfce interface{}) Component {
@@ -70,7 +68,7 @@ func (g *GameObject) ComponentImplements(intrfce interface{}) Component {
 			return c
 		}
 	}
-	return Nil
+	return nil
 }
 
 func (c *GameObject) GameObject() *GameObject {
