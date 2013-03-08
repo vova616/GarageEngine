@@ -502,6 +502,9 @@ func (m *Map) Draw() {
 	}
 	camera := engine.GetScene().SceneBase().Camera
 	cameraPos := camera.Transform().WorldPosition()
+	w, h := camera.ScreenSize()
+	cameraPos.X -= w / 2
+	cameraPos.Y -= h / 2
 
 	//calculate max tiles on screen
 	width := int(float32(engine.Width)/(m.TileSize-1)) + 2
