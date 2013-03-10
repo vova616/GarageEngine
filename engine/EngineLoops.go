@@ -1,5 +1,9 @@
 package engine
 
+import (
+	"github.com/vova616/chipmunk/vect"
+)
+
 func Iter(objs []*GameObject, f func(*GameObject)) {
 	for i := len(objs) - 1; i >= 0; i-- {
 		obj := objs[i]
