@@ -1,8 +1,8 @@
 package networkOnline
 
 import (
-	"github.com/vova616/garageEngine/engine"
-	"github.com/vova616/garageEngine/engine/input"
+	"github.com/vova616/GarageEngine/engine"
+	"github.com/vova616/GarageEngine/engine/input"
 	//"log" 
 	"github.com/go-gl/glfw"
 	"github.com/vova616/chipmunk"

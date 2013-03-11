@@ -2,10 +2,10 @@ package login
 
 import (
 	"fmt"
-	"github.com/vova616/garageEngine/engine"
-	"github.com/vova616/garageEngine/engine/components"
-	//"github.com/vova616/garageEngine/engine/components/tween"
-	"github.com/vova616/garageEngine/spaceCookies/game"
+	"github.com/vova616/GarageEngine/engine"
+	"github.com/vova616/GarageEngine/engine/components"
+	//"github.com/vova616/GarageEngine/engine/components/tween"
+	"github.com/vova616/GarageEngine/spaceCookies/game"
 	_ "image/jpeg"
 	_ "image/png"
 	//"gl"  

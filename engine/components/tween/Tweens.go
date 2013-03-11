@@ -2,7 +2,7 @@ package tween
 
 import (
 	//"fmt"
-	"github.com/vova616/garageEngine/engine"
+	"github.com/vova616/GarageEngine/engine"
 	"time"
 )
 

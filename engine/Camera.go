@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"github.com/vova616/garageEngine/engine/input"
+	"github.com/vova616/GarageEngine/engine/input"
 )
 
 type Rect struct {

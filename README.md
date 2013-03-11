@@ -1,12 +1,12 @@
 ## GarageEngine
 This is an educational project, I'm learning as I go, I cannot promise backwards compatibility at this point.<br/>
 the name will be probably changed.<br/> 
-
+	
 ## Install:
 Windows:
 To avoid installing mingw and downloading libraries in windows I have added the .a files.
 <br/>
-go get github.com/vova616/garageEngine<br/>
+go get github.com/vova616/GarageEngine<br/>
 go get github.com/vova616/chipmunk<br/>
 go get github.com/vova616/gl <br/>
 go get github.com/go-gl/glfw<br/>
@@ -22,7 +22,7 @@ sudo apt-get update
 <br/>
 sudo apt-get install build-essential binutils-gold freeglut3 freeglut3-dev libglew-dev libglfw-dev libxrandr2 libxrandr-dev libglew libglew1.8  
 <br/>
-go get github.com/vova616/garageEngine	
+go get github.com/vova616/GarageEngine	
 
 ## To-Do list
 Clean project:<br/>

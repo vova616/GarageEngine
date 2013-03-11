@@ -13,8 +13,8 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/vova616/garageEngine/freetype/raster"
-	"github.com/vova616/garageEngine/freetype/truetype"
+	"github.com/vova616/GarageEngine/freetype/raster"
+	"github.com/vova616/GarageEngine/freetype/truetype"
 )
 
 // These constants determine the size of the glyph cache. The cache is keyed

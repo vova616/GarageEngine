@@ -3,7 +3,7 @@ package engine
 import (
 	"github.com/vova616/gl"
 	//"log"
-	"github.com/vova616/garageEngine/engine/input"
+	"github.com/vova616/GarageEngine/engine/input"
 	//"os"
 	"fmt"
 	"github.com/go-gl/glfw"

@@ -2,8 +2,8 @@ package game
 
 import (
 	"fmt"
-	"github.com/vova616/garageEngine/engine"
-	"github.com/vova616/garageEngine/engine/components"
+	"github.com/vova616/GarageEngine/engine"
+	"github.com/vova616/GarageEngine/engine/components"
 	_ "image/jpeg"
 	_ "image/png"
 	//"gl"  
@@ -13,7 +13,7 @@ import (
 	//"math"
 	"github.com/vova616/chipmunk"
 	"github.com/vova616/chipmunk/vect"
-	"github.com/vova616/garageEngine/spaceCookies/server"
+	"github.com/vova616/GarageEngine/spaceCookies/server"
 	//"image"
 	//"image/color"
 	"encoding/json"
