@@ -4,23 +4,23 @@ type DepthMap map[int8][]*GameObject
 
 var depthMap = make(DepthMap)
 
-func (this *DepthMap) Add(depth int, object *GameObject) int {
+func (this *DepthMap) Add(depth int, object *GameObject) {
 	depth8 := int8(depth)
 	arr := depthMap[depth8]
 	arr = append(arr, object)
 	depthMap[depth8] = arr
-	return len(arr) - 1
 }
 
-func (this *DepthMap) Remove(depth int, index int) bool {
+func (this *DepthMap) Remove(depth int, object *GameObject) bool {
 	depth8 := int8(depth)
-	if index >= 0 {
+	if object != nil {
 		arr := depthMap[depth8]
-		if index > len(arr)-1 {
-			return false
+		for i, ob := range arr {
+			if ob == object {
+				arr[len(arr)-1], arr[i], depthMap[depth8] = nil, arr[len(arr)-1], arr[:len(arr)-1]
+				return true
+			}
 		}
-		arr[len(arr)-1], arr[index], depthMap[depth8] = nil, arr[len(arr)-1], arr[:len(arr)-1]
-		return true
 	}
 	return false
 }

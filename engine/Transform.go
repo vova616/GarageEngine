@@ -21,12 +21,12 @@ type Transform struct {
 	updatedMatrix bool
 	childOfScene  bool
 
-	depth      int8
-	depthIndex int
+	depth       int8
+	inDepthList bool
 }
 
 func NewTransform(g *GameObject) *Transform {
-	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, NewIdentity(), NewIdentity(), false, false, 0, -1}
+	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, NewIdentity(), NewIdentity(), false, false, 0, false}
 }
 
 func (t *Transform) SetDepth(depth int8) {
@@ -46,8 +46,9 @@ func (t *Transform) SetDepthRecursive(depth int8) {
 }
 
 func (t *Transform) checkDepth() {
-	if t.depthIndex == -1 {
-		t.depthIndex = depthMap.Add(int(t.depth), t.gameObject)
+	if !t.inDepthList {
+		depthMap.Add(int(t.depth), t.gameObject)
+		t.inDepthList = true
 	}
 }
 
@@ -59,10 +60,10 @@ func (t *Transform) checkDepthRecursive() {
 }
 
 func (t *Transform) removeFromDepthMap() {
-	if t.depthIndex != -1 {
-		depthMap.Remove(int(t.depth), t.depthIndex)
+	if t.inDepthList {
+		depthMap.Remove(int(t.depth), t.gameObject)
 	}
-	t.depthIndex = -1
+	t.inDepthList = false
 }
 
 func (t *Transform) removeFromDepthMapRecursive() {
