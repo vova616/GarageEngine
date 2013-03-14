@@ -6,9 +6,9 @@ var (
 
 func ButtonPress(btn, state int) {
 	switch state {
-	case Key_Release:
+	case key_Release:
 		mouseState[btn] = idle
-	case Key_Press:
+	case key_Press:
 		mouseState[btn] = pressed | wasPressed
 	}
 }

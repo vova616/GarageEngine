@@ -1,12 +1,13 @@
 package input
 
 type CharCallback func(char rune)
+type ChatCallbackKey *CharCallback
 
 var (
 	keyState   = make(map[int]byte)
 	mouseState = make(map[int]byte)
 
-	charCallbacks = []CharCallback{}
+	charCallbacks = []*CharCallback{}
 )
 
 const (
@@ -17,21 +18,47 @@ const (
 
 func OnKey(key, state int) {
 	switch state {
-	case Key_Release:
+	case key_Release:
 		keyState[key] = idle
-	case Key_Press:
+	case key_Press:
 		keyState[key] = pressed | wasPressed
 	}
 }
 
 func OnChar(key, state int) {
-	for _, callback := range charCallbacks {
-		callback(rune(key))
+	for i, callback := range charCallbacks {
+		if callback != nil && *callback != nil {
+			(*callback)(rune(key))
+		} else {
+			charCallbacks[len(charCallbacks)-1], charCallbacks[i], charCallbacks = nil, charCallbacks[len(charCallbacks)-1], charCallbacks[:len(charCallbacks)-1]
+			if callback != nil {
+				*callback = nil
+			}
+		}
 	}
 }
 
-func AddCharCallback(callback CharCallback) {
-	charCallbacks = append(charCallbacks, callback)
+func AddCharCallback(callback CharCallback) (key ChatCallbackKey) {
+	if callback == nil {
+		return
+	}
+	c := &callback
+	charCallbacks = append(charCallbacks, c)
+	return c
+}
+
+func RemoveCharCallback(key ChatCallbackKey) (deleted bool) {
+	if key == nil || *key == nil {
+		return false
+	}
+	for i, c := range charCallbacks {
+		if c == key {
+			charCallbacks[len(charCallbacks)-1], charCallbacks[i], charCallbacks = nil, charCallbacks[len(charCallbacks)-1], charCallbacks[:len(charCallbacks)-1]
+			*key = nil
+			return true
+		}
+	}
+	return false
 }
 
 func UpdateInput() {

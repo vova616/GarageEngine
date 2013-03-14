@@ -2,8 +2,8 @@ package input
 
 // Key and button state/action definitions
 const (
-	Key_Release = iota
-	Key_Press
+	key_Release = iota
+	key_Press
 )
 
 // Keyboard key definitions: 8-bit ISO-8859-1 (Latin 1) encoding is used
