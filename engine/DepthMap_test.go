@@ -3,10 +3,11 @@ package engine
 import "testing"
 
 func BenchmarkDepthMap(bb *testing.B) {
+	LoadTestScene()
 	a, b, c := NewGameObject("A"), NewGameObject("B"), NewGameObject("C")
-	a.transform.childOfScene = true
-	b.transform.childOfScene = true
-	c.transform.childOfScene = true
+	a.AddToScene()
+	b.AddToScene()
+	c.AddToScene()
 	a.Transform().SetDepth(-1)
 	b.Transform().SetDepth(0)
 	c.Transform().SetDepth(1)
@@ -19,10 +20,11 @@ func BenchmarkDepthMap(bb *testing.B) {
 }
 
 func TestDepthMap(t *testing.T) {
+	LoadTestScene()
 	a, b, c := NewGameObject("A"), NewGameObject("B"), NewGameObject("C")
-	a.transform.childOfScene = true
-	b.transform.childOfScene = true
-	c.transform.childOfScene = true
+	a.AddToScene()
+	b.AddToScene()
+	c.AddToScene()
 	a.Transform().SetDepth(-1)
 	b.Transform().SetDepth(0)
 	c.Transform().SetDepth(1)
@@ -45,7 +47,7 @@ func TestDepthMap(t *testing.T) {
 		}
 	})
 
-	b.Transform().removeFromDepthMap()
+	b.RemoveFromScene()
 
 	depthMap.Iter(func(g *GameObject) {
 		if !((g.Name() == "A" && g.Transform().Depth() == -1) ||
