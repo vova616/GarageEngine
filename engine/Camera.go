@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"errors"
 	"github.com/vova616/GarageEngine/engine/input"
 )
 
@@ -59,12 +60,16 @@ func (c *Camera) LateUpdate() {
 }
 
 //Setting the size and also scale if sizeIsScale is true
-func (c *Camera) SetSize(size float32) {
+func (c *Camera) SetSize(size float32) error {
+	if size <= 0 {
+		return errors.New("Camera size cannot be 0 or less")
+	}
 	c.size = size
 	if c.sizeIsScale {
 		c.Transform().SetScalef(size, size)
 	}
 	c.UpdateResolution()
+	return nil
 }
 
 //Size of the camera screen
