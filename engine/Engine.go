@@ -51,6 +51,7 @@ var (
 	EnablePhysics       = true
 	Debug               = false
 	InternalFPS         = float64(100)
+	internalFPSObject   *FPS
 
 	BehaviorTicks = 5
 
@@ -97,9 +98,9 @@ func LoadScene(scene Scene) {
 	mainScene = sn
 	sn.Load()
 
-	internalFPS := NewGameObject("InternalFPS")
-	internalFPS.AddComponent(NewFPS())
-	sn.SceneBase().AddGameObject(internalFPS)
+	internalFPSGObject := NewGameObject("InternalFPS")
+	internalFPSObject = NewFPS()
+	internalFPSGObject.AddComponent(internalFPSObject)
 }
 
 func GetScene() Scene {
@@ -306,6 +307,7 @@ func Run() {
 		physicsDelta = timer.StopCustom("Physics time")
 
 		timer.StartCustom("Update routines")
+		internalFPSObject.Update()
 		Iter(arr, udpateGameObject)
 		updateDelta = timer.StopCustom("Update routines")
 
