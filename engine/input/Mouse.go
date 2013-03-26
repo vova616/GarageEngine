@@ -1,7 +1,10 @@
 package input
 
 var (
-	MousePosition func() (int, int) = nil
+	MousePosition          func() (int, int) = nil
+	MouseWheelPosition     func() int        = nil
+	MouseWheelDelta        int
+	lastMouseWheelPosition int
 )
 
 func ButtonPress(btn, state int) {
@@ -11,6 +14,11 @@ func ButtonPress(btn, state int) {
 	case key_Press:
 		mouseState[btn] = pressed | wasPressed
 	}
+}
+
+func MouseWheelCallback(position int) {
+	MouseWheelDelta = position - lastMouseWheelPosition
+	lastMouseWheelPosition = position
 }
 
 func MouseDown(key int) bool {

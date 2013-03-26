@@ -36,6 +36,25 @@ func TestMouse(t *testing.T) {
 	}
 }
 
+func TestMouseWheel(t *testing.T) {
+	MouseWheelCallback(1)
+	if MouseWheelDelta != 1 {
+		t.Errorf("Mouse Wheel is %d need %d", MouseWheelDelta, 1)
+	}
+	UpdateInput()
+	if MouseWheelDelta != 0 {
+		t.Errorf("Mouse Wheel is %d need %d", MouseWheelDelta, 0)
+	}
+	MouseWheelCallback(-1)
+	if MouseWheelDelta != -2 {
+		t.Errorf("Mouse Wheel is %d need %d", MouseWheelDelta, -2)
+	}
+	UpdateInput()
+	if MouseWheelDelta != 0 {
+		t.Errorf("Mouse Wheel is %d need %d", MouseWheelDelta, 0)
+	}
+}
+
 func TestText(t *testing.T) {
 	test := 'A'
 	test2 := 'A'

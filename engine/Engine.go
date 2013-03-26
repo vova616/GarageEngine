@@ -167,7 +167,10 @@ func StartEngine() {
 	glfw.SetKeyCallback(input.OnKey)
 	glfw.SetCharCallback(input.OnChar)
 	glfw.SetMouseButtonCallback(input.ButtonPress)
+	glfw.SetMouseWheel(0)
+	glfw.SetMouseWheelCallback(input.MouseWheelCallback)
 
+	input.MouseWheelPosition = glfw.MouseWheel
 	input.MousePosition = glfw.MousePos
 
 	if err = initGL(); err != nil {

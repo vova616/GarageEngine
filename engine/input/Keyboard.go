@@ -68,6 +68,7 @@ func UpdateInput() {
 	for i, v := range mouseState {
 		mouseState[i] = v & ^wasPressed
 	}
+	MouseWheelDelta = 0
 }
 
 func ClearInput() {
