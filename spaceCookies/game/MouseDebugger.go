@@ -51,6 +51,11 @@ func (m *MouseDebugger) Update() {
 	if input.KeyPress('R') {
 		MyClient.SendRespawn()
 	}
+
+	if input.MouseWheelDelta != 0 && engine.Debug {
+		engine.CurrentCamera().SetSize(engine.CurrentCamera().Size() + float32(-input.MouseWheelDelta))
+	}
+
 	if queenDead {
 		if input.KeyPress(input.KeyF1) {
 			PowerUpShip(HP)
