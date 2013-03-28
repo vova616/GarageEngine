@@ -152,7 +152,7 @@ func (ai *EnemeyAI) Start() {
 			return engine.Close
 		}
 
-		ai.Transform().SetPositionf(1500, 1500)
+		ai.GameObject().SetActive(true)
 
 		return engine.Continue
 	}
@@ -196,7 +196,9 @@ func (ai *EnemeyAI) Start() {
 		if ai.Type == Enemey_Cookie {
 			engine.StartBehavior(engine.SleepRand(5), isPlayerClose(600), prepareForAttack, engine.Sleep(1.5), attack, engine.WaitContinue(prepareForNextAttack, nil, 1.5))
 		} else {
-			engine.StartBehavior(engine.Sleep(120), appear, engine.Sequence(engine.SleepRand(0.5), isPlayerClose(800), randomMove, sendCookies))
+			engine.StartBehavior(engine.Sleep(60), appear, engine.Sequence(engine.SleepRand(0.5), isPlayerClose(800), randomMove, sendCookies))
+			//disable queen until appear
+			ai.GameObject().SetActive(false)
 		}
 	}
 

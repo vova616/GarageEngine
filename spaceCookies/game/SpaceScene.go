@@ -11,9 +11,9 @@ import (
 	"time"
 	//"strings"
 	//"math"
+	"github.com/vova616/GarageEngine/spaceCookies/server"
 	"github.com/vova616/chipmunk"
 	"github.com/vova616/chipmunk/vect"
-	"github.com/vova616/GarageEngine/spaceCookies/server"
 	//"image"
 	//"image/color"
 	"encoding/json"
@@ -354,10 +354,10 @@ func (s *GameScene) Load() {
 	QueenCookie.AddComponent(engine.NewSprite2(atlas.Texture, engine.IndexUV(atlas, Queen_A)))
 	QueenCookie.AddComponent(NewDestoyable(5000, 2))
 	QueenCookie.AddComponent(NewDamageDealer(200))
-	//QueenCookie.AddComponent(NewEnemeyAI(Player, Enemey_Boss))
-	//QueenCookie.Transform().SetParent2(Layer2)
+	QueenCookie.AddComponent(NewEnemeyAI(Player, Enemey_Boss))
+	QueenCookie.Transform().SetParent2(Layer2)
 	QueenCookie.Transform().SetScalef(300, 300)
-	QueenCookie.Transform().SetPositionf(999999, 999999)
+	QueenCookie.Transform().SetPositionf(2000, 2000)
 	QueenCookie.AddComponent(engine.NewPhysicsShape(false, chipmunk.NewCircle(vect.Vect{0, 0}, 25)))
 	QueenCookie.Tag = CookieTag
 
