@@ -40,7 +40,6 @@ func (sp *PlayerController) OnCollisionEnter(arbiter engine.Arbiter) bool {
 	return true
 }
 func (sp *PlayerController) OnCollisionExit(arbiter engine.Arbiter) {
-	println("Exit " + arbiter.GameObjectB().Name())
 	if arbiter.GameObjectB() == sp.Floor {
 		sp.Floor = nil
 	}

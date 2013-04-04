@@ -6,9 +6,9 @@ import (
 	"github.com/vova616/GarageEngine/engine/components"
 	_ "image/jpeg"
 	_ "image/png"
-	//"gl"  
+	//"gl"
 	"strconv"
-	//"time" 
+	//"time"
 	//"strings"
 	//"math"
 	"github.com/vova616/chipmunk"
@@ -70,12 +70,26 @@ func (s *GameScene) Load() {
 	FPSDrawer := engine.NewGameObject("FPS")
 	txt := FPSDrawer.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
 	fps := FPSDrawer.AddComponent(engine.NewFPS()).(*engine.FPS)
+	txt.SetAlign(engine.AlignLeft)
 	fps.SetAction(func(fps float64) {
 		txt.SetString("FPS: " + strconv.FormatFloat(fps, 'f', 2, 32))
 	})
 	FPSDrawer.Transform().SetParent2(cam)
-	FPSDrawer.Transform().SetPositionf(-float32(engine.Width)/2+60, +float32(engine.Height)/2-20)
+	FPSDrawer.Transform().SetPositionf(-float32(engine.Width)/2+10, +float32(engine.Height)/2-20)
 	FPSDrawer.Transform().SetScalef(20, 20)
+
+	{
+		FPSDrawer := engine.NewGameObject("Counter")
+		txt := FPSDrawer.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
+		txt.SetAlign(engine.AlignLeft)
+		engine.StartBehavior(func() engine.Command {
+			txt.SetString(fmt.Sprintf("Bodies: %d", len(engine.Space.Bodies)))
+			return engine.Restart
+		})
+		FPSDrawer.Transform().SetParent2(cam)
+		FPSDrawer.Transform().SetPositionf(-float32(engine.Width)/2+10, +float32(engine.Height)/2-45)
+		FPSDrawer.Transform().SetScalef(20, 20)
+	}
 
 	//SPACCCEEEEE
 	engine.Space.Gravity.Y = -300
