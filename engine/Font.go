@@ -74,14 +74,14 @@ func NewFont(fontPath string, size float64) (*Font, error) {
 }
 
 func NewSDFFont(fontPath string, size float64) (*Font, error) {
-	return NewSDFFont2(fontPath, size, 16, 32)
+	return NewSDFFont2(fontPath, size, 512, 32)
 }
 
-func NewSDFFont2(fontPath string, size float64, scaler float64, scanRange int) (*Font, error) {
-	return NewSDFFont3(fontPath, size, 72, false, 0, 255, scaler, scanRange)
+func NewSDFFont2(fontPath string, size float64, sdfSize float64, scanRange int) (*Font, error) {
+	return NewSDFFont3(fontPath, size, 72, false, 0, 255, sdfSize, scanRange)
 }
 
-func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRune, lastRune rune, scaler float64, scanRange int) (*Font, error) {
+func NewSDFFont4(fontPath string, size float64, dpi int, readonly bool, firstRune, lastRune rune, scaler float64, scanRange int) (*Font, error) {
 	fontBytes, err := ioutil.ReadFile(fontPath)
 	if err != nil {
 		return nil, err
@@ -212,6 +212,112 @@ func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRun
 	return &Font{texture, LetterArray, osize, dpi, true}, nil
 }
 
+func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRune, lastRune rune, sdfSize float64, scanRange int) (*Font, error) {
+	fontBytes, err := ioutil.ReadFile(fontPath)
+	if err != nil {
+		return nil, err
+	}
+	font, err := freetype.ParseFont(fontBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	fontBytes = nil
+
+	c := freetype.NewContext()
+	c.SetDPI(dpi)
+	c.SetFont(font)
+	c.SetFontSize(sdfSize)
+	c.SetSrc(image.White)
+
+	ratio := sdfSize / size
+
+	text := ""
+	for i := firstRune; i < lastRune+1; i++ {
+		text += string(i)
+	}
+
+	rects := make([]RectID, 0)
+	LetterArray := make(map[rune]*LetterInfo)
+
+	for _, r := range text {
+		index := font.Index(r)
+		mask, offset, err := c.Glyph(index, freetype.Pt(0, 0))
+		if err != nil {
+			fmt.Println("Rune generation error:", err)
+			continue
+		}
+		bd := mask.Bounds()
+
+		AdvanceWidth := c.FUnitToFix32(int(font.HMetric(index).AdvanceWidth)).Float()
+		LeftSideBearing := c.FUnitToFix32(int(font.HMetric(index).LeftSideBearing)).Float()
+		AdvanceWidth = AdvanceWidth / float32(sdfSize)
+		LeftSideBearing = LeftSideBearing / float32(sdfSize)
+		YOffset := (float32(-offset.Y) - float32(mask.Bounds().Max.Y)) / float32(sdfSize)
+		relativeWidth := float32(bd.Dx()) / float32(sdfSize)
+		relativeHeight := float32(bd.Dy()) / float32(sdfSize)
+
+		sdfBounds := mask.Bounds()
+		sdfBounds.Max.X = int(float64(sdfBounds.Max.X) / ratio)
+		sdfBounds.Max.Y = int(float64(sdfBounds.Max.Y) / ratio)
+		sdfBounds.Max.X += 4
+		sdfBounds.Max.Y += 4
+
+		rects = append(rects, RectID{sdfBounds, r})
+
+		LetterArray[r] = &LetterInfo{sdfBounds, YOffset, LeftSideBearing, AdvanceWidth, relativeWidth, relativeHeight}
+	}
+
+	ay, ax, _, e := FindOptimalSize(10, rects...)
+	if e != nil {
+		return nil, e
+	}
+
+	dst := image.NewRGBA(image.Rect(0, 0, int(ax), int(ay)))
+	node := NewAtlasNode(int(ax), int(ay))
+
+	for _, rectid := range rects {
+		r := rectid.ID.(rune)
+		index := font.Index(r)
+		mask, _, err := c.Glyph(index, freetype.Pt(0, 0))
+		if err != nil {
+			fmt.Println("Rune generation error:", err)
+			continue
+		}
+
+		newMask := image.NewAlpha(rectid.Rect)
+
+		//Note: this is slow we need to find better algorithm
+		for xx := 0; xx < newMask.Bounds().Dx(); xx++ {
+			for yy := 0; yy < newMask.Bounds().Dy(); yy++ {
+				alpha := FindSDFAlpha(mask, xx*int(ratio), yy*int(ratio), scanRange)
+				newMask.SetAlpha(xx, yy, color.Alpha{uint8(alpha)})
+			}
+		}
+
+		n, err := node.Insert(rectid.Rect, r)
+		if err != nil {
+			return nil, err
+		}
+
+		draw.Draw(dst, rectid.Rect.Add(n.ImageRect().Min), newMask, image.ZP, draw.Src)
+		LetterArray[r].Rect = n.ImageRect()
+	}
+
+	texture, err := NewTexture(dst, dst.Pix)
+	if err != nil {
+		return nil, err
+	}
+
+	if readonly {
+		texture.SetReadOnly()
+	}
+
+	texture.SetFiltering(Linear, Linear)
+
+	return &Font{texture, LetterArray, size, dpi, true}, nil
+}
+
 func NextPowerOfTwo(x uint64) uint64 {
 	power := uint64(1)
 	for power < x {
@@ -238,65 +344,60 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 	c.SetFontSize(size)
 	c.SetSrc(image.White)
 
-	border := 2
-
-	pt := freetype.Pt(0, border+int(size))
-
-	x := pt.X
-	mx := pt.X
-
 	text := ""
 	for i := firstRune; i < lastRune+1; i++ {
 		text += string(i)
 	}
 
-	for i, r := range text {
-		if i%15 == 0 && i != 0 {
-			pt.Y += c.PointToFix32(size + float64(border))
-			if pt.X > mx {
-				mx = pt.X
-			}
-			pt.X = x
-		}
-		mask, offset, _ := c.Glyph(font.Index(r), pt)
-		if mask == nil {
-			continue
-		}
-		bd := mask.Bounds().Add(offset)
-		pt.X = c.PointToFix32(float64(bd.Max.X) + float64(border))
-	}
-
-	dst := image.NewRGBA(image.Rect(0, 0, int(NextPowerOfTwo(uint64(int(mx/256)+2))), int(NextPowerOfTwo(uint64(int(pt.Y/256)+2+int(size))))))
-	dstBounds := dst.Bounds()
-
-	node := NewAtlasNode(dstBounds.Dx(), dstBounds.Dy())
-
+	rects := make([]RectID, 0)
 	LetterArray := make(map[rune]*LetterInfo)
 
 	for _, r := range text {
-		mask, offset, err := c.Glyph(font.Index(r), freetype.Pt(0, 0))
+		index := font.Index(r)
+		mask, offset, err := c.Glyph(index, freetype.Pt(0, 0))
 		if err != nil {
 			fmt.Println("Rune generation error:", err)
 			continue
 		}
 		bd := mask.Bounds()
-		index := font.Index(r)
 
-		adv := c.FUnitToFix32(int(font.HMetric(index).AdvanceWidth))
-		adv2 := c.FUnitToFix32(int(font.HMetric(index).LeftSideBearing))
-		realWidth := adv.Float() / float32(size)
-		LeftSideBearing := adv2.Float() / float32(size)
-		offy := (float32(-offset.Y) - float32(mask.Bounds().Max.Y)) / float32(size)
+		AdvanceWidth := c.FUnitToFix32(int(font.HMetric(index).AdvanceWidth)).Float()
+		LeftSideBearing := c.FUnitToFix32(int(font.HMetric(index).LeftSideBearing)).Float()
+		AdvanceWidth = AdvanceWidth / float32(size)
+		LeftSideBearing = LeftSideBearing / float32(size)
+		YOffset := (float32(-offset.Y) - float32(mask.Bounds().Max.Y)) / float32(size)
 		relativeWidth := float32(bd.Dx()) / float32(size)
 		relativeHeight := float32(bd.Dy()) / float32(size)
 
-		n, e := node.Insert(bd, r)
-		if e != nil {
-			panic(e)
-		}
-		draw.Draw(dst, mask.Bounds().Add(n.ImageRect().Min), mask, image.ZP, draw.Src)
+		rects = append(rects, RectID{mask.Bounds(), r})
 
-		LetterArray[r] = &LetterInfo{n.ImageRect(), offy, LeftSideBearing, realWidth, relativeWidth, relativeHeight}
+		LetterArray[r] = &LetterInfo{bd, YOffset, LeftSideBearing, AdvanceWidth, relativeWidth, relativeHeight}
+	}
+
+	ay, ax, _, e := FindOptimalSize(10, rects...)
+	if e != nil {
+		return nil, e
+	}
+
+	dst := image.NewRGBA(image.Rect(0, 0, int(ax), int(ay)))
+	node := NewAtlasNode(int(ax), int(ay))
+
+	for _, rectid := range rects {
+		r := rectid.ID.(rune)
+		index := font.Index(r)
+		mask, _, err := c.Glyph(index, freetype.Pt(0, 0))
+		if err != nil {
+			fmt.Println("Rune generation error:", err)
+			continue
+		}
+
+		n, err := node.Insert(mask.Bounds(), r)
+		if err != nil {
+			return nil, err
+		}
+
+		draw.Draw(dst, mask.Bounds().Add(n.ImageRect().Min), mask, image.ZP, draw.Src)
+		LetterArray[r].Rect = n.ImageRect()
 	}
 
 	texture, err := NewTexture(dst, dst.Pix)
