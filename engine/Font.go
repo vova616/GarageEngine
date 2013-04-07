@@ -157,7 +157,7 @@ func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRun
 		//Note: this is slow we need to find better algorithm
 		for xx := 0; xx < newMask.Bounds().Dx(); xx++ {
 			for yy := 0; yy < newMask.Bounds().Dy(); yy++ {
-				alpha := FindSDFAlpha(mask, xx*int(ratio), yy*int(ratio), scanRange)
+				alpha := FindSDFAlpha(mask, int(float64(xx)*ratio), int(float64(yy)*ratio), scanRange)
 				newMask.SetAlpha(xx, yy, color.Alpha{uint8(alpha)})
 			}
 		}
