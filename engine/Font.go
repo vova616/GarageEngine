@@ -81,137 +81,6 @@ func NewSDFFont2(fontPath string, size float64, sdfSize float64, scanRange int) 
 	return NewSDFFont3(fontPath, size, 72, false, 0, 255, sdfSize, scanRange)
 }
 
-func NewSDFFont4(fontPath string, size float64, dpi int, readonly bool, firstRune, lastRune rune, scaler float64, scanRange int) (*Font, error) {
-	fontBytes, err := ioutil.ReadFile(fontPath)
-	if err != nil {
-		return nil, err
-	}
-	font, err := freetype.ParseFont(fontBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	fontBytes = nil
-
-	pRange := scanRange
-
-	_, _ = scaler, pRange
-
-	osize := size
-	size = size * scaler
-
-	c := freetype.NewContext()
-	c.SetDPI(dpi)
-	c.SetFont(font)
-	c.SetFontSize(size)
-	c.SetSrc(image.White)
-
-	border := 2
-
-	pt := freetype.Pt(0, border+int(size))
-
-	x := pt.X
-	mx := pt.X
-
-	text := ""
-	for i := firstRune; i < lastRune+1; i++ {
-		text += string(i)
-	}
-
-	//Note: need to fix this
-	for i, r := range text {
-		if i%15 == 0 && i != 0 {
-			pt.Y += c.PointToFix32(size + float64(border))
-			if pt.X > mx {
-				mx = pt.X
-			}
-			pt.X = x
-		}
-		mask, offset, _ := c.Glyph(font.Index(r), pt)
-		if mask == nil {
-			continue
-		}
-
-		bd := mask.Bounds().Add(offset)
-		pt.X = c.PointToFix32(float64(bd.Max.X) + float64(border) + 8)
-	}
-
-	dst := image.NewRGBA(image.Rect(0, 0, ((int(mx/256))/int(scaler))+2+int(osize), (int(pt.Y/256)/int(scaler))+2+int(osize)))
-	dstBounds := dst.Bounds()
-	fmt.Println("atlas size", dstBounds)
-
-	c.SetDst(dst)
-	c.SetClip(dstBounds)
-
-	LetterArray := make(map[rune]*LetterInfo)
-
-	pt = freetype.Pt(0, border+int(osize))
-
-	for i, r := range text {
-		if i%15 == 0 && i != 0 {
-			pt.Y += c.PointToFix32(osize + float64(border))
-			pt.X = x
-		}
-
-		mask, offset, err := c.Glyph(font.Index(r), freetype.Pt(0, 0))
-		_ = offset
-		if err != nil {
-			fmt.Println("Rune generation error:", err)
-			continue
-		}
-
-		newMask := image.NewAlpha(image.Rect(0, 0, int(2+float64(mask.Bounds().Dx())/(scaler)), int(2+float64(mask.Bounds().Dy())/(scaler))))
-
-		//Note: this is slow we need to find better algorithm
-		for xx := 0; xx < newMask.Bounds().Dx(); xx++ {
-			for yy := 0; yy < newMask.Bounds().Dy(); yy++ {
-				alpha := FindSDFAlpha(mask, xx*int(scaler), yy*int(scaler), pRange)
-
-				newMask.SetAlpha(xx, yy, color.Alpha{uint8(alpha)})
-
-				//_, _, _, a := mask.At(xx*int(scaler), yy*int(scaler)).RGBA()
-
-				//newMask.SetAlpha(xx, yy, color.Alpha{uint8(a / 257)})
-
-			}
-		}
-		//panic("asd")
-
-		realoffy := -(float32(offset.Y) + float32(mask.Bounds().Max.Y)) / float32(size)
-		planeW := float32(mask.Bounds().Dx()) / float32(size)
-		planeH := float32(mask.Bounds().Dy()) / float32(size)
-		mask = newMask
-		offx := (float64(offset.X) / (scaler)) + float64(int(pt.X)/256)
-		offy := (float64(offset.Y) / (scaler)) + float64(int(pt.Y)/256)
-
-		bd := mask.Bounds().Add(image.Pt(int(offx+0.5), int(offy+0.5)))
-
-		mp := image.Point{0, 0}
-		draw.DrawMask(dst, bd, image.White, image.ZP, mask, mp, draw.Over)
-		pt.X = c.PointToFix32(float64(bd.Max.X) + float64(border))
-
-		adv := int(c.FUnitToFix32(int(font.HMetric(font.Index(r)).AdvanceWidth)))
-		adv2 := int(c.FUnitToFix32(int(font.HMetric(font.Index(r)).LeftSideBearing)))
-		LeftSideBearing := (float32(adv2/256) + float32(adv2%256/256)) / float32(size)
-		realWidth := (float32(adv/256) + float32(adv%256/256)) / float32(size)
-
-		LetterArray[r] = &LetterInfo{bd, realoffy, LeftSideBearing, realWidth, planeW, planeH}
-	}
-
-	texture, err := NewTexture(dst, dst.Pix)
-	if err != nil {
-		return nil, err
-	}
-
-	if readonly {
-		texture.SetReadOnly()
-	}
-
-	texture.SetFiltering(Linear, Linear)
-
-	return &Font{texture, LetterArray, osize, dpi, true}, nil
-}
-
 func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRune, lastRune rune, sdfSize float64, scanRange int) (*Font, error) {
 	fontBytes, err := ioutil.ReadFile(fontPath)
 	if err != nil {
@@ -258,10 +127,8 @@ func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRun
 		relativeHeight := float32(bd.Dy()) / float32(sdfSize)
 
 		sdfBounds := mask.Bounds()
-		sdfBounds.Max.X = int(float64(sdfBounds.Max.X) / ratio)
-		sdfBounds.Max.Y = int(float64(sdfBounds.Max.Y) / ratio)
-		sdfBounds.Max.X += 4
-		sdfBounds.Max.Y += 4
+		sdfBounds.Max.X = int(float64(sdfBounds.Max.X)/ratio) + 2
+		sdfBounds.Max.Y = int(float64(sdfBounds.Max.Y)/ratio) + 2
 
 		rects = append(rects, RectID{sdfBounds, r})
 
