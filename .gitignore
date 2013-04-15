@@ -174,3 +174,5 @@ out/
 64bit/
 
 *.sublime-workspace
+*.dll
+*.exe
