@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"github.com/vova616/gl"
+	"github.com/go-gl/gl"
 )
 
 var (

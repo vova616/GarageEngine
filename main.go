@@ -11,7 +11,7 @@ import (
 	"github.com/vova616/GarageEngine/spaceCookies/server"
 	"github.com/vova616/GarageEngine/zumbies"
 	//"math"
-	//"github.com/vova616/gl"
+	//"github.com/go-gl/gl"
 	"os"
 	//"runtime"
 	"runtime/pprof"

@@ -2,7 +2,7 @@ package engine
 
 import (
 	"errors"
-	"github.com/vova616/gl"
+	"github.com/go-gl/gl"
 	"image"
 	"image/color"
 	"image/gif"

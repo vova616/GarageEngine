@@ -2,7 +2,7 @@ package engine
 
 import (
 	"fmt"
-	"github.com/vova616/gl"
+	"github.com/go-gl/gl"
 )
 
 type Material interface {
