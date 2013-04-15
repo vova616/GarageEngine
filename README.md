@@ -1,4 +1,8 @@
 ## GarageEngine
+This is a 2d game engine written in Go working on OpenGL.
+Its an Entity/Component based engine and right now contains lots of features such as: Font,Sprites,Texture packing,Physics,Depth layers,Scenes and more.
+It feels like Unity3d and share the same names: Scene,Coroutines,Components,Transform,GameObjects etc...
+
 This is an educational project, I'm learning as I go, I cannot promise backwards compatibility at this point.<br/>
 the name will be probably changed.<br/> 
 	
