@@ -3,20 +3,12 @@ This is an educational project, I'm learning as I go, I cannot promise backwards
 the name will be probably changed.<br/> 
 	
 ## Install:
-Windows:
-To avoid installing mingw and downloading libraries in windows I have added the .a files.
-<br/>
-go get github.com/vova616/GarageEngine<br/>
-go get github.com/vova616/chipmunk<br/>
-go get github.com/vova616/gl <br/>
-go get github.com/go-gl/glfw<br/>
-(just to make sure you got all the sources, ignore all the erroes)<br/>
+You need to download glfw&glew libraries.
 
-go to GarageEngine source folder and copy the pkg folder to your golang folder. (override)
-now you can try to compile Garageengine.
-	
-Other:
-You need to download glfw/gl/glew libraries.
+Windows:
+Use mingw and compile glew.
+
+Linux:
 <br/>
 sudo apt-get update 
 <br/>
@@ -29,16 +21,14 @@ Clean project:<br/>
 Name changing Engine -> engine etc...<br/>
 Function changing -> SetWorldPositionf -> SetWorldPosition2d etc...<br>
 <br/>
-Atlas - Make functions return id, LoadImage should not use id and clean whatever we can.<br/>
-Font - Clean the hell out of it, clever atlas creating.<br/>
+Atlas,Font - Clean whatever we can.<br/>
 Material - Think of design that does not require lots of work when creating custom shaders.<br/>
-Physics - Code interpolation and think of a better design for arbiter and clean & polish stuff.<br/>
-Scene - Do less work when coding scenes also get scene by name.<br/>
+Physics - Think of a better design for arbiter and clean & polish stuff.<br/>
+Scene - Get scene by name.<br/>
 Tree Behaviours - Clean & polish & new features.<br/>
-Camera - support multiple cameras, make the camera look at center or other point.<br/>
-Rendering - support auto-batching, only render objects close to camera(make it smarter), render by Z and not by layers.<br/>
+Camera - support multiple cameras.<br/>
+Rendering - support auto-batching.<br/>
 Coroutine - try to fix the bug that you cannot access to textures in Coroutines.<br/>
-Transform - Do not brake Z coord when using functions.<br/>
 Readme - explain Tree Behaviours.<br/>
 Learn from - https://github.com/runningwild/haunts .<br/>
 Comments - lacks tons of it.<br/>
@@ -46,9 +36,10 @@ Comments - lacks tons of it.<br/>
 
 
 ## Dependencies
-github.com/vova616/gl<br/>
+github.com/go-gl/gl<br/>
+github.com/go-gl/glfw<br/>
 github.com/vova616/chipmunk<br/>
-github.com/go-gl/glfw
+"github.com/vova616/freetype-go/freetype"
 
 ## Coroutines(they might be deprecated):
 The useage is same as unity coroutines.<br/>
