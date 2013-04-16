@@ -83,7 +83,7 @@ func LoadScene(scene Scene) {
 				g.Destroy()
 			}
 		}
-		Iter(mainScene.SceneBase().gameObjects, destoyGameObject)
+		iter(mainScene.SceneBase().gameObjects, destoyGameObject)
 		mainScene.SceneBase().gameObjects = nil
 		Space.Destory()
 		runtime.GC()
@@ -272,11 +272,11 @@ func Run() {
 		arr := sd.gameObjects
 
 		timer.StartCustom("Destory routines")
-		Iter(arr, destoyGameObject)
+		iter(arr, destoyGameObject)
 		destroyDelta = timer.StopCustom("Destory routines")
 
 		timer.StartCustom("Start routines")
-		Iter(arr, startGameObject)
+		iter(arr, startGameObject)
 		startDelta = timer.StopCustom("Start routines")
 
 		//
@@ -287,11 +287,11 @@ func Run() {
 
 			for fixedTime >= stepTime {
 				timer.StartCustom("FixedUpdate routines")
-				Iter(arr, fixedUdpateGameObject)
+				iter(arr, fixedUdpateGameObject)
 				fixedUpdateDelta = timer.StopCustom("FixedUpdate routines")
 
 				timer.StartCustom("PreStep Physics Delta")
-				Iter(arr, preStepGameObject)
+				iter(arr, preStepGameObject)
 				startPhysicsDelta = timer.StopCustom("PreStep Physics Delta")
 
 				Space.Step(vect.Float(stepTime))
@@ -300,22 +300,22 @@ func Run() {
 				_ = timer.StopCustom("Physics step time")
 
 				timer.StartCustom("PostStep Physics Delta")
-				Iter(arr, postStepGameObject)
+				iter(arr, postStepGameObject)
 				endPhysicsDelta = timer.StopCustom("PostStep Physics Delta")
 			}
 			if fixedTime > 0 && fixedTime < stepTime {
-				Iter(arr, interpolateGameObject)
+				iter(arr, interpolateGameObject)
 			}
 		}
 		physicsDelta = timer.StopCustom("Physics time")
 
 		timer.StartCustom("Update routines")
 		internalFPSObject.Update()
-		Iter(arr, udpateGameObject)
+		iter(arr, udpateGameObject)
 		updateDelta = timer.StopCustom("Update routines")
 
 		timer.StartCustom("LateUpdate routines")
-		Iter(arr, lateudpateGameObject)
+		iter(arr, lateudpateGameObject)
 		lateUpdateDelta = timer.StopCustom("LateUpdate routines")
 
 		timer.StartCustom("Draw routines")

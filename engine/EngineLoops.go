@@ -4,7 +4,7 @@ import (
 	"github.com/vova616/chipmunk/vect"
 )
 
-func Iter(objs []*GameObject, f func(*GameObject)) {
+func iter(objs []*GameObject, f func(*GameObject)) {
 	for i := len(objs) - 1; i >= 0; i-- {
 		obj := objs[i]
 		if obj != nil {
@@ -13,13 +13,13 @@ func Iter(objs []*GameObject, f func(*GameObject)) {
 			if obj != objs[i] {
 				i++
 			} else {
-				Iter2(obj.Transform().children, f)
+				iter2(obj.Transform().children, f)
 			}
 		}
 	}
 }
 
-func Iter2(objs []*Transform, f func(*GameObject)) {
+func iter2(objs []*Transform, f func(*GameObject)) {
 	for i := len(objs) - 1; i >= 0; i-- {
 		if objs[i] != nil {
 			obja := objs[i]
@@ -29,13 +29,13 @@ func Iter2(objs []*Transform, f func(*GameObject)) {
 			if obja != objs[i] {
 				i++
 			} else {
-				Iter2(obj.Transform().children, f)
+				iter2(obj.Transform().children, f)
 			}
 		}
 	}
 }
 
-func IterNoChildren(objs []*GameObject, f func(*GameObject)) {
+func iterNoChildren(objs []*GameObject, f func(*GameObject)) {
 	for i := len(objs) - 1; i >= 0; i-- {
 		obj := objs[i]
 		if obj != nil {
@@ -44,6 +44,40 @@ func IterNoChildren(objs []*GameObject, f func(*GameObject)) {
 			if obj != objs[i] {
 				i++
 			}
+		}
+	}
+}
+
+func iterExcept(objs []*GameObject, f func(*GameObject), except *GameObject) {
+	for i := len(objs) - 1; i >= 0; i-- {
+		obj := objs[i]
+		if obj != except {
+			f(obj)
+		}
+		//Checks if the objs array has been changed
+		if obj != objs[i] {
+			i++
+		} else {
+			iter2Except(obj.Transform().children, f, except)
+		}
+	}
+}
+
+func iter2Except(objs []*Transform, f func(*GameObject), except *GameObject) {
+	for i := len(objs) - 1; i >= 0; i-- {
+		obj := objs[i].GameObject()
+		if obj == nil {
+			continue
+		}
+		obja := objs[i]
+		if obj != except {
+			f(obj)
+		}
+		//Checks if the objs array has been changed
+		if obja != objs[i] {
+			i++
+		} else {
+			iter2Except(obj.Transform().children, f, except)
 		}
 	}
 }
@@ -154,40 +188,6 @@ func drawGameObject(gameObject *GameObject) {
 	for i := l - 1; i >= 0; i-- {
 		if comps[i].started() {
 			comps[i].Draw()
-		}
-	}
-}
-
-func IterExcept(objs []*GameObject, f func(*GameObject), except *GameObject) {
-	for i := len(objs) - 1; i >= 0; i-- {
-		obj := objs[i]
-		if obj != except {
-			f(obj)
-		}
-		//Checks if the objs array has been changed
-		if obj != objs[i] {
-			i++
-		} else {
-			Iter2Except(obj.Transform().children, f, except)
-		}
-	}
-}
-
-func Iter2Except(objs []*Transform, f func(*GameObject), except *GameObject) {
-	for i := len(objs) - 1; i >= 0; i-- {
-		obj := objs[i].GameObject()
-		if obj == nil {
-			continue
-		}
-		obja := objs[i]
-		if obj != except {
-			f(obj)
-		}
-		//Checks if the objs array has been changed
-		if obja != objs[i] {
-			i++
-		} else {
-			Iter2Except(obj.Transform().children, f, except)
 		}
 	}
 }
