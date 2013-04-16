@@ -207,17 +207,7 @@ func (c *Camera) Render() {
 	if s != nil {
 		tcam := s.SceneBase().Camera
 		s.SceneBase().Camera = c
-
-		for i := int8(-127); ; i++ {
-			drawArr, exists := depthMap[i]
-			if exists && len(drawArr) > 0 {
-				IterNoChildren(drawArr, drawGameObject)
-			}
-			if i == 127 {
-				break
-			}
-		}
-
+		depthMap.Iter(drawGameObject)
 		s.SceneBase().Camera = tcam
 	}
 }
