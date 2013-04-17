@@ -8,7 +8,7 @@ import (
 	"github.com/vova616/GarageEngine/spaceCookies/game"
 	_ "image/jpeg"
 	_ "image/png"
-	//"gl"  
+	//"gl"
 	"strconv"
 	"time"
 	//"strings"
@@ -250,6 +250,11 @@ func (s *LoginScene) Load() {
 	loginText.Transform().SetPositionf(0, 0.1)
 	loginText.Transform().SetDepth(1)
 
+	if game.MyClient != nil {
+		game.MyClient.Socket.Close()
+		game.MyClient = nil
+	}
+
 	var errChan chan error
 	LoginButton.AddComponent(components.NewUIButton(func() {
 		if errChan == nil && game.MyClient == nil {
@@ -269,7 +274,7 @@ func (s *LoginScene) Load() {
 	txt2.SetWritable(false)
 	txt2.SetAlign(engine.AlignCenter)
 	txt2.Color = engine.Color{1, 1, 1, 1}
-	//	
+	//
 
 	engine.StartCoroutine(func() {
 		for {
