@@ -37,9 +37,10 @@ func Lerpf(from, to float32, t float32) float32 {
 }
 
 func LerpAngle(from, to float32, t float32) float32 {
-	if to-from > 180 {
+	for to-from > 180 {
 		from += 360
-	} else if from-to > 180 {
+	}
+	for from-to > 180 {
 		to += 360
 	}
 	return from + ((to - from) * t)
