@@ -13,15 +13,33 @@ type AudioSource struct {
 	Clip        AudioClip
 	buffers     []openal.Buffer
 	audioBuffer []int16
+
+	play bool
 }
 
 func NewAudioSource(clip AudioClip) *AudioSource {
-	return &AudioSource{engine.NewComponent(), openal.NewSource(), false, clip, nil, nil}
+	as := &AudioSource{engine.NewComponent(), openal.NewSource(), false, nil, nil, nil, true}
+	if clip != nil {
+		c, e := clip.Clone()
+		if e != nil {
+			panic(e)
+		}
+		as.Clip = c
+	}
+	return as
 }
 
 func (this *AudioSource) Start() {
 	this.buffers = openal.NewBuffers(4)
 	this.updateBuffers()
+}
+
+func (this *AudioSource) Pause() {
+	this.play = false
+}
+
+func (this *AudioSource) Play() {
+	this.play = true
 }
 
 func (this *AudioSource) updateBuffers() {
@@ -33,7 +51,9 @@ func (this *AudioSource) updateBuffers() {
 				this.buffers[i].SetDataInt(this.Clip.AudioFormat().AlFormat(), this.audioBuffer[:n], int32(this.Clip.SampleRate()))
 			}
 			this.source.QueueBuffers(this.buffers)
-			this.source.Play()
+			if this.play {
+				this.source.Play()
+			}
 			return
 		}
 		gBuffs := int(this.source.BuffersProcessed())
@@ -43,8 +63,14 @@ func (this *AudioSource) updateBuffers() {
 			b := this.source.UnqueueBuffer()
 			b.SetDataInt(this.Clip.AudioFormat().AlFormat(), this.audioBuffer[:n], int32(this.Clip.SampleRate()))
 			this.source.QueueBuffer(b)
-			if this.source.State() != openal.Playing {
-				this.source.Play()
+			if !this.play {
+				if this.source.State() == openal.Playing {
+					this.source.Pause()
+				}
+			} else {
+				if this.source.State() != openal.Playing {
+					this.source.Play()
+				}
 			}
 		}
 	}
