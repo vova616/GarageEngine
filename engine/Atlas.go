@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -33,7 +34,7 @@ type ManagedAtlas struct {
 	uvs    map[ID]image.Rectangle
 	groups map[ID][]ID
 	images map[ID]image.Image
-	Tree   *AtlasNode
+	Tree   *MaxRectsBin
 }
 
 func NewManagedAtlas(width, height int) *ManagedAtlas {
@@ -42,7 +43,7 @@ func NewManagedAtlas(width, height int) *ManagedAtlas {
 		uvs:    make(map[ID]image.Rectangle),
 		groups: make(map[ID][]ID),
 		images: make(map[ID]image.Image),
-		Tree:   NewAtlasNode(width, height)}
+		Tree:   NewBin(width, height, Padding)}
 	ResourceManager.Add(m)
 	return m
 }
@@ -177,7 +178,7 @@ func AtlasFromSheet(path string, width, height, frames int) (atlas *ManagedAtlas
 		uvs:    make(map[ID]image.Rectangle),
 		groups: make(map[ID][]ID),
 		images: make(map[ID]image.Image),
-		Tree:   NewAtlasNode(img.Bounds().Dx(), img.Bounds().Dy())}
+		Tree:   NewBin(img.Bounds().Dx(), img.Bounds().Dy(), Padding)}
 	ResourceManager.Add(atlas)
 
 	draw.Draw(atlas.image, atlas.image.Bounds(), img, image.Point{0, 0}, draw.Src)
@@ -532,12 +533,9 @@ func (ma *ManagedAtlas) BuildAtlas() error {
 			break
 		}
 
-		node, e := ma.Tree.Insert(bigImage.Bounds(), bigID)
-		var rect image.Rectangle
+		rect, e := ma.Tree.Insert(bigImage.Bounds())
 		if e == nil {
-			rect = node.ImageRect()
-			node.ImageID = bigID
-			draw.Draw(ma.image, bigImage.Bounds().Add(rect.Min), bigImage, image.ZP, draw.Src)
+			draw.Draw(ma.image, rect, bigImage, image.ZP, draw.Src)
 		} else {
 			return e
 		}
@@ -549,4 +547,76 @@ func (ma *ManagedAtlas) BuildAtlas() error {
 	ma.image.Pix = nil
 	ma.image = nil
 	return nil
+}
+
+type RectID struct {
+	Rect image.Rectangle
+	ID   ID
+}
+
+func FindOptimalSizeFast(totalSize int64) (w, h int) {
+	ww, hh := int64(1), int64(1)
+	sw := true
+	for ww*hh < totalSize {
+		if sw {
+			hh *= 2
+		} else {
+			ww *= 2
+		}
+		sw = !sw
+	}
+	return int(ww), int(hh)
+}
+
+type RectSortable []RectID
+
+func (this RectSortable) Len() int {
+	return len(this)
+}
+
+func (this RectSortable) Less(i, j int) bool {
+	return (this[i].Rect.Dx() * this[i].Rect.Dy()) > (this[j].Rect.Dx() * this[j].Rect.Dy())
+}
+
+func (this RectSortable) Swap(i, j int) {
+	this[i], this[j] = this[j], this[i]
+}
+
+/*
+This needs to be smarter, but it does work great for images like fonts
+*/
+func FindOptimalSize(tries int, rects ...RectID) (w, h int, node *MaxRectsBin, err error) {
+	totalSize := int64(0)
+	for _, rect := range rects {
+		totalSize += int64(rect.Rect.Dx() * rect.Rect.Dy())
+	}
+
+	w, h = FindOptimalSizeFast(totalSize)
+	sw := true
+	if w < h {
+		sw = false
+	}
+
+	ww, hh := int64(w), int64(h)
+
+	sort.Sort(RectSortable(rects))
+
+Top:
+	for i := 0; i < tries; i++ {
+		atlas := NewBin(int(ww), int(hh), Padding)
+		for _, rect := range rects {
+			_, e := atlas.Insert(rect.Rect)
+			if e != nil {
+				if sw {
+					hh *= 2
+				} else {
+					ww *= 2
+				}
+				continue Top
+			}
+		}
+		return int(ww), int(hh), atlas, nil
+	}
+
+	return -1, -1, nil, errors.New("Cannot find optimal size")
 }

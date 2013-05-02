@@ -141,7 +141,7 @@ func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRun
 	}
 
 	dst := image.NewRGBA(image.Rect(0, 0, int(ax), int(ay)))
-	node := NewAtlasNode(int(ax), int(ay))
+	node := NewBin(int(ax), int(ay), Padding)
 
 	for _, rectid := range rects {
 		r := rectid.ID.(rune)
@@ -162,13 +162,13 @@ func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRun
 			}
 		}
 
-		n, err := node.Insert(rectid.Rect, r)
+		rect, err := node.Insert(rectid.Rect)
 		if err != nil {
 			return nil, err
 		}
 
-		draw.Draw(dst, rectid.Rect.Add(n.ImageRect().Min), newMask, image.ZP, draw.Src)
-		LetterArray[r].Rect = n.ImageRect()
+		draw.Draw(dst, rect, newMask, image.ZP, draw.Src)
+		LetterArray[r].Rect = rect
 	}
 
 	texture, err := NewTexture(dst, dst.Pix)
@@ -247,7 +247,7 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 	}
 
 	dst := image.NewRGBA(image.Rect(0, 0, int(ax), int(ay)))
-	node := NewAtlasNode(int(ax), int(ay))
+	node := NewBin(int(ax), int(ay), Padding)
 
 	for _, rectid := range rects {
 		r := rectid.ID.(rune)
@@ -258,13 +258,13 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 			continue
 		}
 
-		n, err := node.Insert(mask.Bounds(), r)
+		rect, err := node.Insert(mask.Bounds())
 		if err != nil {
 			return nil, err
 		}
 
-		draw.Draw(dst, mask.Bounds().Add(n.ImageRect().Min), mask, image.ZP, draw.Src)
-		LetterArray[r].Rect = n.ImageRect()
+		draw.Draw(dst, rect, mask, image.ZP, draw.Src)
+		LetterArray[r].Rect = rect
 	}
 
 	texture, err := NewTexture(dst, dst.Pix)
