@@ -106,7 +106,7 @@ func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRun
 		text += string(i)
 	}
 
-	rects := make([]RectID, 0)
+	rects := make([]image.Rectangle, 0)
 	LetterArray := make(map[rune]*LetterInfo)
 
 	for _, r := range text {
@@ -130,12 +130,12 @@ func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRun
 		sdfBounds.Max.X = int(float64(sdfBounds.Max.X)/ratio) + 2
 		sdfBounds.Max.Y = int(float64(sdfBounds.Max.Y)/ratio) + 2
 
-		rects = append(rects, RectID{sdfBounds, r})
+		rects = append(rects, sdfBounds)
 
 		LetterArray[r] = &LetterInfo{sdfBounds, YOffset, LeftSideBearing, AdvanceWidth, relativeWidth, relativeHeight}
 	}
 
-	ay, ax, _, e := FindOptimalSize(10, rects...)
+	ay, ax, e := FindOptimalSize(10, rects...)
 	if e != nil {
 		return nil, e
 	}
@@ -143,8 +143,13 @@ func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRun
 	dst := image.NewRGBA(image.Rect(0, 0, int(ax), int(ay)))
 	node := NewBin(int(ax), int(ay), Padding)
 
-	for _, rectid := range rects {
-		r := rectid.ID.(rune)
+	rects, e = node.InsertArray(rects)
+	if e != nil {
+		return nil, e
+	}
+
+	rectIndex := 0
+	for _, r := range text {
 		index := font.Index(r)
 		mask, _, err := c.Glyph(index, freetype.Pt(0, 0))
 		if err != nil {
@@ -152,7 +157,8 @@ func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRun
 			continue
 		}
 
-		newMask := image.NewAlpha(rectid.Rect)
+		rect := rects[rectIndex]
+		newMask := image.NewAlpha(rect)
 
 		//Note: this is slow we need to find better algorithm
 		for xx := 0; xx < newMask.Bounds().Dx(); xx++ {
@@ -162,13 +168,9 @@ func NewSDFFont3(fontPath string, size float64, dpi int, readonly bool, firstRun
 			}
 		}
 
-		rect, err := node.Insert(rectid.Rect)
-		if err != nil {
-			return nil, err
-		}
-
 		draw.Draw(dst, rect, newMask, image.ZP, draw.Src)
 		LetterArray[r].Rect = rect
+		rectIndex++
 	}
 
 	texture, err := NewTexture(dst, dst.Pix)
@@ -216,7 +218,7 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 		text += string(i)
 	}
 
-	rects := make([]RectID, 0)
+	rects := make([]image.Rectangle, 0)
 	LetterArray := make(map[rune]*LetterInfo)
 
 	for _, r := range text {
@@ -236,21 +238,25 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 		relativeWidth := float32(bd.Dx()) / float32(size)
 		relativeHeight := float32(bd.Dy()) / float32(size)
 
-		rects = append(rects, RectID{mask.Bounds(), r})
+		rects = append(rects, mask.Bounds())
 
 		LetterArray[r] = &LetterInfo{bd, YOffset, LeftSideBearing, AdvanceWidth, relativeWidth, relativeHeight}
 	}
 
-	ay, ax, _, e := FindOptimalSize(10, rects...)
+	ay, ax, e := FindOptimalSize(10, rects...)
 	if e != nil {
 		return nil, e
 	}
 
 	dst := image.NewRGBA(image.Rect(0, 0, int(ax), int(ay)))
 	node := NewBin(int(ax), int(ay), Padding)
+	rects, e = node.InsertArray(rects)
+	if e != nil {
+		return nil, e
+	}
 
-	for _, rectid := range rects {
-		r := rectid.ID.(rune)
+	rectIndex := 0
+	for _, r := range text {
 		index := font.Index(r)
 		mask, _, err := c.Glyph(index, freetype.Pt(0, 0))
 		if err != nil {
@@ -258,13 +264,11 @@ func NewFont2(fontPath string, size float64, dpi int, readonly bool, firstRune, 
 			continue
 		}
 
-		rect, err := node.Insert(mask.Bounds())
-		if err != nil {
-			return nil, err
-		}
+		rect := rects[rectIndex]
 
 		draw.Draw(dst, rect, mask, image.ZP, draw.Src)
 		LetterArray[r].Rect = rect
+		rectIndex++
 	}
 
 	texture, err := NewTexture(dst, dst.Pix)

@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"sort"
+
 	"strconv"
 	"strings"
 )
@@ -34,7 +34,7 @@ type ManagedAtlas struct {
 	uvs    map[ID]image.Rectangle
 	groups map[ID][]ID
 	images map[ID]image.Image
-	Tree   *MaxRectsBin
+	Bin    *MaxRectsBin
 }
 
 func NewManagedAtlas(width, height int) *ManagedAtlas {
@@ -43,7 +43,7 @@ func NewManagedAtlas(width, height int) *ManagedAtlas {
 		uvs:    make(map[ID]image.Rectangle),
 		groups: make(map[ID][]ID),
 		images: make(map[ID]image.Image),
-		Tree:   NewBin(width, height, Padding)}
+		Bin:    NewBin(width, height, Padding)}
 	ResourceManager.Add(m)
 	return m
 }
@@ -178,7 +178,7 @@ func AtlasFromSheet(path string, width, height, frames int) (atlas *ManagedAtlas
 		uvs:    make(map[ID]image.Rectangle),
 		groups: make(map[ID][]ID),
 		images: make(map[ID]image.Image),
-		Tree:   NewBin(img.Bounds().Dx(), img.Bounds().Dy(), Padding)}
+		Bin:    NewBin(img.Bounds().Dx(), img.Bounds().Dy(), Padding)}
 	ResourceManager.Add(atlas)
 
 	draw.Draw(atlas.image, atlas.image.Bounds(), img, image.Point{0, 0}, draw.Src)
@@ -216,7 +216,7 @@ func (atlas *ManagedAtlas) Release() {
 	atlas.uvs = nil
 	atlas.groups = nil
 	atlas.images = nil
-	atlas.Tree = nil
+	atlas.Bin = nil
 }
 
 func (atlas *ManagedAtlas) LoadGIF(path string) (err error, groupID ID) {
@@ -513,36 +513,26 @@ func (ma *ManagedAtlas) Indexs() []ID {
 }
 
 func (ma *ManagedAtlas) BuildAtlas() error {
-	for {
-		maxArea := 0
-		var bigImage image.Image = nil
-		var bigID ID
-
-		for id, img := range ma.images {
-			if img != nil {
-				area := img.Bounds().Dx() * img.Bounds().Dy()
-				if area > maxArea {
-					maxArea = area
-					bigImage = img
-					bigID = id
-				}
-			}
-		}
-
-		if bigImage == nil {
-			break
-		}
-
-		rect, e := ma.Tree.Insert(bigImage.Bounds())
-		if e == nil {
-			draw.Draw(ma.image, rect, bigImage, image.ZP, draw.Src)
-		} else {
-			return e
-		}
-
-		ma.uvs[bigID] = rect
-		ma.images[bigID] = nil
+	arr := make([]image.Rectangle, len(ma.images))
+	arrID := make([]ID, len(ma.images))
+	i := 0
+	for id, img := range ma.images {
+		arr[i] = img.Bounds()
+		arrID[i] = id
+		i++
 	}
+
+	arr, e := ma.Bin.InsertArray(arr)
+	if e != nil {
+		return e
+	}
+
+	for i, id := range arrID {
+		rect := arr[i]
+		ma.uvs[id] = rect
+		draw.Draw(ma.image, rect, ma.images[id], image.ZP, draw.Src)
+	}
+
 	ma.Texture = NewRGBATexture(ma.image.Pix, ma.image.Bounds().Dx(), ma.image.Bounds().Dy())
 	ma.image.Pix = nil
 	ma.image = nil
@@ -568,14 +558,14 @@ func FindOptimalSizeFast(totalSize int64) (w, h int) {
 	return int(ww), int(hh)
 }
 
-type RectSortable []RectID
+type RectSortable []image.Rectangle
 
 func (this RectSortable) Len() int {
 	return len(this)
 }
 
 func (this RectSortable) Less(i, j int) bool {
-	return (this[i].Rect.Dx() * this[i].Rect.Dy()) > (this[j].Rect.Dx() * this[j].Rect.Dy())
+	return (this[i].Dx() * this[i].Dy()) > (this[j].Dx() * this[j].Dy())
 }
 
 func (this RectSortable) Swap(i, j int) {
@@ -585,10 +575,10 @@ func (this RectSortable) Swap(i, j int) {
 /*
 This needs to be smarter, but it does work great for images like fonts
 */
-func FindOptimalSize(tries int, rects ...RectID) (w, h int, node *MaxRectsBin, err error) {
+func FindOptimalSize(tries int, rects ...image.Rectangle) (w, h int, err error) {
 	totalSize := int64(0)
 	for _, rect := range rects {
-		totalSize += int64(rect.Rect.Dx() * rect.Rect.Dy())
+		totalSize += int64(rect.Dx() * rect.Dy())
 	}
 
 	w, h = FindOptimalSizeFast(totalSize)
@@ -599,24 +589,19 @@ func FindOptimalSize(tries int, rects ...RectID) (w, h int, node *MaxRectsBin, e
 
 	ww, hh := int64(w), int64(h)
 
-	sort.Sort(RectSortable(rects))
-
-Top:
 	for i := 0; i < tries; i++ {
 		atlas := NewBin(int(ww), int(hh), Padding)
-		for _, rect := range rects {
-			_, e := atlas.Insert(rect.Rect)
-			if e != nil {
-				if sw {
-					hh *= 2
-				} else {
-					ww *= 2
-				}
-				continue Top
+		_, e := atlas.InsertArray(rects)
+		if e != nil {
+			if sw {
+				hh *= 2
+			} else {
+				ww *= 2
 			}
+			continue
 		}
-		return int(ww), int(hh), atlas, nil
+		return int(ww), int(hh), nil
 	}
 
-	return -1, -1, nil, errors.New("Cannot find optimal size")
+	return -1, -1, errors.New("Cannot find optimal size")
 }
