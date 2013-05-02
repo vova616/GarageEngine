@@ -33,6 +33,51 @@ func (this *MaxRectsBin) Insert(rect image.Rectangle) (image.Rectangle, error) {
 		return r, errors.New("Not enough space in atlas.")
 	}
 
+	this.placeRect(r)
+
+	r.Max.X -= this.Padding
+	r.Max.Y -= this.Padding
+
+	return r, nil
+}
+
+func (this *MaxRectsBin) InsertArray(rects []image.Rectangle) ([]image.Rectangle, error) {
+	r := make([]image.Rectangle, len(rects))
+	numRects := len(rects)
+	for numRects != 0 {
+		bestScore1 := maxInt
+		bestScore2 := maxInt
+		bestRectIndex := -1
+		var bestNode image.Rectangle
+
+		for i, rect := range rects {
+			if r[i] != image.ZR {
+				continue
+			}
+			newNode, score1, score2 := this.FindPositionForNewNodeBestShortSideFit(rect.Dx()+this.Padding, rect.Dy()+this.Padding)
+
+			if score1 < bestScore1 || (score1 == bestScore1 && score2 < bestScore2) {
+				bestScore1 = score1
+				bestScore2 = score2
+				bestNode = newNode
+				bestRectIndex = i
+			}
+		}
+
+		if bestRectIndex == -1 {
+			return nil, errors.New("Not enough space in atlas.")
+		} else {
+			this.placeRect(bestNode)
+			bestNode.Max.X -= this.Padding
+			bestNode.Max.Y -= this.Padding
+			r[bestRectIndex] = bestNode
+			numRects--
+		}
+	}
+	return r, nil
+}
+
+func (this *MaxRectsBin) placeRect(r image.Rectangle) {
 	l := len(this.freeRectangles)
 	for i := 0; i < l; i++ {
 		if this.SplitFreeNode(this.freeRectangles[i], r) {
@@ -41,15 +86,8 @@ func (this *MaxRectsBin) Insert(rect image.Rectangle) (image.Rectangle, error) {
 			l--
 		}
 	}
-
 	this.PruneFreeList()
-
 	this.usedRectangles = append(this.usedRectangles, r)
-
-	r.Max.X -= this.Padding
-	r.Max.Y -= this.Padding
-
-	return r, nil
 }
 
 /// Computes the ratio of used surface area.
