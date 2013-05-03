@@ -19,7 +19,7 @@ type MaxRectsBin struct {
 
 func NewBin(width, height, padding int) *MaxRectsBin {
 	return &MaxRectsBin{
-		Width:          Width,
+		Width:          width,
 		Height:         height,
 		Padding:        padding,
 		usedRectangles: make([]image.Rectangle, 0, 1),
@@ -198,6 +198,30 @@ func max(x, y int) int {
 		return x
 	}
 	return y
+}
+
+func (this *MaxRectsBin) String() string {
+	d := make([]rune, (this.Width+1)*this.Height)
+
+	for x := 0; x < this.Width; x++ {
+		for y := 0; y < this.Height; y++ {
+			d[y*(this.Width+1)+x] = '0'
+		}
+	}
+
+	for y := 0; y < this.Height; y++ {
+		d[(y*(this.Width+1))+this.Width] = '\n'
+	}
+
+	for _, rect := range this.usedRectangles {
+		for x := rect.Min.X; x < rect.Max.X; x++ {
+			for y := rect.Min.Y; y < rect.Max.Y; y++ {
+				d[y*(this.Width+1)+x] = '#'
+			}
+		}
+	}
+
+	return string(d)
 }
 
 func (this *MaxRectsBin) FindPositionForNewNodeBestShortSideFit(width, height int) (bestNode image.Rectangle, bestShortSideFit, bestLongSideFit int) {
