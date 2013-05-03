@@ -156,7 +156,6 @@ func (this *MaxRectsBin) SplitFreeNode(freeNode, usedNode image.Rectangle) bool 
 		if usedNode.Max.Y < freeNode.Max.Y {
 			newNode := freeNode
 			newNode.Min.Y = usedNode.Max.Y
-			newNode.Max.Y = (newNode.Max.Y - usedNode.Max.Y) + newNode.Min.Y
 			this.freeRectangles = append(this.freeRectangles, newNode)
 		}
 	}
@@ -173,7 +172,6 @@ func (this *MaxRectsBin) SplitFreeNode(freeNode, usedNode image.Rectangle) bool 
 		if usedNode.Max.X < freeNode.Max.X {
 			newNode := freeNode
 			newNode.Min.X = usedNode.Max.X
-			newNode.Max.X = (newNode.Max.X - usedNode.Max.X) + newNode.Min.X
 			this.freeRectangles = append(this.freeRectangles, newNode)
 		}
 	}
