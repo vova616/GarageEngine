@@ -51,7 +51,7 @@ func InsideScreen(ratio float32, position Vector, scale Vector) bool {
 	return CurrentCamera().InsideScreen(ratio, position, scale)
 }
 
-func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation float32, aling AlignType, color Color) {
+func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation float32, aling Align, color Color) {
 	if !InsideScreen(uv.Ratio, position, scale) {
 		return
 	}
@@ -72,7 +72,7 @@ func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation flo
 	internalMaterial.UV.EnableArray()
 	internalMaterial.UV.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
 
-	v := Align(aling)
+	v := aling.Vector()
 	v.X *= uv.Ratio
 
 	camera := GetScene().SceneBase().Camera
@@ -100,7 +100,7 @@ func DrawSprite(tex *Texture, uv UV, position Vector, scale Vector, rotation flo
 	internalMaterial.End(nil)
 }
 
-func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, rotations []float32, alings []AlignType, colors []Color) {
+func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, rotations []float32, alings []Align, colors []Color) {
 
 	internalMaterial.Begin(nil)
 
@@ -136,7 +136,7 @@ func DrawSprites(tex *Texture, uvs []UV, positions []Vector, scales []Vector, ro
 
 		rotation, aling, color := rotations[i], alings[i], colors[i]
 
-		v := Align(aling)
+		v := aling.Vector()
 		v.X *= uv.Ratio
 
 		model := Identity()

@@ -47,23 +47,23 @@ var (
 	lastBindedTexture gl.Texture
 )
 
-type AlignType byte
+type Align byte
 
 const (
-	AlignLeft   = AlignType(1)
-	AlignCenter = AlignType(2)
-	AlignRight  = AlignType(4)
+	AlignLeft   = Align(1)
+	AlignCenter = Align(2)
+	AlignRight  = Align(4)
 
-	AlignTopLeft   = AlignType(8 | AlignLeft)
-	AlignTopCenter = AlignType(8 | AlignCenter)
-	AlignTopRight  = AlignType(8 | AlignRight)
+	AlignTopLeft   = Align(8 | AlignLeft)
+	AlignTopCenter = Align(8 | AlignCenter)
+	AlignTopRight  = Align(8 | AlignRight)
 
-	AlignBottomLeft   = AlignType(16 | AlignLeft)
-	AlignBottomCenter = AlignType(16 | AlignCenter)
-	AlignBottomRight  = AlignType(16 | AlignRight)
+	AlignBottomLeft   = Align(16 | AlignLeft)
+	AlignBottomCenter = Align(16 | AlignCenter)
+	AlignBottomRight  = Align(16 | AlignRight)
 )
 
-func Align(typ AlignType) Vector {
+func (typ Align) Vector() Vector {
 	vect := NewVector2(0, 0)
 	switch {
 	case typ&AlignLeft != 0:

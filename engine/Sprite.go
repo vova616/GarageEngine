@@ -35,7 +35,7 @@ type Sprite struct {
 
 	Color Color
 
-	align AlignType
+	align Align
 }
 
 func NewSprite(tex *Texture) *Sprite {
@@ -80,11 +80,11 @@ func (p *Sprite) SetAnimation(id ID) {
 	p.endAnimation = a[1]
 }
 
-func (p *Sprite) Align() AlignType {
+func (p *Sprite) Align() Align {
 	return p.align
 }
 
-func (p *Sprite) SetAlign(align AlignType) {
+func (p *Sprite) SetAlign(align Align) {
 	p.align = align
 }
 
@@ -232,7 +232,7 @@ func (sp *Sprite) UpdateShape() {
 				update = true
 			}
 
-			c := Align(sp.align)
+			c := sp.align.Vector()
 			center := vect.Vect{vect.Float(c.X), vect.Float(c.Y)}
 			center.X *= vect.Float(scale.X)
 			center.Y *= vect.Float(scale.Y)
@@ -261,7 +261,7 @@ func (sp *Sprite) UpdateShape() {
 				update = true
 			}
 
-			c := Align(sp.align)
+			c := sp.align.Vector()
 			center := vect.Vect{vect.Float(c.X), vect.Float(c.Y)}
 			center.X *= vect.Float(s)
 			center.Y *= vect.Float(s)
@@ -317,7 +317,7 @@ func (sp *Sprite) Draw() {
 		TextureMaterial.UV.EnableArray()
 		TextureMaterial.UV.AttribPointer(2, gl.FLOAT, false, 0, uintptr(12*4))
 
-		v := Align(sp.align)
+		v := sp.align.Vector()
 		v.X *= currentUV.Ratio
 
 		camera := GetScene().SceneBase().Camera
@@ -386,7 +386,7 @@ func (sp *Sprite) DrawScreen() {
 		gl.ActiveTexture(gl.TEXTURE0)
 		tx.Uniform1i(0)
 
-		//ac.Uniform4f(1, 1, 1, 0) 
+		//ac.Uniform4f(1, 1, 1, 0)
 		ac.Uniform4f(sp.Color.R, sp.Color.G, sp.Color.B, sp.Color.A)
 
 		gl.DrawArrays(gl.QUADS, 0, 4)

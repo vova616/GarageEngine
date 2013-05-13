@@ -25,7 +25,7 @@ type Map struct {
 	positions []engine.Vector
 	scales    []engine.Vector
 	rotations []float32
-	alings    []engine.AlignType
+	alings    []engine.Align
 	colors    []engine.Color
 
 	Disco       float32
@@ -229,7 +229,7 @@ func (m *Map) Start() {
 	m.scales = make([]engine.Vector, int(w*h*2))
 	m.rotations = make([]float32, int(w*h*2))
 	m.colors = make([]engine.Color, int(w*h*2))
-	m.alings = make([]engine.AlignType, int(w*h*2))
+	m.alings = make([]engine.Align, int(w*h*2))
 
 	for i, _ := range m.alings {
 		m.alings[i] = engine.AlignCenter

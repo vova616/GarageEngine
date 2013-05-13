@@ -9,12 +9,12 @@ import (
 
 	//"bufio"
 	//"image/png"
-	//"os" 
+	//"os"
 	//"strconv"
 	//"github.com/go-gl/glfw"
-	"github.com/vova616/chipmunk/vect"
 	"github.com/vova616/GarageEngine/engine"
 	"github.com/vova616/GarageEngine/engine/input"
+	"github.com/vova616/chipmunk/vect"
 	//"runtime"
 )
 
@@ -30,7 +30,7 @@ type UIText struct {
 
 	width  float32
 	height float32
-	align  engine.AlignType
+	align  engine.Align
 
 	focused    bool
 	writeable  bool
@@ -276,7 +276,7 @@ func (ui *UIText) UpdateCollider() {
 			update = true
 		}
 
-		c := engine.Align(ui.align)
+		c := ui.align.Vector()
 		center := vect.Vect{vect.Float(c.X), vect.Float(c.Y)}
 		center.X = (center.X * w)
 		center.Y = (center.Y * h)
@@ -297,11 +297,11 @@ func (ui *UIText) UpdateCollider() {
 	//}
 }
 
-func (ui *UIText) Align() engine.AlignType {
+func (ui *UIText) Align() engine.Align {
 	return ui.align
 }
 
-func (ui *UIText) SetAlign(align engine.AlignType) {
+func (ui *UIText) SetAlign(align engine.Align) {
 	ui.align = align
 }
 
@@ -310,7 +310,7 @@ func (ui *UIText) Draw() {
 		return
 	}
 
-	v := engine.Align(ui.align)
+	v := ui.align.Vector()
 	v.X = (v.X * ui.width)
 	v.Y = (v.Y * ui.height)
 
