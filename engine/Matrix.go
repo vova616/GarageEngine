@@ -38,51 +38,49 @@ func Mul(m1, m2 Matrix) Matrix {
 }
 
 func (m1 *Matrix) Mul(m2 Matrix) {
-	*m1 = Matrix{
-		m1[0]*m2[0] + m1[1]*m2[4] + m1[2]*m2[8] + m1[3]*m2[12],
-		m1[0]*m2[1] + m1[1]*m2[5] + m1[2]*m2[9] + m1[3]*m2[13],
-		m1[0]*m2[2] + m1[1]*m2[6] + m1[2]*m2[10] + m1[3]*m2[14],
-		m1[0]*m2[3] + m1[1]*m2[7] + m1[2]*m2[11] + m1[3]*m2[15],
-
-		m1[4]*m2[0] + m1[5]*m2[4] + m1[6]*m2[8] + m1[7]*m2[12],
-		m1[4]*m2[1] + m1[5]*m2[5] + m1[6]*m2[9] + m1[7]*m2[13],
-		m1[4]*m2[2] + m1[5]*m2[6] + m1[6]*m2[10] + m1[7]*m2[14],
-		m1[4]*m2[3] + m1[5]*m2[7] + m1[6]*m2[11] + m1[7]*m2[15],
-
-		m1[8]*m2[0] + m1[9]*m2[4] + m1[10]*m2[8] + m1[11]*m2[12],
-		m1[8]*m2[1] + m1[9]*m2[5] + m1[10]*m2[9] + m1[11]*m2[13],
-		m1[8]*m2[2] + m1[9]*m2[6] + m1[10]*m2[10] + m1[11]*m2[14],
-		m1[8]*m2[3] + m1[9]*m2[7] + m1[10]*m2[11] + m1[11]*m2[15],
-
-		m1[12]*m2[0] + m1[13]*m2[4] + m1[14]*m2[8] + m1[15]*m2[12],
-		m1[12]*m2[1] + m1[13]*m2[5] + m1[14]*m2[9] + m1[15]*m2[13],
-		m1[12]*m2[2] + m1[13]*m2[6] + m1[14]*m2[10] + m1[15]*m2[14],
-		m1[12]*m2[3] + m1[13]*m2[7] + m1[14]*m2[11] + m1[15]*m2[15],
-	}
+	a, b, c, d := m1[0], m1[1], m1[2], m1[3]
+	m1[0] = a*m2[0] + b*m2[4] + c*m2[8] + d*m2[12]
+	m1[1] = a*m2[1] + b*m2[5] + c*m2[9] + d*m2[13]
+	m1[2] = a*m2[2] + b*m2[6] + c*m2[10] + d*m2[14]
+	m1[3] = a*m2[3] + b*m2[7] + c*m2[11] + d*m2[15]
+	a, b, c, d = m1[4], m1[5], m1[6], m1[7]
+	m1[4] = a*m2[0] + b*m2[4] + c*m2[8] + d*m2[12]
+	m1[5] = a*m2[1] + b*m2[5] + c*m2[9] + d*m2[13]
+	m1[6] = a*m2[2] + b*m2[6] + c*m2[10] + d*m2[14]
+	m1[7] = a*m2[3] + b*m2[7] + c*m2[11] + d*m2[15]
+	a, b, c, d = m1[8], m1[9], m1[10], m1[11]
+	m1[8] = a*m2[0] + b*m2[4] + c*m2[8] + d*m2[12]
+	m1[9] = a*m2[1] + b*m2[5] + c*m2[9] + d*m2[13]
+	m1[10] = a*m2[2] + b*m2[6] + c*m2[10] + d*m2[14]
+	m1[11] = a*m2[3] + b*m2[7] + c*m2[11] + d*m2[15]
+	a, b, c, d = m1[12], m1[13], m1[14], m1[15]
+	m1[12] = a*m2[0] + b*m2[4] + c*m2[8] + d*m2[12]
+	m1[13] = a*m2[1] + b*m2[5] + c*m2[9] + d*m2[13]
+	m1[14] = a*m2[2] + b*m2[6] + c*m2[10] + d*m2[14]
+	m1[15] = a*m2[3] + b*m2[7] + c*m2[11] + d*m2[15]
 }
 
 func (m1 *Matrix) MulPtr(m2 *Matrix) {
-	*m1 = Matrix{
-		m1[0]*m2[0] + m1[1]*m2[4] + m1[2]*m2[8] + m1[3]*m2[12],
-		m1[0]*m2[1] + m1[1]*m2[5] + m1[2]*m2[9] + m1[3]*m2[13],
-		m1[0]*m2[2] + m1[1]*m2[6] + m1[2]*m2[10] + m1[3]*m2[14],
-		m1[0]*m2[3] + m1[1]*m2[7] + m1[2]*m2[11] + m1[3]*m2[15],
-
-		m1[4]*m2[0] + m1[5]*m2[4] + m1[6]*m2[8] + m1[7]*m2[12],
-		m1[4]*m2[1] + m1[5]*m2[5] + m1[6]*m2[9] + m1[7]*m2[13],
-		m1[4]*m2[2] + m1[5]*m2[6] + m1[6]*m2[10] + m1[7]*m2[14],
-		m1[4]*m2[3] + m1[5]*m2[7] + m1[6]*m2[11] + m1[7]*m2[15],
-
-		m1[8]*m2[0] + m1[9]*m2[4] + m1[10]*m2[8] + m1[11]*m2[12],
-		m1[8]*m2[1] + m1[9]*m2[5] + m1[10]*m2[9] + m1[11]*m2[13],
-		m1[8]*m2[2] + m1[9]*m2[6] + m1[10]*m2[10] + m1[11]*m2[14],
-		m1[8]*m2[3] + m1[9]*m2[7] + m1[10]*m2[11] + m1[11]*m2[15],
-
-		m1[12]*m2[0] + m1[13]*m2[4] + m1[14]*m2[8] + m1[15]*m2[12],
-		m1[12]*m2[1] + m1[13]*m2[5] + m1[14]*m2[9] + m1[15]*m2[13],
-		m1[12]*m2[2] + m1[13]*m2[6] + m1[14]*m2[10] + m1[15]*m2[14],
-		m1[12]*m2[3] + m1[13]*m2[7] + m1[14]*m2[11] + m1[15]*m2[15],
-	}
+	a, b, c, d := m1[0], m1[1], m1[2], m1[3]
+	m1[0] = a*m2[0] + b*m2[4] + c*m2[8] + d*m2[12]
+	m1[1] = a*m2[1] + b*m2[5] + c*m2[9] + d*m2[13]
+	m1[2] = a*m2[2] + b*m2[6] + c*m2[10] + d*m2[14]
+	m1[3] = a*m2[3] + b*m2[7] + c*m2[11] + d*m2[15]
+	a, b, c, d = m1[4], m1[5], m1[6], m1[7]
+	m1[4] = a*m2[0] + b*m2[4] + c*m2[8] + d*m2[12]
+	m1[5] = a*m2[1] + b*m2[5] + c*m2[9] + d*m2[13]
+	m1[6] = a*m2[2] + b*m2[6] + c*m2[10] + d*m2[14]
+	m1[7] = a*m2[3] + b*m2[7] + c*m2[11] + d*m2[15]
+	a, b, c, d = m1[8], m1[9], m1[10], m1[11]
+	m1[8] = a*m2[0] + b*m2[4] + c*m2[8] + d*m2[12]
+	m1[9] = a*m2[1] + b*m2[5] + c*m2[9] + d*m2[13]
+	m1[10] = a*m2[2] + b*m2[6] + c*m2[10] + d*m2[14]
+	m1[11] = a*m2[3] + b*m2[7] + c*m2[11] + d*m2[15]
+	a, b, c, d = m1[12], m1[13], m1[14], m1[15]
+	m1[12] = a*m2[0] + b*m2[4] + c*m2[8] + d*m2[12]
+	m1[13] = a*m2[1] + b*m2[5] + c*m2[9] + d*m2[13]
+	m1[14] = a*m2[2] + b*m2[6] + c*m2[10] + d*m2[14]
+	m1[15] = a*m2[3] + b*m2[7] + c*m2[11] + d*m2[15]
 }
 
 func (mA *Matrix) Ptr() *float32 {
@@ -139,6 +137,8 @@ func Identity() Matrix {
 		0, 1, 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1}
+
+	//0 5 10 15
 }
 
 func (mA *Matrix) Translation() Vector {
@@ -153,19 +153,37 @@ func NewIdentity() *Matrix {
 }
 
 func (mA *Matrix) Scale(x, y, z float32) {
-	m2 := Identity()
-	m2[0] = x
-	m2[5] = y
-	m2[10] = z
-	mA.Mul(m2)
+	mA[0] *= x
+	mA[1] *= y
+	mA[2] *= z
+	mA[4] *= x
+	mA[5] *= y
+	mA[6] *= z
+	mA[8] *= x
+	mA[9] *= y
+	mA[10] *= z
+	mA[12] *= x
+	mA[13] *= y
+	mA[14] *= z
 }
 
 func (mA *Matrix) Translate(x, y, z float32) {
-	m2 := Identity()
-	m2[12] = x
-	m2[13] = y
-	m2[14] = z
-	mA.Mul(m2)
+	mtemp := mA[3]
+	mA[0] += mtemp * x
+	mA[1] += mtemp * y
+	mA[2] += mtemp * z
+	mtemp = mA[7]
+	mA[4] += mtemp * x
+	mA[5] += mtemp * y
+	mA[6] += mtemp * z
+	mtemp = mA[11]
+	mA[8] += mtemp * x
+	mA[9] += mtemp * y
+	mA[10] += mtemp * z
+	mtemp = mA[15]
+	mA[12] += mtemp * x
+	mA[13] += mtemp * y
+	mA[14] += mtemp * z
 }
 
 func (mA *Matrix) Ortho(left, right, bottom, top, Znear, Zfar float32) {
@@ -214,19 +232,89 @@ func (mA *Matrix) Rotate(a, x, y, z float32) {
 }
 
 func (mA *Matrix) RotateX(a, x float32) {
+	angle := a * PI_180
+
+	acos := float32(math.Cos(float64(angle)))
+	asin := float32(math.Sin(float64(angle)))
+
+	m20 := 1 + (1-acos)*(x*x-1)
+	m26 := -x * asin
+
+	a, b, c := mA[0], mA[1], mA[2]
+	mA[0] = a * m20
+	mA[1] = b*acos + c*-m26
+	mA[2] = b*m26 + c*-acos
+	a, b, c = mA[4], mA[5], mA[6]
+	mA[4] = a * m20
+	mA[5] = b*acos + c*-m26
+	mA[6] = b*m26 + c*-acos
+	a, b, c = mA[8], mA[9], mA[10]
+	mA[8] = a * m20
+	mA[9] = b*acos + c*-m26
+	mA[10] = b*m26 + c*-acos
+}
+
+func (mA *Matrix) RotateY(a, y float32) {
+	angle := a * PI_180
+
+	acos := float32(math.Cos(float64(angle)))
+	asin := float32(math.Sin(float64(angle)))
+
+	m22 := y * asin
+	m25 := 1 + (1-acos)*(y*y-1)
+
+	a, b, c := mA[0], mA[1], mA[2]
+	mA[0] = a*acos + c*-m22
+	mA[1] = b * m25
+	mA[2] = a*m22 + c*acos
+	a, b, c = mA[4], mA[5], mA[6]
+	mA[4] = a*acos + c*-m22
+	mA[5] = b * m25
+	mA[6] = a*m22 + c*acos
+	a, b, c = mA[8], mA[9], mA[10]
+	mA[8] = a*acos + c*-m22
+	mA[9] = b * m25
+	mA[10] = a*m22 + c*acos
+}
+
+func (mA *Matrix) RotateZ(a, z float32) {
+	angle := a * PI_180
+
+	acos := float32(math.Cos(float64(angle)))
+	asin := float32(math.Sin(float64(angle)))
+
+	m21 := -z * asin
+	m210 := 1 + (1-acos)*(z*z-1)
+
+	a, b, c := mA[0], mA[1], mA[2]
+	mA[0] = a*acos + b*-m21
+	mA[1] = a*m21 + b*acos
+	mA[2] = c * m210
+	a, b, c = mA[4], mA[5], mA[6]
+	mA[4] = a*acos + b*-m21
+	mA[5] = a*m21 + b*acos
+	mA[6] = c * m210
+	a, b, c = mA[8], mA[9], mA[10]
+	mA[8] = a*acos + b*-m21
+	mA[9] = a*m21 + b*acos
+	mA[10] = c * m210
+}
+
+/*
+func (mA *Matrix) RotateZ(a, z float32) {
 	m2 := Identity()
 	angle := a * PI_180
 
 	acos := float32(math.Cos(float64(angle)))
 	asin := float32(math.Sin(float64(angle)))
 
-	m2[0] = 1 + (1-acos)*(x*x-1)
+	m2[0] = 1 - (1 - acos)
+	m2[1] = -z * asin
+	m2[4] = z * asin
 	m2[5] = 1 - (1 - acos)
-	m2[6] = -x * asin
-	m2[9] = x * asin
-	m2[10] = 1 - (1 - acos)
+	m2[10] = 1 + (1-acos)*(z*z-1)
 
-	mA.Mul(m2)
+	mA.MulPtr(&m2)
 }
 
 func (mA *Matrix) RotateY(a, y float32) {
@@ -242,21 +330,48 @@ func (mA *Matrix) RotateY(a, y float32) {
 	m2[8] = -y * asin
 	m2[10] = 1 - (1 - acos)
 
-	mA.Mul(m2)
+	mA.MulPtr(&m2)
 }
 
-func (mA *Matrix) RotateZ(a, z float32) {
+func (mA *Matrix) RotateX(a, x float32) {
 	m2 := Identity()
 	angle := a * PI_180
 
 	acos := float32(math.Cos(float64(angle)))
 	asin := float32(math.Sin(float64(angle)))
 
-	m2[0] = 1 - (1 - acos)
-	m2[1] = -z * asin
-	m2[4] = z * asin
+	m2[0] = 1 + (1-acos)*(x*x-1)
 	m2[5] = 1 - (1 - acos)
-	m2[10] = 1 + (1-acos)*(z*z-1)
+	m2[6] = -x * asin
+	m2[9] = x * asin
+	m2[10] = 1 - (1 - acos)
 
-	mA.Mul(m2)
+	mA.MulPtr(&m2)
 }
+
+func Mul(m1, m2 Matrix) Matrix {
+	return Matrix{
+		m1[0]*m2[0] + m1[1]*m2[4] + m1[2]*m2[8] + m1[3]*m2[12],
+		m1[0]*m2[1] + m1[1]*m2[5] + m1[2]*m2[9] + m1[3]*m2[13],
+		m1[0]*m2[2] + m1[1]*m2[6] + m1[2]*m2[10] + m1[3]*m2[14],
+		m1[0]*m2[3] + m1[1]*m2[7] + m1[2]*m2[11] + m1[3]*m2[15],
+
+		m1[4]*m2[0] + m1[5]*m2[4] + m1[6]*m2[8] + m1[7]*m2[12],
+		m1[4]*m2[1] + m1[5]*m2[5] + m1[6]*m2[9] + m1[7]*m2[13],
+		m1[4]*m2[2] + m1[5]*m2[6] + m1[6]*m2[10] + m1[7]*m2[14],
+		m1[4]*m2[3] + m1[5]*m2[7] + m1[6]*m2[11] + m1[7]*m2[15],
+
+		m1[8]*m2[0] + m1[9]*m2[4] + m1[10]*m2[8] + m1[11]*m2[12],
+		m1[8]*m2[1] + m1[9]*m2[5] + m1[10]*m2[9] + m1[11]*m2[13],
+		m1[8]*m2[2] + m1[9]*m2[6] + m1[10]*m2[10] + m1[11]*m2[14],
+		m1[8]*m2[3] + m1[9]*m2[7] + m1[10]*m2[11] + m1[11]*m2[15],
+
+		m1[12]*m2[0] + m1[13]*m2[4] + m1[14]*m2[8] + m1[15]*m2[12],
+		m1[12]*m2[1] + m1[13]*m2[5] + m1[14]*m2[9] + m1[15]*m2[13],
+		m1[12]*m2[2] + m1[13]*m2[6] + m1[14]*m2[10] + m1[15]*m2[14],
+		m1[12]*m2[3] + m1[13]*m2[7] + m1[14]*m2[11] + m1[15]*m2[15],
+	}
+}
+
+
+*/
