@@ -6,7 +6,7 @@ import (
 	"github.com/vova616/GarageEngine/engine/components"
 	_ "image/jpeg"
 	_ "image/png"
-	//"gl"  
+	//"gl"
 	"strconv"
 	"time"
 	//"strings"
@@ -151,7 +151,7 @@ func SpawnMainPlayer(spawnPlayer server.SpawnPlayer) {
 	HealthGUI.AddComponent(engine.NewSprite2(atlas.Texture, engine.IndexUV(atlas, HPGUI_A)))
 	HealthGUI.Transform().SetParent2(Health)
 	HealthGUI.Transform().SetDepth(3)
-	//HealthGUI.Transform().SetPositionf(0, 0)
+	HealthGUI.Transform().SetPositionf(0, 0)
 	HealthGUI.Transform().SetScalef(50, 50)
 
 	HealthBar := engine.NewGameObject("HealthBar")

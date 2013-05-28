@@ -58,7 +58,8 @@ func (sp *ShipController) Start() {
 
 	sp.JetFireParent = engine.NewGameObject("JetFireParent")
 	sp.JetFireParent.Transform().SetParent2(sp.GameObject())
-
+	sp.JetFireParent.Transform().SetPositionf(0, 0)
+	sp.JetFireParent.Transform().SetScalef(1, 1)
 	uvJet := engine.IndexUV(atlas, Jet_A)
 
 	if sp.JetFire != nil {
