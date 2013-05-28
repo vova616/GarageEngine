@@ -92,8 +92,8 @@ func (mA *Matrix) Ptr() *float32 {
 func (mA *Matrix) Invert() Matrix {
 	//
 	// Use Laplace expansion theorem to calculate the inverse of a 4x4 Matrix
-	// 
-	// 1. Calculate the 2x2 determinants needed and the 4x4 determinant based on the 2x2 determinants 
+	//
+	// 1. Calculate the 2x2 determinants needed and the 4x4 determinant based on the 2x2 determinants
 	// 2. Create the adjugate Matrix, which satisfies: A * adj(A) = det(A) * I
 	// 3. Divide adjugate Matrix with the determinant to find the inverse
 
@@ -208,6 +208,54 @@ func (mA *Matrix) Rotate(a, x, y, z float32) {
 
 	m2[8] = -y*asin + (1-acos)*x*z
 	m2[9] = x*asin + (1-acos)*y*z
+	m2[10] = 1 + (1-acos)*(z*z-1)
+
+	mA.Mul(m2)
+}
+
+func (mA *Matrix) RotateX(a, x float32) {
+	m2 := Identity()
+	angle := a * PI_180
+
+	acos := float32(math.Cos(float64(angle)))
+	asin := float32(math.Sin(float64(angle)))
+
+	m2[0] = 1 + (1-acos)*(x*x-1)
+	m2[5] = 1 - (1 - acos)
+	m2[6] = -x * asin
+	m2[9] = x * asin
+	m2[10] = 1 - (1 - acos)
+
+	mA.Mul(m2)
+}
+
+func (mA *Matrix) RotateY(a, y float32) {
+	m2 := Identity()
+	angle := a * PI_180
+
+	acos := float32(math.Cos(float64(angle)))
+	asin := float32(math.Sin(float64(angle)))
+
+	m2[0] = 1 - (1 - acos)
+	m2[2] = y * asin
+	m2[5] = 1 + (1-acos)*(y*y-1)
+	m2[8] = -y * asin
+	m2[10] = 1 - (1 - acos)
+
+	mA.Mul(m2)
+}
+
+func (mA *Matrix) RotateZ(a, z float32) {
+	m2 := Identity()
+	angle := a * PI_180
+
+	acos := float32(math.Cos(float64(angle)))
+	asin := float32(math.Sin(float64(angle)))
+
+	m2[0] = 1 - (1 - acos)
+	m2[1] = -z * asin
+	m2[4] = z * asin
+	m2[5] = 1 - (1 - acos)
 	m2[10] = 1 + (1-acos)*(z*z-1)
 
 	mA.Mul(m2)

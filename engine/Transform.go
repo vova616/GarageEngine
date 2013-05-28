@@ -170,9 +170,7 @@ func (t *Transform) SetWorldPosition(vect Vector) {
 		t.SetPosition(vect)
 		return
 	}
-	if t.updateMatrix() == false && t.worldPosition == vect {
-		return
-	}
+	t.parent.updateMatrix()
 	t.SetPosition(vect.Transform(t.parent.matrix.Invert()))
 }
 
@@ -334,9 +332,9 @@ func (t *Transform) updateMatrix() bool {
 	mat := trans.matrix
 
 	mat.Scale(s.X, s.Y, s.Z)
-	mat.Rotate(r.X, 1, 0, 0)
-	mat.Rotate(r.Y, 0, 1, 0)
-	mat.Rotate(r.Z, 0, 0, -1)
+	mat.RotateX(r.X, 1)
+	mat.RotateY(r.Y, 1)
+	mat.RotateZ(r.Z, -1)
 	mat.Translate(p.X, p.Y, p.Z)
 
 	if trans.parent != nil {
