@@ -16,8 +16,8 @@ type Transform struct {
 	worldPosition Vector
 	worldRotation Vector
 	worldScale    Vector
-	matrix        *Matrix
-	parentMatrix  *Matrix
+	matrix        Matrix
+	parentMatrix  Matrix
 	updatedMatrix bool
 	childOfScene  bool
 
@@ -26,7 +26,7 @@ type Transform struct {
 }
 
 func NewTransform(g *GameObject) *Transform {
-	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, NewIdentity(), NewIdentity(), false, false, 0, false}
+	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, Identity(), Identity(), false, false, 0, false}
 }
 
 func (t *Transform) SetDepth(depth int8) {
@@ -316,7 +316,7 @@ func (t *Transform) updateMatrix() bool {
 	if t.updatedMatrix {
 		if t.parent != nil {
 			t.parent.updateMatrix()
-			if *t.parent.matrix == *t.parentMatrix {
+			if t.parent.matrix == t.parentMatrix {
 				return false
 			}
 		} else {
@@ -329,7 +329,7 @@ func (t *Transform) updateMatrix() bool {
 	s, r, p := trans.scale, trans.rotation, trans.position
 
 	trans.matrix.Reset()
-	mat := trans.matrix
+	mat := &trans.matrix
 
 	mat.Scale(s.X, s.Y, s.Z)
 	mat.RotateX(r.X, 1)
@@ -339,8 +339,8 @@ func (t *Transform) updateMatrix() bool {
 
 	if trans.parent != nil {
 		trans.parent.updateMatrix()
-		*t.parentMatrix = *trans.parent.matrix
-		mat.MulPtr(t.parentMatrix)
+		t.parentMatrix = trans.parent.matrix
+		mat.MulPtr(&t.parentMatrix)
 		t.worldScale = trans.parent.worldScale.Mul(trans.scale)
 		t.worldRotation = trans.parent.worldRotation.Add(trans.rotation)
 	} else {
@@ -358,7 +358,7 @@ func (t *Transform) updateMatrix() bool {
 
 func (t *Transform) Matrix() Matrix {
 	t.updateMatrix()
-	return *t.matrix
+	return t.matrix
 }
 
 func (t *Transform) clone(parent *GameObject) *Transform {
