@@ -6,7 +6,7 @@ import (
 
 const minDepth = -50
 const maxDepth = 50
-const Objects = 100
+const Objects = 500
 
 func BenchmarkDepthMap_Iter(bb *testing.B) {
 	bb.StopTimer()

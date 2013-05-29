@@ -18,18 +18,16 @@ func init() {
 	depthMap = make([]depthData, 0, 10)
 }
 
-func (this *DepthMap) Len() int {
-	return len(*this)
+func (this DepthMap) Len() int {
+	return len(this)
 }
 
-func (this *DepthMap) Less(i, j int) bool {
-	arr := *this
-	return arr[i].depth < arr[j].depth
+func (this DepthMap) Less(i, j int) bool {
+	return this[i].depth < this[j].depth
 }
 
-func (this *DepthMap) Swap(i, j int) {
-	arr := *this
-	arr[i], arr[j] = arr[j], arr[i]
+func (this DepthMap) Swap(i, j int) {
+	this[i], this[j] = this[j], this[i]
 }
 
 func (this *DepthMap) getDepth(depth int, create bool) *depthData {
@@ -72,18 +70,17 @@ func (this *DepthMap) Remove(depth int, object *GameObject) bool {
 	return false
 }
 
-func (this *DepthMap) String() string {
-	s := fmt.Sprintln("Depths", len(*this))
-	for _, dData := range *this {
+func (this DepthMap) String() string {
+	s := fmt.Sprintln("Depths", len(this))
+	for _, dData := range this {
 		s += fmt.Sprintln("Depth:", dData.depth, "Items:", len(dData.array))
 	}
 	return s
 }
 
-func (this *DepthMap) Iter(fnc func(*GameObject)) {
-	arr2 := *this
-	for i := 0; i < len(arr2); i++ {
-		dData := &arr2[i]
+func (this DepthMap) Iter(fnc func(*GameObject)) {
+	for i := 0; i < len(this); i++ {
+		dData := &this[i]
 		arr := dData.array
 		if len(arr) > 0 {
 			for j := len(arr) - 1; j >= 0; j-- {
