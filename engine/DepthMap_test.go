@@ -4,20 +4,47 @@ import (
 	"testing"
 )
 
-func BenchmarkDepthMap(bb *testing.B) {
-	LoadTestScene()
-	a, b, c := NewGameObject("A"), NewGameObject("B"), NewGameObject("C")
-	a.AddToScene()
-	b.AddToScene()
-	c.AddToScene()
-	a.Transform().SetDepth(-1)
-	b.Transform().SetDepth(0)
-	c.Transform().SetDepth(1)
+const minDepth = -50
+const maxDepth = 50
+const Objects = 100
 
+func BenchmarkDepthMap_Iter(bb *testing.B) {
+	bb.StopTimer()
+	LoadTestScene()
+
+	for i, j := 0, 0; i < Objects; i++ {
+		j %= maxDepth - minDepth
+		a := NewGameObject("A")
+		a.AddToScene()
+		a.Transform().SetDepth(j + minDepth)
+		j++
+	}
+
+	bb.StartTimer()
 	for i := 0; i < bb.N; i++ {
 		depthMap.Iter(func(g *GameObject) {
 
 		})
+	}
+}
+
+func BenchmarkDepthMap_getDepth(bb *testing.B) {
+	bb.StopTimer()
+	LoadTestScene()
+
+	for i, j := 0, 0; i < Objects; i++ {
+		j %= maxDepth - minDepth
+		a := NewGameObject("A")
+		a.AddToScene()
+		a.Transform().SetDepth(j + minDepth)
+		j++
+	}
+
+	bb.StartTimer()
+	for i, j := 0, 0; i < bb.N; i++ {
+		j %= maxDepth - minDepth
+		depthMap.getDepth(j+minDepth, false)
+		j++
 	}
 }
 

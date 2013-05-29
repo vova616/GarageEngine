@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-type DepthMap []*depthData
+type DepthMap []depthData
 
 var depthMap DepthMap
 
@@ -15,7 +15,7 @@ type depthData struct {
 }
 
 func init() {
-	depthMap = make([]*depthData, 0, 10)
+	depthMap = make([]depthData, 0, 10)
 }
 
 func (this *DepthMap) Len() int {
@@ -33,7 +33,9 @@ func (this *DepthMap) Swap(i, j int) {
 }
 
 func (this *DepthMap) getDepth(depth int, create bool) *depthData {
-	for _, dData := range *this {
+	arr := *this
+	for i := 0; i < len(arr); i++ {
+		dData := &arr[i]
 		if dData.depth == depth {
 			return dData
 		} else if dData.depth > depth {
@@ -43,10 +45,9 @@ func (this *DepthMap) getDepth(depth int, create bool) *depthData {
 	if !create {
 		return nil
 	}
-	dData := &depthData{nil, depth}
-	*this = append(*this, dData)
+	*this = append(*this, depthData{nil, depth})
 	sort.Sort(this)
-	return dData
+	return this.getDepth(depth, true)
 }
 
 func (this *DepthMap) Add(depth int, object *GameObject) {
@@ -80,7 +81,9 @@ func (this *DepthMap) String() string {
 }
 
 func (this *DepthMap) Iter(fnc func(*GameObject)) {
-	for _, dData := range *this {
+	arr2 := *this
+	for i := 0; i < len(arr2); i++ {
+		dData := &arr2[i]
 		arr := dData.array
 		if len(arr) > 0 {
 			for j := len(arr) - 1; j >= 0; j-- {
