@@ -1,23 +1,69 @@
 package engine
 
-type DepthMap map[int8][]*GameObject
+import (
+	"fmt"
+	"sort"
+)
 
-var depthMap = make(DepthMap)
+type DepthMap []*depthData
+
+var depthMap DepthMap
+
+type depthData struct {
+	array []*GameObject
+	depth int
+}
+
+func init() {
+	depthMap = make([]*depthData, 0, 10)
+}
+
+func (this *DepthMap) Len() int {
+	return len(*this)
+}
+
+func (this *DepthMap) Less(i, j int) bool {
+	arr := *this
+	return arr[i].depth < arr[j].depth
+}
+
+func (this *DepthMap) Swap(i, j int) {
+	arr := *this
+	arr[i], arr[j] = arr[j], arr[i]
+}
+
+func (this *DepthMap) getDepth(depth int, create bool) *depthData {
+	for _, dData := range *this {
+		if dData.depth == depth {
+			return dData
+		} else if dData.depth > depth {
+			break
+		}
+	}
+	if !create {
+		return nil
+	}
+	dData := &depthData{nil, depth}
+	*this = append(*this, dData)
+	sort.Sort(this)
+	return dData
+}
 
 func (this *DepthMap) Add(depth int, object *GameObject) {
-	depth8 := int8(depth)
-	arr := depthMap[depth8]
-	arr = append(arr, object)
-	depthMap[depth8] = arr
+	dData := this.getDepth(depth, true)
+	dData.array = append(dData.array, object)
 }
 
 func (this *DepthMap) Remove(depth int, object *GameObject) bool {
-	depth8 := int8(depth)
 	if object != nil {
-		arr := depthMap[depth8]
-		for i, ob := range arr {
+		dData := this.getDepth(depth, false)
+		if dData == nil {
+			return false
+		}
+		arr := dData.array
+		for i, ob := range dData.array {
 			if ob == object {
-				arr[len(arr)-1], arr[i], depthMap[depth8] = nil, arr[len(arr)-1], arr[:len(arr)-1]
+				arr[len(arr)-1], arr[i], dData.array = nil, arr[len(arr)-1], arr[:len(arr)-1]
 				return true
 			}
 		}
@@ -25,23 +71,28 @@ func (this *DepthMap) Remove(depth int, object *GameObject) bool {
 	return false
 }
 
+func (this *DepthMap) String() string {
+	s := fmt.Sprintln("Depths", len(*this))
+	for _, dData := range *this {
+		s += fmt.Sprintln("Depth:", dData.depth, "Items:", len(dData.array))
+	}
+	return s
+}
+
 func (this *DepthMap) Iter(fnc func(*GameObject)) {
-	for i := int8(-127); ; i++ {
-		drawArr, exists := depthMap[i]
-		if exists && len(drawArr) > 0 {
-			for j := len(drawArr) - 1; j >= 0; j-- {
-				obj := drawArr[j]
+	for _, dData := range *this {
+		arr := dData.array
+		if len(arr) > 0 {
+			for j := len(arr) - 1; j >= 0; j-- {
+				obj := arr[j]
 				if obj != nil {
 					fnc(obj)
 					//Checks if the drawArr array has been changed
-					if obj != drawArr[j] {
+					if obj != arr[j] {
 						j++
 					}
 				}
 			}
-		}
-		if i == 127 {
-			break
 		}
 	}
 }

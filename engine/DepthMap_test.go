@@ -1,6 +1,8 @@
 package engine
 
-import "testing"
+import (
+	"testing"
+)
 
 func BenchmarkDepthMap(bb *testing.B) {
 	LoadTestScene()
@@ -28,6 +30,14 @@ func TestDepthMap(t *testing.T) {
 	a.Transform().SetDepth(-1)
 	b.Transform().SetDepth(0)
 	c.Transform().SetDepth(1)
+
+	i := -1
+	depthMap.Iter(func(g *GameObject) {
+		if g.Transform().Depth() != i {
+			t.Errorf("bad depth %s %d %d", g.Name(), g.Transform().Depth(), i)
+		}
+		i++
+	})
 
 	depthMap.Iter(func(g *GameObject) {
 		if !((g.Name() == "A" && g.Transform().Depth() == -1) ||
