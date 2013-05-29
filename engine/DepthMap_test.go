@@ -66,6 +66,19 @@ func TestDepthMap(t *testing.T) {
 		i++
 	})
 
+	d := depthMap.getDepth(-1, false)
+	if d == nil || len(d.array) != 1 || d.depth != -1 {
+		t.Errorf("bad children or depth need (1,-1) have ", d.depth, len(d.array))
+	}
+	d = depthMap.getDepth(0, false)
+	if d == nil || len(d.array) != 1 || d.depth != 0 {
+		t.Errorf("bad children or depth need (1,0) have ", d.depth, len(d.array))
+	}
+	d = depthMap.getDepth(1, false)
+	if d == nil || len(d.array) != 1 || d.depth != 1 {
+		t.Errorf("bad children or depth need (1,1) have ", d.depth, len(d.array))
+	}
+
 	depthMap.Iter(func(g *GameObject) {
 		if !((g.Name() == "A" && g.Transform().Depth() == -1) ||
 			(g.Name() == "B" && g.Transform().Depth() == 0) ||
