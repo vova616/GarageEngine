@@ -100,7 +100,7 @@ func (c *Camera) ScreenResolution() (Width, Height float32) {
 func (c *Camera) Matrix() Matrix {
 	if c.sizeIsScale {
 		c.Transform().updateMatrix()
-		return *c.Transform().matrix
+		return c.Transform().matrix
 	}
 
 	m := Identity()
@@ -160,7 +160,7 @@ func (c *Camera) UpdateResolution() {
 		c.realRect.Min.Y = c.center.Y - (c.center.Y-c.rect.Min.Y)*c.size
 		c.realRect.Max.Y = c.center.Y - (c.center.Y-c.rect.Max.Y)*c.size
 	}
-	c.Projection.Ortho(c.realRect.Min.X, c.realRect.Max.X, c.realRect.Min.Y, c.realRect.Max.Y, -1000, 1000)
+	c.Projection.Ortho(c.realRect.Min.X, c.realRect.Max.X, c.realRect.Min.Y, c.realRect.Max.Y, -100000, 100000)
 
 }
 

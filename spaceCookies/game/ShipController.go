@@ -60,6 +60,7 @@ func (sp *ShipController) Start() {
 	sp.JetFireParent.Transform().SetParent2(sp.GameObject())
 	sp.JetFireParent.Transform().SetPositionf(0, 0)
 	sp.JetFireParent.Transform().SetScalef(1, 1)
+	sp.JetFireParent.Transform().SetRotationf(0)
 	uvJet := engine.IndexUV(atlas, Jet_A)
 
 	if sp.JetFire != nil {
@@ -72,13 +73,14 @@ func (sp *ShipController) Start() {
 				jfp := engine.NewGameObject("JetFireParent2")
 				jfp.Transform().SetParent2(sp.JetFireParent)
 				jfp.Transform().SetPosition(sp.JetFirePosition[i])
+				jfp.Transform().SetRotationf(0)
 				rz := NewResizeScript(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 				jfp.AddComponent(rz)
 
 				jf := sp.JetFire.Clone()
 				jf.Transform().SetParent2(jfp)
 				jf.Transform().SetPositionf(0, -((uvJet.Ratio)/2)*jf.Transform().Scale().Y)
-
+				jf.Transform().SetRotationf(0)
 				//	jf.Transform().SetWorldScalef(10, 10, 1)
 
 				sp.JetFirePool[(i*l)+j] = rz

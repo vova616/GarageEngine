@@ -267,14 +267,26 @@ func (t *Transform) SetParent(parent *Transform) {
 	wasOutsideScene := !t.InScene()
 
 	//Keep the position after changing parents
-	scale := t.WorldScale()
-	position := t.WorldPosition()
-	rotation := t.WorldRotation()
-	t.parent = parent
-	t.updatedMatrix = false
-	t.SetWorldPosition(position)
-	t.SetWorldRotation(rotation)
-	t.SetWorldScale(scale)
+	//
+	if wasOutsideScene {
+		scale := t.Scale()
+		position := t.Position()
+		rotation := t.Rotation()
+		t.parent = parent
+		t.updatedMatrix = false
+		t.SetPosition(position)
+		t.SetRotation(rotation)
+		t.SetScale(scale)
+	} else {
+		scale := t.WorldScale()
+		position := t.WorldPosition()
+		rotation := t.WorldRotation()
+		t.parent = parent
+		t.updatedMatrix = false
+		t.SetWorldPosition(position)
+		t.SetWorldRotation(rotation)
+		t.SetWorldScale(scale)
+	}
 
 	//If parent is nil add to scene else add to transform children
 	if parent != nil {
