@@ -2,6 +2,7 @@ package engine
 
 import (
 	"errors"
+	"github.com/go-gl/gl"
 	"github.com/vova616/GarageEngine/engine/input"
 )
 
@@ -24,6 +25,8 @@ type Camera struct {
 	center      Vector //Center of scale
 	sizeIsScale bool   //Size is also the scale
 	autoScale   bool   //Scale together with window size
+
+	clearColor Color
 }
 
 func NewCamera() *Camera {
@@ -48,6 +51,11 @@ func NewCamera() *Camera {
 
 func (c *Camera) Update() {
 	c.LateUpdate()
+}
+
+func (c *Camera) Clear() {
+	gl.ClearColor(gl.GLclampf(c.clearColor.R), gl.GLclampf(c.clearColor.G), gl.GLclampf(c.clearColor.B), gl.GLclampf(c.clearColor.A))
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }
 
 func (c *Camera) LateUpdate() {
@@ -79,8 +87,12 @@ func (c *Camera) Size() float32 {
 
 //InvertedMatrix of the camera, this is needed because we will optimize it someday
 func (c *Camera) InvertedMatrix() Matrix {
-	x := c.Matrix()
-	return x.Invert()
+	if c.sizeIsScale {
+		return c.Transform().InvertedMatrix()
+	} else {
+		x := c.Matrix()
+		return x.Invert()
+	}
 }
 
 //Returns Screen Size

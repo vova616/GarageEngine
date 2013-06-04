@@ -242,11 +242,7 @@ func Run() {
 	timer := NewTimer()
 	timer.Start()
 
-	//time.Sleep(time.Second)
-
-	gl.ClearColor(0, 0, 0, 0)
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.LoadIdentity()
+	CurrentCamera().Clear()
 
 	var destroyDelta,
 		startDelta,

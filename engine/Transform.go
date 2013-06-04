@@ -23,10 +23,13 @@ type Transform struct {
 
 	depth       int
 	inDepthList bool
+
+	inverted        Matrix
+	updatedInverted bool
 }
 
 func NewTransform(g *GameObject) *Transform {
-	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, Identity(), Identity(), false, false, 0, false}
+	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, Identity(), Identity(), false, false, 0, false, Identity(), false}
 }
 
 func (t *Transform) SetDepth(depth int) {
@@ -170,8 +173,7 @@ func (t *Transform) SetWorldPosition(vect Vector) {
 		t.SetPosition(vect)
 		return
 	}
-	t.parent.updateMatrix()
-	t.SetPosition(vect.Transform(t.parent.matrix.Invert()))
+	t.SetPosition(vect.Transform(t.parent.InvertedMatrix()))
 }
 
 func (t *Transform) SetWorldPositionf(x, y float32) {
@@ -354,12 +356,22 @@ func (t *Transform) updateMatrix() bool {
 	//fmt.Println(t.GameObject().name)
 
 	t.updatedMatrix = true
+	t.updatedInverted = false
 	return true
 }
 
 func (t *Transform) Matrix() Matrix {
 	t.updateMatrix()
 	return t.matrix
+}
+
+func (t *Transform) InvertedMatrix() Matrix {
+	t.updateMatrix()
+	if !t.updatedInverted {
+		t.inverted = t.matrix.Invert()
+		t.updatedInverted = true
+	}
+	return t.inverted
 }
 
 func (t *Transform) clone(parent *GameObject) *Transform {
