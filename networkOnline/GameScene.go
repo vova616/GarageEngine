@@ -162,7 +162,7 @@ func (s *GameScene) Load() {
 		phx.Body.SetMass(1)
 	}
 
-	for i := 0; i < 200; i++ {
+	for i := 0; i < 2000; i++ {
 		sprite3 := ball.Clone()
 		sprite3.Transform().SetParent2(Layer2)
 		sprite3.Transform().SetPositionf(200+float32(i%4)*25, float32(i*30)+120)

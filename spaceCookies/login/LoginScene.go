@@ -3,6 +3,8 @@ package login
 import (
 	"fmt"
 	"github.com/vova616/GarageEngine/engine"
+	"github.com/vova616/GarageEngine/engine/audio"
+	"github.com/vova616/GarageEngine/engine/audio/ibxm"
 	"github.com/vova616/GarageEngine/engine/components"
 	//"github.com/vova616/GarageEngine/engine/components/tween"
 	"github.com/vova616/GarageEngine/spaceCookies/game"
@@ -19,7 +21,7 @@ import (
 	//"image/color"
 	//"encoding/json"
 	"math/rand"
-	//"os"
+
 	//"fmt"
 )
 
@@ -73,7 +75,7 @@ func (s *LoginScene) Load() {
 
 	cam := engine.NewGameObject("Camera")
 	cam.AddComponent(s.Camera)
-
+	cam.Transform().SetPosition(engine.NewVector3(0, 0, -50))
 	cam.Transform().SetScalef(1, 1)
 
 	background := engine.NewGameObject("Background")
@@ -301,9 +303,19 @@ func (s *LoginScene) Load() {
 	engine.Space.Iterations = 1
 
 	//cam.Transform().SetPositionf(float32(engine.Width)/2, float32(engine.Height)/2)
+	//
+	cam.AddComponent(audio.NewAudioListener())
+	clip, e := ibxm.NewClip("./data/LoginSong.xm")
+	if e != nil {
+		panic(e)
+	}
+	music := engine.NewGameObject("Music")
+	as := audio.NewAudioSource(clip)
+	music.AddComponent(as)
 
 	s.AddGameObject(cam)
 	s.AddGameObject(background)
+	s.AddGameObject(music)
 
 	fmt.Println("LoginScene loaded")
 }

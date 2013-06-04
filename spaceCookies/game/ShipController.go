@@ -8,6 +8,7 @@ import (
 	//"log"
 	//"fmt"
 	//
+	"github.com/vova616/GarageEngine/engine/audio"
 	"math"
 	"math/rand"
 	"time"
@@ -32,6 +33,8 @@ type ShipController struct {
 	JetFireParent   *engine.GameObject `json:"-"`
 	JetFirePool     []*ResizeScript    `json:"-"`
 	JetFirePosition []engine.Vector    `json:"-"`
+
+	FireSource *audio.AudioSource
 }
 
 func NewShipController() *ShipController {
@@ -42,7 +45,7 @@ func NewShipController() *ShipController {
 	misslePositions := []engine.Vector{{-28, 10, 0}, {28, 10, 0}, {0, 20, 0}, {-28, 40, 0}, {28, 40, 0}}
 
 	return &ShipController{engine.NewComponent(), 500000, 250, nil, misslePositions, misslesDirection, 0, len(misslesDirection) - 1,
-		time.Now(), nil, nil, true, nil, nil, nil, []engine.Vector{{-0.1, -0.51, 0}, {0.1, -0.51, 0}}}
+		time.Now(), nil, nil, true, nil, nil, nil, []engine.Vector{{-0.1, -0.51, 0}, {0.1, -0.51, 0}}, nil}
 }
 
 func (sp *ShipController) OnComponentAdd() {
@@ -125,6 +128,8 @@ func (sp *ShipController) OnDie(byTimer bool) {
 
 func (sp *ShipController) Shoot() {
 	if sp.Missle != nil {
+		sp.FireSource.Stop()
+		sp.FireSource.Play()
 
 		a := sp.Transform().Rotation()
 		//scale := sp.Transform().Scale()

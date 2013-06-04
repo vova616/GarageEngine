@@ -3,6 +3,9 @@ package game
 import (
 	"fmt"
 	"github.com/vova616/GarageEngine/engine"
+	"github.com/vova616/GarageEngine/engine/audio"
+	"github.com/vova616/GarageEngine/engine/audio/ibxm"
+	"github.com/vova616/GarageEngine/engine/audio/wav"
 	"github.com/vova616/GarageEngine/engine/components"
 	_ "image/jpeg"
 	_ "image/png"
@@ -55,6 +58,8 @@ var (
 	Players map[server.ID]*engine.GameObject = make(map[server.ID]*engine.GameObject)
 
 	queenDead = false
+
+	fireSound audio.AudioClip
 )
 
 const (
@@ -181,6 +186,10 @@ func SpawnMainPlayer(spawnPlayer server.SpawnPlayer) {
 	PlayerShip.JetFire = JetFire
 	PlayerShip.Missle = missle
 	Player.AddComponent(NewDestoyable(shipHP, 1))
+	as := audio.NewAudioSource(fireSound)
+	Player.AddComponent(as)
+	PlayerShip.FireSource = as
+	as.Pause()
 }
 
 func SpawnPlayer(spawnPlayer server.SpawnPlayer) {
@@ -204,6 +213,12 @@ func (s *GameScene) Load() {
 	LoadTextures()
 	engine.SetTitle("Space Cookies")
 	queenDead = false
+
+	var e error
+	fireSound, e = wav.NewClip("./data/laser5.wav")
+	if e != nil {
+		fmt.Println(e)
+	}
 
 	rand.Seed(time.Now().UnixNano())
 
@@ -468,12 +483,29 @@ func (s *GameScene) Load() {
 		c.Transform().SetScalef(400, 400)
 	}
 
+	cam.AddComponent(audio.NewAudioListener())
+	clip, e := ibxm.NewClip("./data/GameSong.xm")
+	if e != nil {
+		panic(e)
+	}
+	music := engine.NewGameObject("GameSong")
+	as := audio.NewAudioSource(clip)
+	music.AddComponent(as)
+	as.SetLooping(true)
+
+	music2 := engine.NewGameObject("Music")
+	as = audio.NewAudioSource(fireSound)
+	music2.AddComponent(as)
+	as.SetLooping(true)
+
 	s.AddGameObject(cam)
 	s.AddGameObject(gui)
 	s.AddGameObject(Layer1)
 	s.AddGameObject(Layer2)
 	s.AddGameObject(Layer3)
 	s.AddGameObject(Layer4)
+	s.AddGameObject(music)
+
 	//s.AddGameObject(shadowShader)
 
 	fmt.Println("GameScene loaded")
