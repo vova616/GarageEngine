@@ -326,11 +326,10 @@ func (sp *Sprite) Draw() {
 		model.Scale(currentUV.Ratio, 1, 1)
 		model.Translate(v.X, v.Y, 0)
 		model.Mul(sp.GameObject().Transform().Matrix())
-		model.Translate(0.75, 0.75, 0)
 
-		mv.UniformMatrix4fv(false, view)
+		mv.UniformMatrix4f(false, (*[16]float32)(&view))
 		mp.UniformMatrix4f(false, (*[16]float32)(camera.Projection))
-		mm.UniformMatrix4fv(false, model)
+		mm.UniformMatrix4f(false, (*[16]float32)(&model))
 
 		sp.Bind()
 		tx.Uniform1i(0)
