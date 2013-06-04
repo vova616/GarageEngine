@@ -5,6 +5,19 @@ import (
 	"github.com/go-gl/gl"
 )
 
+var lastProgram Program
+
+type Program struct {
+	gl.Program
+}
+
+func (p Program) Use() {
+	if lastProgram != p {
+		p.Program.Use()
+		lastProgram = p
+	}
+}
+
 type Material interface {
 	Load() error
 	Begin(gobj *GameObject)
@@ -12,7 +25,7 @@ type Material interface {
 }
 
 type BasicMaterial struct {
-	Program        gl.Program
+	Program        Program
 	vertexShader   string
 	fragmentShader string
 
@@ -21,7 +34,7 @@ type BasicMaterial struct {
 }
 
 func NewBasicMaterial(vertexShader, fragmentShader string) *BasicMaterial {
-	return &BasicMaterial{Program: gl.CreateProgram(), vertexShader: vertexShader, fragmentShader: fragmentShader}
+	return &BasicMaterial{Program: Program{gl.CreateProgram()}, vertexShader: vertexShader, fragmentShader: fragmentShader}
 }
 
 func (b *BasicMaterial) Load() error {
