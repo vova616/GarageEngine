@@ -13,8 +13,9 @@ import (
 	//"math"
 	//"github.com/go-gl/gl"
 	"os"
-	//"runtime"
+	"runtime"
 	"runtime/pprof"
+
 	//"time"
 )
 
@@ -22,6 +23,7 @@ var cpuprofile = flag.String("p", "", "write cpu profile to file")
 var memprofile = flag.String("m", "", "write mem profile to file")
 
 func main() {
+	runtime.GOMAXPROCS(8)
 	flag.Parse()
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
@@ -39,7 +41,7 @@ func main() {
 	os.Stdin = file
 	defer file.Close()
 
-	go Start()
+	Start()
 	engine.Terminated()
 
 	if *memprofile != "" {
@@ -59,7 +61,7 @@ func Start() {
 			fmt.Println(p, engine.PanicPath())
 		}
 
-		engine.Terminate()
+		go engine.Terminate()
 	}()
 	engine.StartEngine()
 	_ = game.GameSceneGeneral
