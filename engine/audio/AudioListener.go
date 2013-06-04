@@ -7,9 +7,10 @@ import (
 )
 
 var (
-	Device   *openal.Device
-	Context  *openal.Context
-	Listener *openal.Listener
+	Device               *openal.Device
+	Context              *openal.Context
+	Listener             *openal.Listener
+	currentDistanceModel DistanceModel
 )
 
 func init() {
@@ -17,6 +18,7 @@ func init() {
 	Device = openal.OpenDevice("")
 	Context = Device.CreateContext()
 	Context.Activate()
+	currentDistanceModel = DistanceModel(openal.GetDistanceModel())
 }
 
 type AudioListener struct {

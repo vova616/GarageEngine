@@ -7,12 +7,22 @@ import (
 )
 
 type Format int
+type DistanceModel uint32
 
 const (
-	Mono8    = iota
-	Mono16   = iota
-	Stereo8  = iota
-	Stereo16 = iota
+	Mono8    = Format(iota)
+	Mono16   = Format(iota)
+	Stereo8  = Format(iota)
+	Stereo16 = Format(iota)
+)
+
+const (
+	InverseDistance         = DistanceModel(openal.InverseDistance)
+	InverseDistanceClamped  = DistanceModel(openal.InverseDistanceClamped)
+	LinearDistance          = DistanceModel(openal.LinearDistance)
+	LinearDistanceClamped   = DistanceModel(openal.LinearDistanceClamped)
+	ExponentDistance        = DistanceModel(openal.ExponentDistance)
+	ExponentDistanceClamped = DistanceModel(openal.ExponentDistanceClamped)
 )
 
 func (f Format) AlFormat() openal.Format {
@@ -34,12 +44,13 @@ type AudioClip interface {
 		Buffer size in int16 required to pass to NextBuffer
 	*/
 	BufferLength() int
-	NextBuffer([]int16) int
+	NextBuffer([]int16, bool) int
 	Clone() (AudioClip, error)
 	/*
 		Samples in this clip
 	*/
 	Length() int
 	SampleRate() int
+	SetPosition(int)
 	AudioFormat() Format
 }
