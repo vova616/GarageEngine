@@ -200,7 +200,7 @@ func (c *Camera) ScreenToWorld(x, y float32) Vector {
 	m := Identity()
 	if c.sizeIsScale {
 		m.Translate(float32(x), float32(y), 0)
-		m = Mul(m, c.Transform().Matrix())
+		m.Mul(c.Transform().Matrix())
 	} else {
 		m.Translate(float32(x)*c.size, float32(y)*c.size, 0)
 		pos := c.Transform().WorldPosition()
