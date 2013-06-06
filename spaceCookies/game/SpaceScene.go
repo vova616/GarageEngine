@@ -493,10 +493,7 @@ func (s *GameScene) Load() {
 	music.AddComponent(as)
 	as.SetLooping(true)
 
-	music2 := engine.NewGameObject("Music")
-	as = audio.NewAudioSource(fireSound)
-	music2.AddComponent(as)
-	as.SetLooping(true)
+	as.SetGain(0.3)
 
 	s.AddGameObject(cam)
 	s.AddGameObject(gui)
