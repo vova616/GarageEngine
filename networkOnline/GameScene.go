@@ -3,6 +3,7 @@ package networkOnline
 import (
 	"fmt"
 	"github.com/vova616/GarageEngine/engine"
+	"github.com/vova616/GarageEngine/engine/bt"
 	"github.com/vova616/GarageEngine/engine/components"
 	_ "image/jpeg"
 	_ "image/png"
@@ -82,9 +83,9 @@ func (s *GameScene) Load() {
 		FPSDrawer := engine.NewGameObject("Counter")
 		txt := FPSDrawer.AddComponent(components.NewUIText(ArialFont2, "")).(*components.UIText)
 		txt.SetAlign(engine.AlignLeft)
-		engine.StartBehavior(func() engine.Command {
+		bt.Start(func() bt.Command {
 			txt.SetString(fmt.Sprintf("Bodies: %d", len(engine.Space.Bodies)))
-			return engine.Restart
+			return bt.Restart
 		})
 		FPSDrawer.Transform().SetParent2(cam)
 		FPSDrawer.Transform().SetPositionf(-float32(engine.Width)/2+10, +float32(engine.Height)/2-45)

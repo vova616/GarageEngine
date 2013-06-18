@@ -6,6 +6,7 @@ import (
 	"github.com/vova616/GarageEngine/engine/audio"
 	"github.com/vova616/GarageEngine/engine/audio/ibxm"
 	"github.com/vova616/GarageEngine/engine/components"
+	"github.com/vova616/GarageEngine/engine/cr"
 	//"github.com/vova616/GarageEngine/engine/components/tween"
 	"github.com/vova616/GarageEngine/spaceCookies/game"
 	_ "image/jpeg"
@@ -278,11 +279,11 @@ func (s *LoginScene) Load() {
 	txt2.Color = engine.Color{1, 1, 1, 1}
 	//
 
-	engine.StartCoroutine(func() {
+	cr.Start(func() {
 		for {
 
 			if errChan == nil {
-				engine.CoYieldSkip()
+				cr.YieldSkip()
 				continue
 			}
 			select {
@@ -294,7 +295,7 @@ func (s *LoginScene) Load() {
 			default:
 
 			}
-			engine.CoYieldSkip()
+			cr.YieldSkip()
 		}
 	})
 

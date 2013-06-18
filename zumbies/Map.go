@@ -3,7 +3,7 @@ package zumbies
 import (
 	"github.com/vova616/GarageEngine/engine"
 	"github.com/vova616/GarageEngine/engine/input"
-	//"log" 
+	//"log"
 	//"fmt"
 	//"github.com/go-gl/glfw"
 	"github.com/vova616/chipmunk"
@@ -358,7 +358,7 @@ func (m *Map) PositionToTile(worldPosition engine.Vector) (tile Tile, x, y int) 
 		return 0, x, y
 	}
 
-	//return the tile	
+	//return the tile
 	return m.Tiles[x+(y*m.Width)], int(x), int(y)
 }
 

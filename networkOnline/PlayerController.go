@@ -2,6 +2,7 @@ package networkOnline
 
 import (
 	"github.com/vova616/GarageEngine/engine"
+	"github.com/vova616/GarageEngine/engine/cr"
 	//"Engine/components"
 	"github.com/go-gl/glfw"
 	"github.com/vova616/GarageEngine/engine/input"
@@ -64,26 +65,26 @@ func (sp *PlayerController) Start() {
 func (sp *PlayerController) TestCoroutines() {
 	autoShoot := func() {
 		for i := 0; i < 3; i++ {
-			engine.CoSleep(3)
+			cr.Sleep(3)
 			sp.Shoot()
 		}
 	}
 
-	as := engine.StartCoroutine(autoShoot)
+	as := cr.Start(autoShoot)
 
 	fastShoot := func() {
-		engine.CoSleep(3)
-		engine.CoYieldCoroutine(as)
+		cr.Sleep(3)
+		cr.YieldCoroutine(as)
 		for i := 0; i < 10; i++ {
-			engine.CoYieldSkip()
-			engine.CoYieldSkip()
-			engine.CoYieldSkip()
+			cr.YieldSkip()
+			cr.YieldSkip()
+			cr.YieldSkip()
 			sp.Shoot()
 		}
 		sp.TestCoroutines()
 	}
 
-	engine.StartCoroutine(fastShoot)
+	cr.Start(fastShoot)
 }
 
 func (sp *PlayerController) Shoot() {

@@ -3,6 +3,8 @@ package engine
 import (
 	"github.com/go-gl/gl"
 	//"log"
+	"github.com/vova616/GarageEngine/engine/bt"
+	"github.com/vova616/GarageEngine/engine/cr"
 	"github.com/vova616/GarageEngine/engine/input"
 	//"os"
 	"fmt"
@@ -74,8 +76,8 @@ func LoadScene(scene Scene) {
 	}
 
 	ResourceManager.Release()
-	coroutines = coroutines[:0]
-	Routines = Routines[:0]
+	bt.Clear()
+	cr.Clear()
 
 	if Space != nil {
 		for _, g := range mainScene.SceneBase().gameObjects {
@@ -319,11 +321,11 @@ func Run() {
 		drawDelta = timer.StopCustom("Draw routines")
 
 		timer.StartCustom("coroutines")
-		RunCoroutines()
+		cr.Run()
 		coroutinesDelta = timer.StopCustom("coroutines")
 
 		timer.StartCustom("BehaviorTree")
-		RunBT(BehaviorTicks)
+		bt.Run(BehaviorTicks)
 		behaviorDelta = timer.StopCustom("BehaviorTree")
 
 		input.UpdateInput()
@@ -423,4 +425,28 @@ func onResize(w, h int) {
 	if GetScene() != nil && CurrentCamera() != nil {
 		CurrentCamera().UpdateResolution()
 	}
+}
+
+func PanicPath() string {
+	fullPath := ""
+	skip := 3
+	for i := skip; ; i++ {
+		_, file, line, ok := runtime.Caller(i)
+		if !ok {
+			break
+		}
+		if i > skip {
+			fullPath += ", "
+		}
+		short := file
+		for i := len(file) - 1; i > 0; i-- {
+			if file[i] == '/' {
+				short = file[i+1:]
+				break
+			}
+		}
+		file = short
+		fullPath += fmt.Sprintf("%s:%d", file, line)
+	}
+	return fullPath
 }

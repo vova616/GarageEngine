@@ -6,7 +6,7 @@ import (
 	"github.com/vova616/GarageEngine/engine/components"
 	_ "image/jpeg"
 	_ "image/png"
-	//"gl"  
+	//"gl"
 	"math/rand"
 	"strconv"
 	"time"

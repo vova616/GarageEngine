@@ -3,6 +3,7 @@ package game
 import (
 	//"fmt"
 	"github.com/vova616/GarageEngine/engine"
+	"github.com/vova616/GarageEngine/engine/bt"
 	"math/rand"
 )
 
@@ -28,32 +29,32 @@ func (ai *EnemeyAI) Start() {
 		ai.Target = Player
 	}
 
-	isPlayerClose := func(distance float32) func() engine.Command {
-		return func() engine.Command {
+	isPlayerClose := func(distance float32) func() bt.Command {
+		return func() bt.Command {
 			if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-				return engine.Close
+				return bt.Close
 			}
 			myPos := ai.Transform().WorldPosition()
 			targetPos := ai.Target.Transform().WorldPosition()
 			if targetPos.Distance(myPos) < distance {
-				return engine.Continue
+				return bt.Continue
 			}
-			return engine.Yield
+			return bt.Yield
 		}
 	}
 
-	prepareForAttack := func() engine.Command {
+	prepareForAttack := func() bt.Command {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-			return engine.Close
+			return bt.Close
 		}
 
 		ai.GameObject().Physics.Body.SetTorque(10000)
-		return engine.Continue
+		return bt.Continue
 	}
 
-	attack := func() engine.Command {
+	attack := func() bt.Command {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-			return engine.Close
+			return bt.Close
 		}
 		myPos := ai.Transform().WorldPosition()
 		targetPos := ai.Target.Transform().WorldPosition()
@@ -72,12 +73,12 @@ func (ai *EnemeyAI) Start() {
 		attackSpeed -= minAttackSpeed
 
 		ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*((attackSpeed*rand.Float32())+minAttackSpeed), (dir.Y+rnd)*((attackSpeed*rand.Float32())+minAttackSpeed))
-		return engine.Continue
+		return bt.Continue
 	}
 
-	randomMove := func() engine.Command {
+	randomMove := func() bt.Command {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-			return engine.Close
+			return bt.Close
 		}
 		attackSpeed := float32(40000)
 		moveSpeed := float32(20000)
@@ -109,12 +110,12 @@ func (ai *EnemeyAI) Start() {
 			}
 		}
 
-		return engine.Continue
+		return bt.Continue
 	}
 
-	sendCookies := func() engine.Command {
+	sendCookies := func() bt.Command {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-			return engine.Close
+			return bt.Close
 		}
 		myPos := ai.Transform().WorldPosition()
 		targetPos := ai.Target.Transform().WorldPosition()
@@ -144,62 +145,36 @@ func (ai *EnemeyAI) Start() {
 
 		c.GameObject().Physics.Body.AddForce((dir.X+rnd)*attackSpeed, (dir.Y+rnd)*attackSpeed)
 
-		return engine.Continue
+		return bt.Continue
 	}
 
-	appear := func() engine.Command {
+	appear := func() bt.Command {
 		if ai.GameObject() == nil {
-			return engine.Close
+			return bt.Close
 		}
 
 		ai.GameObject().SetActive(true)
 
-		return engine.Continue
+		return bt.Continue
 	}
 
-	prepareForNextAttack := func() engine.Command {
+	prepareForNextAttack := func() bt.Command {
 		if ai.GameObject() == nil || ai.Target.GameObject() == nil {
-			return engine.Close
+			return bt.Close
 		}
 
 		ai.GameObject().Physics.Body.SetTorque(-10)
 		ai.GameObject().Physics.Body.SetAngularVelocity(0)
 
-		return engine.Restart
+		return bt.Restart
 	}
 
-	co := false
-	if co {
-		engine.StartCoroutine(func() {
-			for {
-				engine.CoSleep(5)
-				if !ai.GameObject().IsValid() {
-					return
-				}
-				myPos := ai.Transform().WorldPosition()
-				targetPos := ai.Target.Transform().WorldPosition()
-				if targetPos.Distance(myPos) < 600 {
-					dir := targetPos.Sub(myPos)
-					dir.Normalize()
-
-					rnd := rand.Float32() * 0.5
-					if rand.Float32() > 0.5 {
-						rnd = -rnd
-					}
-
-					ai.GameObject().Physics.Body.AddForce((dir.X+rnd)*50000, (dir.Y+rnd)*50000)
-				}
-			}
-
-		})
+	if ai.Type == Enemey_Cookie {
+		bt.Start(bt.SleepRand(5), isPlayerClose(600), prepareForAttack, bt.Sleep(1.5), attack, bt.WaitContinue(prepareForNextAttack, nil, 1.5))
 	} else {
-		if ai.Type == Enemey_Cookie {
-			engine.StartBehavior(engine.SleepRand(5), isPlayerClose(600), prepareForAttack, engine.Sleep(1.5), attack, engine.WaitContinue(prepareForNextAttack, nil, 1.5))
-		} else {
-			engine.StartBehavior(engine.Sleep(60), appear, engine.Sequence(engine.SleepRand(0.5), isPlayerClose(800), randomMove, sendCookies))
-			//disable queen until appear
-			ai.GameObject().SetActive(false)
-		}
+		bt.Start(bt.Sleep(60), appear, bt.Sequence(bt.SleepRand(0.5), isPlayerClose(800), randomMove, sendCookies))
+		//disable queen until appear
+		ai.GameObject().SetActive(false)
 	}
 
 }

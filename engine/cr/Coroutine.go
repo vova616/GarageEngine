@@ -1,4 +1,4 @@
-package engine
+package cr
 
 import (
 	"fmt"
@@ -16,19 +16,19 @@ const (
 	Running = Command(4)
 	Ended   = Command(8)
 
-	Yield   = Command(16)
-	Restart = Command(32)
+	Yield = Command(16)
 )
 
 var (
 	coroutines        []*Coroutine = make([]*Coroutine, 0, 100)
 	current           *Coroutine
-	runningCoroutines bool = false
+	index             int       = 0
+	end               chan bool = make(chan bool)
+	runningCoroutines bool      = false
 )
 
 type Coroutine struct {
 	in       chan Command
-	out      chan Command
 	State    Command
 	UserData interface{}
 }
@@ -39,88 +39,81 @@ func (gr *Coroutine) WaitForCommand() {
 	case Continue:
 		break
 	case Close:
-		for i, ch := range coroutines {
-			if ch == gr {
-				coroutines[i] = nil
-				break
-			}
-		}
-		panic("")
+		gr.State = Ended
+		coroutines[len(coroutines)-1], coroutines[index], coroutines = nil, coroutines[len(coroutines)-1], coroutines[:len(coroutines)-1]
 	}
 }
 
-func StartCoroutine(fnc func()) *Coroutine {
-	gr := &Coroutine{make(chan Command), make(chan Command), Running, nil}
-	found := false
-	for i, ch := range coroutines {
-		if ch == nil {
-			coroutines[i] = gr
-			found = true
-			break
-		}
-	}
-	if !found {
-		coroutines = append(coroutines, gr)
-	}
-	go startCoroutine(fnc, gr)
+func Start(fnc func()) *Coroutine {
+	gr := &Coroutine{make(chan Command, 1), Running, nil}
+	coroutines = append(coroutines, gr)
+	go start(fnc, gr)
 	return gr
 }
 
-func startCoroutine(fnc func(), gr *Coroutine) {
+func runNext() {
+	index++
+	if index < len(coroutines) {
+		current = coroutines[index]
+		current.in <- Continue
+	} else {
+		end <- true
+	}
+}
+
+func start(fnc func(), gr *Coroutine) {
 	defer errorFunc()
-	defer func() { gr.out <- Ended }()
+	defer gr.endFunc()
 	gr.WaitForCommand()
 	fnc()
 }
 
+func (gr *Coroutine) endFunc() {
+	gr.State = Ended
+	coroutines[len(coroutines)-1], coroutines[index], coroutines = nil, coroutines[len(coroutines)-1], coroutines[:len(coroutines)-1]
+	runNext()
+}
+
 func errorFunc() {
-	if p := recover(); p != nil && p != "" {
+	if p := recover(); p != nil {
 		fmt.Println(p, PanicPath())
 	}
 }
 
-func CoYieldSkip() {
+func Clear() {
+	coroutines = coroutines[:0]
+}
+
+func YieldSkip() {
 	if !runningCoroutines {
 		return
 	}
 	c := current
-	c.out <- Running
+	runNext()
 	c.WaitForCommand()
 }
 
-func CoYieldCoroutine(gr *Coroutine) {
+func YieldCoroutine(gr *Coroutine) {
 	if !runningCoroutines {
 		return
 	}
 	for gr.State != Ended {
-		CoYieldSkip()
+		YieldSkip()
 	}
 }
 
-func CoYieldUntil(Out <-chan Command) {
+func YieldUntil(done <-chan bool) {
 	if !runningCoroutines {
 		return
 	}
-	c := current
-	c.out <- Running
-
 	for {
 		select {
-		case out := <-Out:
-			if out == Ended {
-				goto work
-			}
-		case in := <-c.in:
-			if in == Close {
-				panic("")
-			} else {
-				c.out <- Running
-			}
+		case <-done:
+			return
+		default:
+			YieldSkip()
 		}
 	}
-work:
-
-	c.WaitForCommand()
 }
 
 func NewSignal() Signal {
@@ -131,15 +124,14 @@ func (signal Signal) SendEnd() {
 	signal <- Ended
 }
 
-func CoSleep(seconds float32) {
+func Sleep(seconds float32) {
 	if !runningCoroutines {
 		return
 	}
 	start := time.Now()
 	for {
-		CoYieldSkip()
-		now := time.Now()
-		if now.Sub(start).Seconds() >= float64(seconds) {
+		YieldSkip()
+		if time.Since(start).Seconds() >= float64(seconds) {
 			break
 		}
 	}
@@ -148,23 +140,18 @@ func CoSleep(seconds float32) {
 		go func() {
 			<-time.After(time.Second * 3)
 			Signal.SendEnd()
-		}() 
+		}()
 		Yield(Signal)
 	*/
 }
 
-func RunCoroutines() {
+func Run() {
 	runningCoroutines = true
-	for i, ch := range coroutines {
-		if ch != nil {
-			current = ch
-			ch.in <- Continue
-			state := <-ch.out
-			if state == Ended {
-				coroutines[i] = nil
-				ch.State = Ended
-			}
-		}
+	index = 0
+	if len(coroutines) > 0 {
+		current = coroutines[0]
+		coroutines[0].in <- Continue
+		<-end
 	}
 	runningCoroutines = false
 	current = nil

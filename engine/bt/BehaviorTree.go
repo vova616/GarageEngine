@@ -1,14 +1,4 @@
-package engine
-
-/*
-TODO:
-WRITE IT LOL
-
-
-
-
-
-*/
+package bt
 
 import (
 	//"log"
@@ -20,12 +10,29 @@ var (
 	Routines []Routiner = make([]Routiner, 0)
 )
 
+type Command byte
+
+const (
+	Continue = Command(1)
+	Close    = Command(2)
+
+	Running = Command(4)
+	Ended   = Command(8)
+
+	Yield   = Command(16)
+	Restart = Command(32)
+)
+
 type RoutineFunc func() Command
 
 type Routine struct {
 	CurrentFunc int
 	Status      Command
 	Funcs       []RoutineFunc
+}
+
+func Clear() {
+	Routines = Routines[:0]
 }
 
 func (r *Routine) Run() (Command, bool) {
@@ -47,17 +54,6 @@ func (r *Routine) Run() (Command, bool) {
 		return b, false
 	}
 	return b, false
-}
-
-func init() {
-	return
-	StartBehavior(Sleep(5), func() Command { println("asd"); return Continue }, Sleep(5), func() Command { println("asd"); return Restart })
-	go func() {
-		for {
-			RunBT(10)
-			time.Sleep(time.Millisecond * 200)
-		}
-	}()
 }
 
 type Routiner interface {
@@ -89,7 +85,7 @@ func WaitContinue(fnc RoutineFunc, child Routiner, secTimeout float32) RoutineFu
 }
 
 func Sequence(funcs ...RoutineFunc) RoutineFunc {
-	r := NewBehavior(funcs...)
+	r := New(funcs...)
 	return func() Command {
 		_, stop := r.Run()
 		if !stop {
@@ -108,7 +104,7 @@ func SleepRand(secs float32) RoutineFunc {
 	originalValue := secs
 	var start time.Time
 	return WaitContinue(func() Command { return Continue },
-		NewBehavior(func() Command {
+		New(func() Command {
 			if !started {
 				started = true
 				start = time.Now()
@@ -123,34 +119,26 @@ func SleepRand(secs float32) RoutineFunc {
 		}), secs)
 }
 
-func NewBehavior(funcs ...RoutineFunc) *Routine {
+func New(funcs ...RoutineFunc) *Routine {
 	r := &Routine{0, 0, funcs}
 	return r
 }
 
-func StartBehavior(funcs ...RoutineFunc) *Routine {
-	r := NewBehavior(funcs...)
-	found := false
-	for i, ch := range Routines {
-		if ch == nil {
-			Routines[i] = r
-			found = true
-			break
-		}
-	}
-	if !found {
-		Routines = append(Routines, r)
-	}
+func Start(funcs ...RoutineFunc) *Routine {
+	r := New(funcs...)
+	Routines = append(Routines, r)
 	return r
 }
 
-func RunBT(ticks int) {
+func Run(ticks int) {
 	for i := 0; i < ticks; i++ {
-		for index, r := range Routines {
+		for index := 0; index < len(Routines); index++ {
+			r := Routines[index]
 			if r != nil {
 				_, delete := r.Run()
 				if delete {
-					Routines[index] = nil
+					Routines[len(Routines)-1], Routines[index], Routines = nil, Routines[len(Routines)-1], Routines[:len(Routines)-1]
+					index--
 				}
 			}
 		}
