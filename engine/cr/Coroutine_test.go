@@ -11,7 +11,7 @@ func Benchmark_Coroutine(b *testing.B) {
 	fastShoot := func() {
 		for i := 0; i < 100; i++ {
 			n++
-			YieldSkip()
+			Skip()
 		}
 	}
 
@@ -36,7 +36,7 @@ func Benchmark_Coroutine_MaxProcs(b *testing.B) {
 	fastShoot := func() {
 		for i := 0; i < 100; i++ {
 			n++
-			YieldSkip()
+			Skip()
 		}
 	}
 
@@ -59,7 +59,7 @@ func Test_Coroutine(t *testing.T) {
 	fastShoot := func() {
 		for i := 0; i < 100; i++ {
 			n++
-			YieldSkip()
+			Skip()
 		}
 	}
 

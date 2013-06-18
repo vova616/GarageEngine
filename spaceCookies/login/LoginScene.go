@@ -283,7 +283,7 @@ func (s *LoginScene) Load() {
 		for {
 
 			if errChan == nil {
-				cr.YieldSkip()
+				cr.Skip()
 				continue
 			}
 			select {
@@ -295,7 +295,7 @@ func (s *LoginScene) Load() {
 			default:
 
 			}
-			cr.YieldSkip()
+			cr.Skip()
 		}
 	})
 

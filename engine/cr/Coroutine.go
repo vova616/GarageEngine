@@ -7,7 +7,6 @@ import (
 )
 
 type Command byte
-type Signal chan Command
 
 const (
 	Continue = Command(1)
@@ -84,7 +83,7 @@ func Clear() {
 	coroutines = coroutines[:0]
 }
 
-func YieldSkip() {
+func Skip() {
 	if !runningCoroutines {
 		return
 	}
@@ -98,7 +97,7 @@ func YieldCoroutine(gr *Coroutine) {
 		return
 	}
 	for gr.State != Ended {
-		YieldSkip()
+		Skip()
 	}
 }
 
@@ -111,17 +110,9 @@ func YieldUntil(done <-chan bool) {
 		case <-done:
 			return
 		default:
-			YieldSkip()
+			Skip()
 		}
 	}
-}
-
-func NewSignal() Signal {
-	return make(chan Command)
-}
-
-func (signal Signal) SendEnd() {
-	signal <- Ended
 }
 
 func Sleep(seconds float32) {
@@ -130,7 +121,7 @@ func Sleep(seconds float32) {
 	}
 	start := time.Now()
 	for {
-		YieldSkip()
+		Skip()
 		if time.Since(start).Seconds() >= float64(seconds) {
 			break
 		}

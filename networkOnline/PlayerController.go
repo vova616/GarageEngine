@@ -76,9 +76,9 @@ func (sp *PlayerController) TestCoroutines() {
 		cr.Sleep(3)
 		cr.YieldCoroutine(as)
 		for i := 0; i < 10; i++ {
-			cr.YieldSkip()
-			cr.YieldSkip()
-			cr.YieldSkip()
+			cr.Skip()
+			cr.Skip()
+			cr.Skip()
 			sp.Shoot()
 		}
 		sp.TestCoroutines()

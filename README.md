@@ -65,12 +65,12 @@ http://www.youtube.com/watch?v=BMRlY9dFVLg
 		as := StartCoroutine(func() { sp.AutoShoot() })
 		
 		StartCoroutine(func() {
-			CoSleep(3)
-			YieldCoroutine(as) //wait for as to finish
+			cr.Sleep(3)
+			cr.YieldCoroutine(as) //wait for as to finish
 			for i := 0; i < 10; i++ {
-				CoCoYieldSkip()
-				CoYieldSkip()
-				CoYieldSkip()
+				cr.Skip()
+				cr.Skip()
+				cr.Skip()
 				sp.Shoot()
 			}
 		})
@@ -78,7 +78,7 @@ http://www.youtube.com/watch?v=BMRlY9dFVLg
 
 	func (sp *PlayerController) AutoShoot() {
 		for i := 0; i < 3; i++ {
-			CoSleep(3)
+			cr.Sleep(3)
 			sp.Shoot()
 		}
 	}
@@ -86,7 +86,7 @@ http://www.youtube.com/watch?v=BMRlY9dFVLg
 	func (sp *PlayerController) AutoShoot2() {
 		for i := 0; i < 3; i++ {
 			for i:=0;i<3*60;i++ {
-				CoYieldSkip() //Frame skip
+				cr.Skip() //Frame skip
 			}
 			sp.Shoot()
 		}
@@ -94,12 +94,12 @@ http://www.youtube.com/watch?v=BMRlY9dFVLg
 
 	func (sp *PlayerController) AutoShoot3() {
 		for i := 0; i < 3; i++ {
-			Signal := NewSignal()
+			done := make(chan bool)
 			go func() {
 				<-time.After(time.Second * 3)
-				Signal.SendEnd()
+				done <- true
 			}() 
-			Yield(Signal)
+			cr.YieldUntil(done)
 			sp.Shoot()
 		}
 	} 
