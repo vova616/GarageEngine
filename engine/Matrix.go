@@ -231,6 +231,63 @@ func (mA *Matrix) Rotate(a, x, y, z float32) {
 	mA.Mul(m2)
 }
 
+func (mA *Matrix) RotateXYZ(x, y, z float32) {
+
+	angle := x * PI_180
+
+	acos := float32(math.Cos(float64(angle)))
+	asin := -float32(math.Sin(float64(angle)))
+
+	b, c := mA[1], mA[2]
+	mA[1] = b*acos + c*-asin
+	mA[2] = b*asin + c*-acos
+	b, c = mA[5], mA[6]
+	mA[5] = b*acos + c*-asin
+	mA[6] = b*asin + c*-acos
+	b, c = mA[9], mA[10]
+	mA[9] = b*acos + c*-asin
+	mA[10] = b*asin + c*-acos
+	b, c = mA[13], mA[14]
+	mA[13] = b*acos + c*-asin
+	mA[14] = b*asin + c*-acos
+
+	angle = y * PI_180
+
+	acos = float32(math.Cos(float64(angle)))
+	asin = float32(math.Sin(float64(angle)))
+
+	a, c := mA[0], mA[2]
+	mA[0] = a*acos + c*-asin
+	mA[2] = a*asin + c*acos
+	a, c = mA[4], mA[6]
+	mA[4] = a*acos + c*-asin
+	mA[6] = a*asin + c*acos
+	a, c = mA[8], mA[10]
+	mA[8] = a*acos + c*-asin
+	mA[10] = a*asin + c*acos
+	a, c = mA[12], mA[14]
+	mA[12] = a*acos + c*-asin
+	mA[14] = a*asin + c*acos
+
+	angle = z * PI_180
+
+	acos = float32(math.Cos(float64(angle)))
+	asin = float32(math.Sin(float64(angle)))
+
+	a, b = mA[0], mA[1]
+	mA[0] = a*acos + b*-asin
+	mA[1] = a*asin + b*acos
+	a, b = mA[4], mA[5]
+	mA[4] = a*acos + b*-asin
+	mA[5] = a*asin + b*acos
+	a, b = mA[8], mA[9]
+	mA[8] = a*acos + b*-asin
+	mA[9] = a*asin + b*acos
+	a, b = mA[12], mA[13]
+	mA[12] = a*acos + b*-asin
+	mA[13] = a*asin + b*acos
+}
+
 func (mA *Matrix) RotateX(a, x float32) {
 	angle := a * PI_180
 

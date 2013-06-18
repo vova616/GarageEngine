@@ -116,6 +116,32 @@ func BenchmarkMatrix_Translate(b *testing.B) {
 	}
 }
 
+func BenchmarkMatrix_RotateXYZ(b *testing.B) {
+	b.StopTimer()
+	m := Identity()
+	m.Translate(10, 20, 30)
+	m.Rotate(10, 1, 1, 1)
+	m.Scale(2, 3, 4)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		m.RotateXYZ(10, 20, 30)
+	}
+}
+
+func BenchmarkMatrix_RotateXYZ2(b *testing.B) {
+	b.StopTimer()
+	m := Identity()
+	m.Translate(10, 20, 30)
+	m.Rotate(10, 1, 1, 1)
+	m.Scale(2, 3, 4)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		m.RotateX(10, 1)
+		m.RotateY(20, 1)
+		m.RotateZ(30, -1)
+	}
+}
+
 func BenchmarkMatrix_RotateX(b *testing.B) {
 	b.StopTimer()
 	m := Identity()

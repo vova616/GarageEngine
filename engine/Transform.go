@@ -335,9 +335,7 @@ func (t *Transform) updateMatrix() bool {
 	mat := &trans.matrix
 
 	mat.Scale(s.X, s.Y, s.Z)
-	mat.RotateX(r.X, 1)
-	mat.RotateY(r.Y, 1)
-	mat.RotateZ(r.Z, -1)
+	mat.RotateXYZ(r.X, r.Y, r.Z)
 	mat.Translate(p.X, p.Y, p.Z)
 
 	if trans.parent != nil {

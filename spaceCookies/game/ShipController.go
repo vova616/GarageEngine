@@ -143,7 +143,7 @@ func (sp *ShipController) Shoot() {
 			m := engine.Identity()
 			//m.Scale(scale.X, scale.Y, scale.Z)
 			m.Translate(pos.X, pos.Y, pos.Z)
-			m.Rotate(a.Z, 0, 0, -1)
+			m.RotateZ(a.Z, -1)
 			m.Translate(p.X, p.Y, p.Z)
 			p = m.Translation()
 

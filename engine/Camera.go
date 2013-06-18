@@ -205,9 +205,7 @@ func (c *Camera) ScreenToWorld(x, y float32) Vector {
 		m.Translate(float32(x)*c.size, float32(y)*c.size, 0)
 		pos := c.Transform().WorldPosition()
 		r := c.Transform().WorldRotation()
-		m.Rotate(r.X, 1, 0, 0)
-		m.Rotate(r.Y, 0, 1, 0)
-		m.Rotate(r.Z, 0, 0, -1)
+		m.RotateXYZ(r.X, r.Y, r.Z)
 		m.Translate(pos.X, pos.Y, pos.Z)
 	}
 	return m.Translation()
