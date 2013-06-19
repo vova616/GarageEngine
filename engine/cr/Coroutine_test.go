@@ -77,3 +77,63 @@ func Test_Coroutine(t *testing.T) {
 		t.Fatalf("n is %d need 100", n)
 	}
 }
+
+func Test_Coroutine_Yield(t *testing.T) {
+	n := 0
+
+	wait := func() {
+		for i := 0; i < 100; i++ {
+			n++
+			Skip()
+		}
+	}
+
+	test := func() {
+		YieldCoroutine(Start(wait))
+		n++
+	}
+
+	Start(test)
+
+	for i := 0; i < 102; i++ {
+		Run()
+	}
+
+	if len(coroutines) > 0 {
+		t.Fatalf("coroutines len is %d need 0", len(coroutines))
+	}
+
+	if n != 101 {
+		t.Fatalf("n is %d need 101", n)
+	}
+}
+
+func Test_Coroutine_Channel(t *testing.T) {
+	n := 0
+
+	done := make(chan bool)
+	wait := func() {
+		n++
+		done <- true
+	}
+
+	test := func() {
+		YieldUntil(done)
+		n++
+	}
+
+	go wait()
+	Start(test)
+
+	for i := 0; i < 1; i++ {
+		Run()
+	}
+
+	if len(coroutines) > 0 {
+		t.Fatalf("coroutines len is %d need 0", len(coroutines))
+	}
+
+	if n != 2 {
+		t.Fatalf("n is %d need 2", n)
+	}
+}
