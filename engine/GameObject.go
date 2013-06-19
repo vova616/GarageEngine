@@ -28,10 +28,10 @@ func init() {
 func NewGameObject(name string) *GameObject {
 	g := new(GameObject)
 	g.name = name
-	g.transform = NewTransform(g)
 	g.components = make([]Component, 0)
 	g.valid = true
 	g.active = true
+	g.AddComponent(NewTransform())
 	return g
 }
 
@@ -101,8 +101,7 @@ func (g *GameObject) SetActive(active bool) {
 
 func (g *GameObject) SetActiveRecursive(active bool) {
 	g.SetActive(active)
-	childen := g.Transform().Children()
-	for _, c := range childen {
+	for _, c := range g.transform.children {
 		c.GameObject().SetActiveRecursive(active)
 	}
 }
@@ -110,8 +109,7 @@ func (g *GameObject) SetActiveRecursive(active bool) {
 //Used to call OnEnable & OnDisable on object which leave the scene
 func (g *GameObject) setActiveRecursiveSilent(active bool) {
 	g.setActiveSilent(active)
-	childen := g.Transform().Children()
-	for _, c := range childen {
+	for _, c := range g.transform.children {
 		c.GameObject().setActiveRecursiveSilent(active)
 	}
 }
@@ -192,7 +190,7 @@ func (g *GameObject) destroy() {
 	}
 
 	g.name = ""
-	//g.transform = nil
+	g.transform = nil
 	g.components = nil
 	g.valid = false
 	g.active = false
@@ -204,7 +202,6 @@ func (g *GameObject) Clone() *GameObject {
 	ng := new(GameObject)
 	ng.valid = true
 	ng.active = true
-	ng.transform = g.transform.clone(ng)
 	ng.name = g.name + ""
 	ng.Tag = g.Tag
 	ng.components = make([]Component, 0)

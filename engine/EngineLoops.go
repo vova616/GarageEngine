@@ -13,23 +13,27 @@ func iter(objs []*GameObject, f func(*GameObject)) {
 			if obj != objs[i] {
 				i++
 			} else {
-				iter2(obj.Transform().children, f)
+				iter2(&obj.Transform().children, f)
 			}
 		}
 	}
 }
 
-func iter2(objs []*Transform, f func(*GameObject)) {
+func iter2(objsp *[]*Transform, f func(*GameObject)) {
+	objs := *objsp
 	for i := len(objs) - 1; i >= 0; i-- {
 		if objs[i] != nil {
 			obja := objs[i]
 			obj := obja.GameObject()
 			f(obj)
 			//Checks if the objs array has been changed
+			if i >= len(*objsp) {
+				break
+			}
 			if obja != objs[i] {
 				i++
 			} else {
-				iter2(obj.Transform().children, f)
+				iter2(&obj.transform.children, f)
 			}
 		}
 	}
@@ -210,7 +214,6 @@ func startGameObject(gameObject *GameObject) {
 func destoyGameObject(gameObject *GameObject) {
 	if gameObject.destoryMark {
 		gameObject.destroy()
-		mainScene.SceneBase().RemoveGameObject(gameObject)
 	}
 }
 

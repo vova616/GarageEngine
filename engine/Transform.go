@@ -5,11 +5,11 @@ import (
 )
 
 type Transform struct {
-	gameObject *GameObject
-	parent     *Transform
-	position   Vector
-	rotation   Vector
-	scale      Vector
+	BaseComponent
+	parent   *Transform
+	position Vector
+	rotation Vector
+	scale    Vector
 
 	children []*Transform
 
@@ -28,8 +28,12 @@ type Transform struct {
 	updatedInverted bool
 }
 
-func NewTransform(g *GameObject) *Transform {
-	return &Transform{g, nil, Zero, Zero, One, make([]*Transform, 0), Zero, Zero, One, Identity(), Identity(), false, false, 0, false, Identity(), false}
+func NewTransform() *Transform {
+	return &Transform{BaseComponent: NewComponent(), scale: One, matrix: Identity()}
+}
+
+func (t *Transform) OnComponentAdd() {
+	t.gameObject.transform = t
 }
 
 func (t *Transform) SetDepth(depth int) {
@@ -210,10 +214,6 @@ func (t *Transform) Parent() *Transform {
 	return t.parent
 }
 
-func (t *Transform) GameObject() *GameObject {
-	return t.gameObject.GameObject()
-}
-
 func (t *Transform) Child(index int) *Transform {
 	if index < len(t.children) {
 		return t.children[index]
@@ -266,7 +266,7 @@ func (t *Transform) SetParent(parent *Transform) {
 	t.checkDepth()
 
 	//check if object was outside of scene
-	wasOutsideScene := !t.InScene()
+	wasOutsideScene := !t.InScene() && parent == nil
 
 	//Keep the position after changing parents
 	//
@@ -372,14 +372,18 @@ func (t *Transform) InvertedMatrix() Matrix {
 	return t.inverted
 }
 
-func (t *Transform) clone(parent *GameObject) *Transform {
-	tn := NewTransform(parent)
-	tn.position = t.position
-	tn.rotation = t.rotation
-	tn.scale = t.scale
-	for _, c := range t.children {
-		c.gameObject.Clone().transform.SetParent(tn)
+func (t *Transform) Clone() {
+	chld := t.children
+	t.parent = nil
+	t.childOfScene = false
+	t.inDepthList = false
+	t.children = make([]*Transform, len(t.children))
+	t.updatedInverted = false
+	t.updatedMatrix = false
+	for _, c := range chld {
+		g := c.GameObject()
+		if g != nil {
+			g.Clone().transform.SetParent(t)
+		}
 	}
-	tn.depth = t.depth
-	return tn
 }
