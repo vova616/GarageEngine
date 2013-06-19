@@ -13,14 +13,10 @@ var (
 type Command byte
 
 const (
-	Continue = Command(1)
-	Close    = Command(2)
-
-	Running = Command(4)
-	Ended   = Command(8)
-
-	Yield   = Command(16)
-	Restart = Command(32)
+	Continue = Command(iota)
+	Close    = Command(iota)
+	Yield    = Command(iota)
+	Restart  = Command(iota)
 )
 
 type RoutineFunc func() Command
