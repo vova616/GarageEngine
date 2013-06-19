@@ -42,7 +42,6 @@ func main() {
 	defer file.Close()
 
 	Start()
-	engine.Terminated()
 
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)
@@ -61,7 +60,7 @@ func Start() {
 			fmt.Println(p, engine.PanicPath())
 		}
 
-		go engine.Terminate()
+		engine.Terminate()
 	}()
 	engine.StartEngine()
 	_ = game.GameSceneGeneral

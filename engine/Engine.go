@@ -64,11 +64,6 @@ var (
 	terminated chan bool
 )
 
-func init() {
-	terminated = make(chan bool)
-
-}
-
 func LoadScene(scene Scene) {
 	if insideGameloop {
 		nextScene = scene
@@ -117,17 +112,8 @@ func AddScene(scene Scene) {
 	scenes = append(scenes, scene)
 }
 
-func ShutdownRecived() {
-	terminated <- true
-}
-
-func Terminated() {
-	<-terminated
-}
-
 func Terminate() {
 	glfw.Terminate()
-	ShutdownRecived()
 }
 
 func DeltaTime() float64 {
