@@ -9,13 +9,9 @@ import (
 type Command byte
 
 const (
-	Continue = Command(1)
-	Close    = Command(2)
-
-	Running = Command(4)
-	Ended   = Command(8)
-
-	Yield = Command(16)
+	Continue = Command(iota)
+	Close    = Command(iota)
+	Idle     = Command(iota)
 )
 
 var (
@@ -33,18 +29,19 @@ type Coroutine struct {
 }
 
 func (gr *Coroutine) WaitForCommand() {
+	gr.State = Idle
 	act := <-gr.in
+	gr.State = act
 	switch act {
 	case Continue:
 		break
 	case Close:
-		gr.State = Ended
 		coroutines[len(coroutines)-1], coroutines[index], coroutines = nil, coroutines[len(coroutines)-1], coroutines[:len(coroutines)-1]
 	}
 }
 
 func Start(fnc func()) *Coroutine {
-	gr := &Coroutine{make(chan Command, 1), Running, nil}
+	gr := &Coroutine{make(chan Command, 1), Idle, nil}
 	coroutines = append(coroutines, gr)
 	go start(fnc, gr)
 	return gr
@@ -68,7 +65,7 @@ func start(fnc func(), gr *Coroutine) {
 }
 
 func (gr *Coroutine) endFunc() {
-	gr.State = Ended
+	gr.State = Close
 	coroutines[len(coroutines)-1], coroutines[index], coroutines = nil, coroutines[len(coroutines)-1], coroutines[:len(coroutines)-1]
 	runNext()
 }
@@ -96,7 +93,7 @@ func YieldCoroutine(gr *Coroutine) {
 	if !runningCoroutines {
 		return
 	}
-	for gr.State != Ended {
+	for gr.State != Close {
 		Skip()
 	}
 }
