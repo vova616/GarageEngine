@@ -276,7 +276,7 @@ func (sp *ShipController) Update() {
 			}
 		}
 		if !sp.JetFireParent.IsActive() {
-			sp.JetFireParent.SetActiveRecursive(true)
+			sp.JetFireParent.SetActive(true)
 			for _, resize := range sp.JetFirePool {
 				resize.State = 0
 				if back {
@@ -287,6 +287,6 @@ func (sp *ShipController) Update() {
 			}
 		}
 	} else {
-		sp.JetFireParent.SetActiveRecursive(false)
+		sp.JetFireParent.SetActive(false)
 	}
 }

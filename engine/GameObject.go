@@ -8,13 +8,16 @@ import (
 )
 
 type GameObject struct {
-	name         string
-	transform    *Transform
-	components   []Component
-	valid        bool
-	active       bool
-	silentActive bool
-	destoryMark  bool
+	name       string
+	transform  *Transform
+	components []Component
+	valid      bool
+
+	active          bool
+	selfActive      bool
+	componentActive bool
+
+	destoryMark bool
 
 	Tag     string
 	Physics *Physics
@@ -31,6 +34,8 @@ func NewGameObject(name string) *GameObject {
 	g.components = make([]Component, 0)
 	g.valid = true
 	g.active = true
+	g.selfActive = true
+	g.componentActive = true
 	g.AddComponent(NewTransform())
 	return g
 }
@@ -86,52 +91,85 @@ func (g *GameObject) IsValid() bool {
 }
 
 func (g *GameObject) SetActive(active bool) {
-	g.active = active
-	g.silentActive = active
-	if active {
-		for _, c := range g.components {
-			c.OnEnable()
-		}
-	} else {
-		for _, c := range g.components {
-			c.OnDisable()
-		}
-	}
-}
-
-func (g *GameObject) SetActiveRecursive(active bool) {
-	g.SetActive(active)
-	for _, c := range g.transform.children {
-		c.GameObject().SetActiveRecursive(active)
-	}
-}
-
-//Used to call OnEnable & OnDisable on object which leave the scene
-func (g *GameObject) setActiveRecursiveSilent(active bool) {
-	g.setActiveSilent(active)
-	for _, c := range g.transform.children {
-		c.GameObject().setActiveRecursiveSilent(active)
-	}
-}
-
-//Used to call OnEnable & OnDisable on object which leave the scene
-func (g *GameObject) setActiveSilent(active bool) {
-	if !g.active || g.silentActive == active {
+	if active == g.active {
 		return
 	}
-	g.silentActive = active
+
 	if active {
-		for _, c := range g.components {
-			if c != nil {
-				c.OnEnable()
-			}
+		if g.transform.parent == nil || (g.transform.parent != nil && g.transform.parent.gameObject.active) {
+			g.active = true
 		}
 	} else {
-		for _, c := range g.components {
-			if c != nil {
+		g.active = false
+	}
+
+	if g.selfActive != g.active {
+		g.selfActive = g.active
+		g.componentActive = g.active
+		if g.componentActive {
+			for _, c := range g.components {
+				c.OnEnable()
+			}
+		} else {
+			for _, c := range g.components {
 				c.OnDisable()
 			}
 		}
+	}
+
+	for _, t := range g.transform.children {
+		t.gameObject.setChildrenActive(active)
+	}
+}
+
+func (g *GameObject) setChildrenActive(active bool) {
+	if active == g.active {
+		return
+	}
+
+	if active && g.selfActive {
+		g.active = true
+	} else {
+		g.active = false
+	}
+
+	if g.componentActive != g.active {
+		g.componentActive = g.active
+		if g.componentActive {
+			for _, c := range g.components {
+				c.OnEnable()
+			}
+		} else {
+			for _, c := range g.components {
+				c.OnDisable()
+			}
+		}
+	}
+
+	for _, t := range g.transform.children {
+		t.gameObject.setChildrenActive(active)
+	}
+}
+
+func (g *GameObject) silentActive(active bool) {
+	if !g.IsValid() {
+		return
+	}
+	if g.selfActive != active {
+		g.selfActive = active
+		if active {
+			for _, c := range g.components {
+				c.OnEnable()
+			}
+		} else {
+			for _, c := range g.components {
+				c.OnDisable()
+			}
+		}
+	}
+
+	for _, t := range g.transform.children {
+		t.gameObject.silentActive(active)
 	}
 }
 
@@ -140,7 +178,7 @@ func (g *GameObject) RemoveFromScene() {
 	if g.transform.InScene() {
 		g.transform.SetParent(nil)
 		GetScene().SceneBase().removeGameObject(g)
-		g.setActiveRecursiveSilent(false)
+		g.silentActive(false)
 		g.transform.removeFromDepthMapRecursive()
 	}
 }
@@ -155,6 +193,10 @@ func (g *GameObject) IsActive() bool {
 	return g.active
 }
 
+func (g *GameObject) IsSelfActive() bool {
+	return g.selfActive
+}
+
 func (g *GameObject) Destroy() {
 	g.destoryMark = true
 	g.active = false
@@ -164,6 +206,14 @@ func (g *GameObject) Destroy() {
 }
 
 func (g *GameObject) destroy() {
+	//Remove this gameobject from his parent children.
+	//RemoveFromScene is doing it internally.
+	if g.transform.childOfScene {
+		g.RemoveFromScene()
+	} else if g.transform.parent != nil {
+		g.transform.removeFromParent()
+	}
+
 	l := len(g.components)
 	for i := l - 1; i >= 0; i-- {
 		g.components[i].OnDestroy()
@@ -174,14 +224,6 @@ func (g *GameObject) destroy() {
 	l = len(chs)
 	for i := l - 1; i >= 0; i-- {
 		chs[i].GameObject().destroy()
-	}
-
-	//Remove this gameobject from his parent children.
-	//RemoveFromScene is doing it internally.
-	if g.transform.childOfScene {
-		g.RemoveFromScene()
-	} else if g.transform.parent != nil {
-		g.transform.removeFromParent()
 	}
 
 	g.name = ""

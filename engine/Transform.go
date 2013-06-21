@@ -298,7 +298,9 @@ func (t *Transform) SetParent(newParent *Transform) {
 	//If object was outside of scene active it silencly and check if depth needs to be updated
 	if wasOutsideScene {
 		GetScene().SceneBase().addGameObject(t.gameObject)
-		t.gameObject.setActiveRecursiveSilent(true)
+		if t.gameObject.active {
+			t.gameObject.silentActive(true)
+		}
 		t.checkDepthRecursive()
 	}
 }
