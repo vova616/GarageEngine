@@ -54,7 +54,6 @@ func (s *SceneData) removeGameObject(g *GameObject) {
 	if g == nil {
 		return
 	}
-	g.transform.removeFromParent()
 	for i, c := range s.gameObjects {
 		if g == c {
 			s.gameObjects[i].transform.childOfScene = false
@@ -83,6 +82,7 @@ func (s *SceneData) RemoveGameObject(g *GameObject) {
 	if s == GetScene().SceneBase() {
 		g.RemoveFromScene()
 	} else {
+		g.transform.removeFromParent()
 		s.removeGameObject(g)
 	}
 }
