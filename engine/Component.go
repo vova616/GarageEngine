@@ -26,7 +26,11 @@ func (c *BaseComponent) GameObject() *GameObject {
 }
 
 func (c *BaseComponent) Transform() *Transform {
-	return c.gameObject.Transform()
+	g := c.GameObject()
+	if g != nil {
+		return g.Transform()
+	}
+	return nil
 }
 
 /*
