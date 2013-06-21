@@ -41,7 +41,7 @@ func (t *Transform) SetDepth(depth int) {
 	t.depth = depth
 	//If object is in scene add to depth map
 	if t.InScene() {
-		t.checkDepth()
+		t.updateDepth()
 	}
 }
 
@@ -52,7 +52,7 @@ func (t *Transform) SetDepthRecursive(depth int) {
 	}
 }
 
-func (t *Transform) checkDepth() {
+func (t *Transform) updateDepth() {
 	if !t.inDepthList {
 		depthMap.Add(int(t.depth), t.gameObject)
 		t.inDepthList = true
@@ -60,7 +60,7 @@ func (t *Transform) checkDepth() {
 }
 
 func (t *Transform) checkDepthRecursive() {
-	t.checkDepth()
+	t.updateDepth()
 	for _, c := range t.children {
 		c.checkDepthRecursive()
 	}
@@ -84,7 +84,7 @@ func (t *Transform) removeFromDepthMapRecursive() {
 Checking if object is somewhere in scene.
 */
 func (t *Transform) InScene() bool {
-	return t.childOfScene || (t.parent != nil && t.parent.InScene())
+	return t.childOfScene
 }
 
 func (t *Transform) Depth() int {
@@ -236,9 +236,22 @@ func (t *Transform) Translatef(x, y float32) {
 	t.Translate(NewVector3(x, y, 0))
 }
 
-func (t *Transform) SetParent(parent *Transform) {
-	if t.parent == parent {
-		if parent == nil {
+func (t *Transform) removeFromParent() {
+	parent := t.parent
+	if parent != nil {
+		for i, c := range parent.children {
+			if t == c {
+				parent.children[len(parent.children)-1], parent.children[i], parent.children = nil, parent.children[len(parent.children)-1], parent.children[:len(parent.children)-1]
+				break
+			}
+		}
+	}
+}
+
+func (t *Transform) SetParent(newParent *Transform) {
+	//if current parent is the requested parent, do nothing.
+	if t.parent == newParent {
+		if newParent == nil {
 			if t.childOfScene {
 				return
 			}
@@ -247,34 +260,21 @@ func (t *Transform) SetParent(parent *Transform) {
 		}
 	}
 
-	//Remove from scene if needed
-	if t.childOfScene && parent != nil {
-		GetScene().SceneBase().removeGameObject(t.gameObject)
-	}
+	//Remove this transform from his parent
+	t.removeFromParent()
 
-	//if parent is not nil, remove this transform from parent
-	if t.parent != nil {
-		for i, c := range t.parent.children {
-			if t == c {
-				t.parent.children = append(t.parent.children[:i], t.parent.children[i+1:]...)
-				break
-			}
-		}
-	}
+	//Update depth
+	t.updateDepth()
 
-	//if depth is not updated, update it
-	t.checkDepth()
-
-	//check if object was outside of scene
-	wasOutsideScene := !t.InScene() && parent == nil
+	//check if object was outside of scene and now it is
+	wasOutsideScene := !t.InScene() && (newParent == nil || newParent.InScene())
 
 	//Keep the position after changing parents
-	//
 	if wasOutsideScene {
 		scale := t.Scale()
 		position := t.Position()
 		rotation := t.Rotation()
-		t.parent = parent
+		t.parent = newParent
 		t.updatedMatrix = false
 		t.SetPosition(position)
 		t.SetRotation(rotation)
@@ -283,22 +283,21 @@ func (t *Transform) SetParent(parent *Transform) {
 		scale := t.WorldScale()
 		position := t.WorldPosition()
 		rotation := t.WorldRotation()
-		t.parent = parent
+		t.parent = newParent
 		t.updatedMatrix = false
 		t.SetWorldPosition(position)
 		t.SetWorldRotation(rotation)
 		t.SetWorldScale(scale)
 	}
 
-	//If parent is nil add to scene else add to transform children
-	if parent != nil {
-		parent.children = append(parent.children, t)
-	} else {
-		GetScene().SceneBase().addGameObject(t.gameObject)
+	//Add this transform to newParent
+	if newParent != nil {
+		newParent.children = append(newParent.children, t)
 	}
 
 	//If object was outside of scene active it silencly and check if depth needs to be updated
 	if wasOutsideScene {
+		GetScene().SceneBase().addGameObject(t.gameObject)
 		t.gameObject.setActiveRecursiveSilent(true)
 		t.checkDepthRecursive()
 	}

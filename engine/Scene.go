@@ -32,10 +32,12 @@ func (s *SceneData) SceneBase() *SceneData {
 
 func (s *SceneData) addGameObject(gameObject ...*GameObject) {
 	for _, obj := range gameObject {
+		s.gameObjects = append(s.gameObjects, obj)
 		obj.transform.childOfScene = true
-		obj.transform.parent = nil
+		for _, t := range obj.transform.children {
+			s.addGameObject(t.gameObject)
+		}
 	}
-	s.gameObjects = append(s.gameObjects, gameObject...)
 }
 
 func (s *SceneData) AddGameObject(gameObject ...*GameObject) {
@@ -52,12 +54,24 @@ func (s *SceneData) removeGameObject(g *GameObject) {
 	if g == nil {
 		return
 	}
+	g.transform.removeFromParent()
 	for i, c := range s.gameObjects {
 		if g == c {
 			s.gameObjects[i].transform.childOfScene = false
+			for _, t := range g.transform.children {
+				s.removeGameObject(t.gameObject)
+			}
 			s.gameObjects[i] = nil
-			s.gameObjects = s.gameObjects[:i+copy(s.gameObjects[i:], s.gameObjects[i+1:])]
 			break
+		}
+	}
+}
+
+func (s *SceneData) cleanNil() {
+	for i := 0; i < len(s.gameObjects); i++ {
+		if s.gameObjects[i] == nil {
+			s.gameObjects[i], s.gameObjects = s.gameObjects[len(s.gameObjects)-1], s.gameObjects[:len(s.gameObjects)-1]
+			i--
 		}
 	}
 }

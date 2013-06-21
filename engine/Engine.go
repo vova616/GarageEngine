@@ -80,7 +80,7 @@ func LoadScene(scene Scene) {
 				g.Destroy()
 			}
 		}
-		iter(mainScene.SceneBase().gameObjects, destoyGameObject)
+		iter(&mainScene.SceneBase().gameObjects, destoyGameObject)
 		mainScene.SceneBase().gameObjects = nil
 		Space.Destory()
 		runtime.GC()
@@ -253,11 +253,14 @@ func Run() {
 		fixedTime += d
 		sd := mainScene.SceneBase()
 
-		arr := sd.gameObjects
+		arr := &sd.gameObjects
 
 		timer.StartCustom("Destory routines")
 		iter(arr, destoyGameObject)
 		destroyDelta = timer.StopCustom("Destory routines")
+
+		//Better to not do it every frame.
+		mainScene.SceneBase().cleanNil()
 
 		timer.StartCustom("Start routines")
 		iter(arr, startGameObject)

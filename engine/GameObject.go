@@ -176,17 +176,12 @@ func (g *GameObject) destroy() {
 		chs[i].GameObject().destroy()
 	}
 
+	//Remove this gameobject from his parent children.
+	//RemoveFromScene is doing it internally.
 	if g.transform.childOfScene {
 		g.RemoveFromScene()
 	} else if g.transform.parent != nil {
-		t := g.transform
-		for i, c := range t.parent.children {
-			if t == c {
-				t.parent.children = append(t.parent.children[:i], t.parent.children[i+1:]...)
-				break
-			}
-		}
-		g.transform.parent = nil
+		g.transform.removeFromParent()
 	}
 
 	g.name = ""
