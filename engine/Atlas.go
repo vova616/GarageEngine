@@ -598,6 +598,7 @@ func FindOptimalSize(tries int, rects ...image.Rectangle) (w, h int, err error) 
 			} else {
 				ww *= 2
 			}
+			sw = !sw
 			continue
 		}
 		return int(ww), int(hh), nil
