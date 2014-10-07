@@ -126,7 +126,7 @@ func (this *AudioSource) updateBuffers() {
 
 func (this *AudioSource) Update() {
 	if currentDistanceModel != this.distanceModel {
-		openal.SetDistanceModel(openal.DistanceModel(this.distanceModel))
+		openal.SetDistanceModel(openal.GetDistanceModel())
 	}
 	this.UpdateTransform()
 	this.updateBuffers()
