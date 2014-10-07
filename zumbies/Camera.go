@@ -1,9 +1,9 @@
 package zumbies
 
 import (
-	"github.com/vova616/GarageEngine/engine"
+	"github.com/LaPingvino/GarageEngine/engine"
 	//"log"
-	"github.com/vova616/GarageEngine/engine/input"
+	"github.com/LaPingvino/GarageEngine/engine/input"
 )
 
 type CameraController struct {

@@ -1,7 +1,7 @@
 package tween
 
 import (
-	"github.com/vova616/GarageEngine/engine"
+	"github.com/LaPingvino/GarageEngine/engine"
 
 //"math"
 //"time"

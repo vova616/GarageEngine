@@ -1,7 +1,7 @@
 package networkOnline
 
 import (
-	"github.com/vova616/GarageEngine/engine"
+	"github.com/LaPingvino/GarageEngine/engine"
 	//"log"
 )
 

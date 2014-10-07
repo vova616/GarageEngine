@@ -2,8 +2,8 @@ package game
 
 import (
 	//"fmt"
-	"github.com/vova616/GarageEngine/engine"
-	"github.com/vova616/GarageEngine/engine/bt"
+	"github.com/LaPingvino/GarageEngine/engine"
+	"github.com/LaPingvino/GarageEngine/engine/bt"
 	"math/rand"
 )
 

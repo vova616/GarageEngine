@@ -3,9 +3,9 @@ package engine
 import (
 	"github.com/go-gl/gl"
 	//"log"
-	"github.com/vova616/GarageEngine/engine/bt"
-	"github.com/vova616/GarageEngine/engine/cr"
-	"github.com/vova616/GarageEngine/engine/input"
+	"github.com/LaPingvino/GarageEngine/engine/bt"
+	"github.com/LaPingvino/GarageEngine/engine/cr"
+	"github.com/LaPingvino/GarageEngine/engine/input"
 	//"os"
 	"fmt"
 	"github.com/go-gl/glfw"

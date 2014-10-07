@@ -3,7 +3,7 @@ package wav
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/vova616/GarageEngine/engine/audio"
+	"github.com/LaPingvino/GarageEngine/engine/audio"
 	"io"
 	"os"
 )

@@ -1,7 +1,7 @@
 package audio
 
 import (
-	"github.com/vova616/GarageEngine/engine"
+	"github.com/LaPingvino/GarageEngine/engine"
 	"github.com/vova616/go-openal/openal"
 )
 
