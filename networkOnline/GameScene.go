@@ -2,9 +2,9 @@ package networkOnline
 
 import (
 	"fmt"
-	"github.com/vova616/GarageEngine/engine"
-	"github.com/vova616/GarageEngine/engine/bt"
-	"github.com/vova616/GarageEngine/engine/components"
+	"github.com/LaPingvino/GarageEngine/engine"
+	"github.com/LaPingvino/GarageEngine/engine/bt"
+	"github.com/LaPingvino/GarageEngine/engine/components"
 	_ "image/jpeg"
 	_ "image/png"
 	//"gl"

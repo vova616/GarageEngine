@@ -1,7 +1,7 @@
 package audio
 
 import (
-	"github.com/vova616/GarageEngine/engine"
+	"github.com/LaPingvino/GarageEngine/engine"
 	"github.com/vova616/go-openal/openal"
 )
 
@@ -126,7 +126,7 @@ func (this *AudioSource) updateBuffers() {
 
 func (this *AudioSource) Update() {
 	if currentDistanceModel != this.distanceModel {
-		openal.SetDistanceModel(openal.DistanceModel(this.distanceModel))
+		openal.SetDistanceModel(openal.GetDistanceModel())
 	}
 	this.UpdateTransform()
 	this.updateBuffers()

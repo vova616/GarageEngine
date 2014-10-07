@@ -2,8 +2,8 @@ package components
 
 import (
 	//"gl"
-	"github.com/vova616/GarageEngine/engine"
-	"github.com/vova616/GarageEngine/engine/input"
+	"github.com/LaPingvino/GarageEngine/engine"
+	"github.com/LaPingvino/GarageEngine/engine/input"
 )
 
 type UIButton struct {

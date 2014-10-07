@@ -1,14 +1,14 @@
 package game
 
 import (
-	"github.com/vova616/GarageEngine/engine"
+	"github.com/LaPingvino/GarageEngine/engine"
 	//"Engine/components"
 	//"github.com/go-gl/glfw"
-	"github.com/vova616/GarageEngine/engine/input"
+	"github.com/LaPingvino/GarageEngine/engine/input"
 	//"log"
 	//"fmt"
 	//
-	"github.com/vova616/GarageEngine/engine/audio"
+	"github.com/LaPingvino/GarageEngine/engine/audio"
 	"math"
 	"math/rand"
 	"time"
