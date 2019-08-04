@@ -46,7 +46,7 @@ github.com/vova616/chipmunk<br/>
 "github.com/vova616/freetype-go/freetype"
 
 ## Coroutines(they might be deprecated):
-The useage is same as unity coroutines.<br/>
+The usage is same as unity coroutines.<br/>
 Use Behaviour Trees, its better and faster.
 
 ## Behaviour Trees:
